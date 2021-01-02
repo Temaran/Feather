@@ -113,6 +113,7 @@ class UFeatherClassSelectorComboBox : UFeatherWidget
         }
 
         // Attempt to preserve selection...
+        ActualClassComboBox.SetSelectedIndex(0);
         ActualClassComboBox.SetSelectedOption(PreviouslySelectedItem);
     }
 

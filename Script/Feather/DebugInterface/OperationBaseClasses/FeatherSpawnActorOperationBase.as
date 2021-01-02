@@ -37,7 +37,7 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	UFUNCTION(BlueprintOverride)
 	void Execute(FString Context = "")
 	{
-		SpawnClass();
+		SpawnClass(false);
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -107,16 +107,32 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 		UButton ActualSpawnButton = SpawnButton.GetButtonWidget();
 		ActualSpawnButton.SetContent(SpawnButtonText);
 		ActualSpawnButton.SetToolTipText(ButtonToolTipText);
-		ActualSpawnButton.OnClicked.AddUFunction(this, n"SpawnClass");
+		ActualSpawnButton.OnClicked.AddUFunction(this, n"SpawnButtonClicked");
 	}
 
 	UFUNCTION()
-	void SpawnClass()
+	void SpawnButtonClicked()
+	{
+		// Since we're clicking in the interface, it doesn't make sense to use the cursor pos.
+		SpawnClass(true);
+	}
+
+	void SpawnClass(bool bForceLookAt)
 	{
 		FHitResult PlayerFocus;
-		if(FeatherUtils::GetPlayerFocus(PlayerFocus))
-		{			
-			SpawnActor(ClassSelectorComboBox.GetSelectedClass(), PlayerFocus.Location);
+		if(bForceLookAt)
+		{
+			if(FeatherUtils::GetPlayerLookAt(PlayerFocus))
+			{			
+				SpawnActor(ClassSelectorComboBox.GetSelectedClass(), PlayerFocus.Location);
+			}
+		}
+		else
+		{
+			if(FeatherUtils::GetPlayerFocus(PlayerFocus))
+			{			
+				SpawnActor(ClassSelectorComboBox.GetSelectedClass(), PlayerFocus.Location);
+			}
 		}
 	}
 };

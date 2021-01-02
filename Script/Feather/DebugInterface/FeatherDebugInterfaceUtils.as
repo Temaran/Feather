@@ -34,19 +34,14 @@ namespace FeatherUtils
 		APlayerController FirstPlayer = Gameplay::GetPlayerController(0);
 		if(System::IsValid(FirstPlayer) && System::IsValid(FirstPlayer.PlayerCameraManager))
 		{
-			const FVector2D ViewportSize = WidgetLayout::GetViewportWidgetGeometry().GetLocalSize();
-			const FVector2D ViewportCenter = ViewportSize / 2.0f;
-
-			FVector UnprojectedPosition;
-			FVector UnprojectedDirection;
-			if(FirstPlayer.DeprojectScreenPositionToWorld(ViewportCenter.X, ViewportCenter.Y, UnprojectedPosition, UnprojectedDirection))
-			{
-				FVector End = UnprojectedPosition + UnprojectedDirection * 100000.0f;
-				TArray<AActor> IgnoredActors;
-				IgnoredActors.Add(FirstPlayer);
-				IgnoredActors.Add(FirstPlayer.GetControlledPawn());
-				return System::LineTraceSingle(UnprojectedPosition, End, ETraceTypeQuery::Visibility, true, IgnoredActors, EDrawDebugTrace::None, OutLookAt, true);
-			}
+			FVector CameraLocation = FirstPlayer.PlayerCameraManager.GetCameraLocation();
+			FVector CameraDirection = FirstPlayer.PlayerCameraManager.GetCameraRotation().ForwardVector;
+			
+			FVector End = CameraLocation + CameraDirection * 100000.0f;
+			TArray<AActor> IgnoredActors;
+			IgnoredActors.Add(FirstPlayer);
+			IgnoredActors.Add(FirstPlayer.GetControlledPawn());
+			return System::LineTraceSingle(CameraLocation, End, ETraceTypeQuery::Visibility, true, IgnoredActors, EDrawDebugTrace::None, OutLookAt, true);
 		}
 
 		return false;

@@ -7,9 +7,7 @@ import Feather.DebugInterface.OperationBaseClasses.FeatherSpawnActorOperationBas
 
 // Some example items to work with.
 UCLASS(Abstract)
-class AExampleItem : AActor {};
-class AExampleItem1 : AExampleItem {};
-class AExampleItem2 : AExampleItem {};
+class AExampleItem : AStaticMeshActor {};
 
 // Allows you to spawn items at the cursor
 class USpawnItemAtCursorOperation : UFeatherSpawnActorOperationBase
