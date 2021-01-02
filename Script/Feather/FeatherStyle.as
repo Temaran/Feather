@@ -19,15 +19,45 @@ UCLASS(Abstract)
 class UFeatherButtonStyle : UUserWidget
 {
 	UPROPERTY(Category = "Feather|Style")
+	bool bUseStyleOverride;
+
+	UPROPERTY(Category = "Feather|Style", meta = (EditCondition = bUseStyleOverride))
+	FButtonStyle OverrideButtonStyle;
+	
+	UPROPERTY(Category = "Feather|Style", meta = (EditCondition = bUseStyleOverride))
+	FLinearColor OverrideButtonTint;
+
+	UPROPERTY(Category = "Feather|Style")
 	FButtonClickedWithContextSignature OnClickedWithContext;
 
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
 	UButton GetButtonWidget() { return nullptr; }
 
+	UFUNCTION(BlueprintOverride)
+	void PreConstruct(bool IsDesignTime)
+	{
+		SetStyleOverride();
+	}
+	
+	UFUNCTION(BlueprintOverride)
+	void Construct()
+	{
+		SetStyleOverride();
+	}
+
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintCallable)
 	void ClickedWithContext(UFeatherButtonStyle ThisButton)
 	{
 		OnClickedWithContext.Broadcast(ThisButton);
+	}
+
+	void SetStyleOverride()
+	{
+		if(bUseStyleOverride)
+		{
+			GetButtonWidget().SetStyle(OverrideButtonStyle);
+			GetButtonWidget().SetBackgroundColor(OverrideButtonTint);
+		}
 	}
 };
 
@@ -66,26 +96,27 @@ class UFeatherEditableTextStyle : UUserWidget
 	UEditableText GetEditableText() { return nullptr; }
 };
 
+// This is the main style container. You can add multiple styles and identify them by name. Default styles have an empty identifier
 struct FFeatherStyle
 {
 	UPROPERTY(Category = "Feather|Style")
-	TSubclassOf<UFeatherWindowStyle> WindowStyle;
+	TMap<FName, TSubclassOf<UFeatherWindowStyle>> WindowStyles;
 
 	UPROPERTY(Category = "Feather|Style")
-	TSubclassOf<UFeatherButtonStyle> ButtonStyle;
+	TMap<FName, TSubclassOf<UFeatherButtonStyle>> ButtonStyles;
 
 	UPROPERTY(Category = "Feather|Style")
-	TSubclassOf<UFeatherCheckBoxStyle> CheckBoxStyle;
+	TMap<FName, TSubclassOf<UFeatherCheckBoxStyle>> CheckBoxStyles;
 
 	UPROPERTY(Category = "Feather|Style")
-	TSubclassOf<UFeatherComboBoxStyle> ComboBoxStyle;
+	TMap<FName, TSubclassOf<UFeatherComboBoxStyle>> ComboBoxStyles;
 
 	UPROPERTY(Category = "Feather|Style")
-	TSubclassOf<UFeatherSliderStyle> SliderStyle;
+	TMap<FName, TSubclassOf<UFeatherSliderStyle>> SliderStyles;
 
 	UPROPERTY(Category = "Feather|Style")
-	TSubclassOf<UFeatherTextBlockStyle> TextBlockStyle;
+	TMap<FName, TSubclassOf<UFeatherTextBlockStyle>> TextBlockStyles;
 
 	UPROPERTY(Category = "Feather|Style")
-	TSubclassOf<UFeatherEditableTextStyle> EditableTextStyle;
+	TMap<FName, TSubclassOf<UFeatherEditableTextStyle>> EditableTextStyles;
 };

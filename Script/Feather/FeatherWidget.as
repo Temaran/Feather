@@ -21,45 +21,59 @@ class UFeatherWidget : UUserWidget
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherWindowStyle CreateWindow(FName Opt_WindowName = NAME_None)
+	UFeatherWindowStyle CreateWindow(FName StyleName = NAME_None, FName Opt_WindowName = NAME_None)
 	{
-		return Cast<UFeatherWindowStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.WindowStyle), Opt_WindowName));
+		return Style.WindowStyles.Contains(StyleName)
+			? Cast<UFeatherWindowStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.WindowStyles[StyleName]), Opt_WindowName))
+			: nullptr;
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherButtonStyle CreateButton(FName Opt_ButtonName = NAME_None)
+	UFeatherButtonStyle CreateButton(FName StyleName = NAME_None, FName Opt_ButtonName = NAME_None)
 	{
-		return Cast<UFeatherButtonStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.ButtonStyle), Opt_ButtonName));
+		return Style.ButtonStyles.Contains(StyleName)
+			? Cast<UFeatherButtonStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.ButtonStyles[StyleName]), Opt_ButtonName))
+			: nullptr;
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherCheckBoxStyle CreateCheckBox(FName Opt_CheckBoxName = NAME_None)
+	UFeatherCheckBoxStyle CreateCheckBox(FName StyleName = NAME_None, FName Opt_CheckBoxName = NAME_None)
 	{
-		return Cast<UFeatherCheckBoxStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.CheckBoxStyle), Opt_CheckBoxName));
+		return Style.CheckBoxStyles.Contains(StyleName)
+			? Cast<UFeatherCheckBoxStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.CheckBoxStyles[StyleName]), Opt_CheckBoxName))
+			: nullptr;
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherComboBoxStyle CreateComboBox(FName Opt_ComboBoxName = NAME_None)
+	UFeatherComboBoxStyle CreateComboBox(FName StyleName = NAME_None, FName Opt_ComboBoxName = NAME_None)
 	{
-		return Cast<UFeatherComboBoxStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.ComboBoxStyle), Opt_ComboBoxName));
+		return Style.ComboBoxStyles.Contains(StyleName)
+			? Cast<UFeatherComboBoxStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.ComboBoxStyles[StyleName]), Opt_ComboBoxName))
+			: nullptr;
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherSliderStyle CreateSlider(FName Opt_SliderName = NAME_None)
+	UFeatherSliderStyle CreateSlider(FName StyleName = NAME_None, FName Opt_SliderName = NAME_None)
 	{
-		return Cast<UFeatherSliderStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.SliderStyle), Opt_SliderName));
+		return Style.SliderStyles.Contains(StyleName)
+			? Cast<UFeatherSliderStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.SliderStyles[StyleName]), Opt_SliderName))
+			: nullptr;
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherTextBlockStyle CreateTextBlock(FName Opt_TextBlockName = NAME_None)
+	UFeatherTextBlockStyle CreateTextBlock(FName StyleName = NAME_None, FName Opt_TextBlockName = NAME_None)
 	{
-		return Cast<UFeatherTextBlockStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.TextBlockStyle), Opt_TextBlockName));
+		return Style.TextBlockStyles.Contains(StyleName)
+			? Cast<UFeatherTextBlockStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.TextBlockStyles[StyleName]), Opt_TextBlockName))
+			: nullptr;
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherEditableTextStyle CreateEditableText(FName Opt_EditableTextName = NAME_None)
+	UFeatherEditableTextStyle CreateEditableText(FName StyleName = NAME_None, FName Opt_EditableTextName = NAME_None)
 	{
-		return Cast<UFeatherEditableTextStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.EditableTextStyle), Opt_EditableTextName));
+		return Style.EditableTextStyles.Contains(StyleName)
+			? Cast<UFeatherEditableTextStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.EditableTextStyles[StyleName]), Opt_EditableTextName))
+			: nullptr;
 	}
 
 	UFUNCTION(Category = "Feather|Style")

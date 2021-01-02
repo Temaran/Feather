@@ -16,7 +16,7 @@ namespace FeatherUtils
 		{
 			if(FirstPlayer.bShowMouseCursor)
 			{
-				FirstPlayer.GetHitResultUnderCursorByChannel(ETraceTypeQuery::Visibility, true, OutFocus);
+				return FirstPlayer.GetHitResultUnderCursorByChannel(ETraceTypeQuery::Visibility, true, OutFocus);
 			}
 			else
 			{

@@ -19,7 +19,6 @@ Don't forget to override and hook up all the overrides in the window as well if 
 ----------------------------------------------------------------------
 
 # TODO
- - DefaultSpawnAtCrosshair
  - DefaultTeleportToLookat
  - DefaultTeleportToSavedLocation
  - DefaultGodMode
