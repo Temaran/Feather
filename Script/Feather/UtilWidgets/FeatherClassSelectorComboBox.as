@@ -6,6 +6,7 @@
 import Feather.FeatherWidget;
 
 event void FFilterChangedEvent(UFeatherClassSelectorComboBox ComboBox, FString NewFilter);
+event void FClassSelectionChangedEvent(UFeatherClassSelectorComboBox ComboBox, UClass NewClass);
 
 class UFeatherClassSelectorComboBox : UFeatherWidget
 {
@@ -17,6 +18,9 @@ class UFeatherClassSelectorComboBox : UFeatherWidget
 
     UPROPERTY(Category = "Class Selector")
     FFilterChangedEvent OnFilterChanged;
+
+    UPROPERTY(Category = "Class Selector")
+    FClassSelectionChangedEvent OnClassSelectionChanged;
 
     // Filter text box cannot be smaller than this
     UPROPERTY(Category = "Class Selector", EditDefaultsOnly)
@@ -85,6 +89,7 @@ class UFeatherClassSelectorComboBox : UFeatherWidget
 
         UComboBoxString ActualComboBox = ClassComboBox.GetComboBoxWidget();
         ActualComboBox.SetToolTipText(ClassComboBoxToolTip);
+        ActualComboBox.OnSelectionChanged.AddUFunction(this, n"ClassSelectionChanged");
 
         PopulateClasses("");
     }
@@ -94,6 +99,12 @@ class UFeatherClassSelectorComboBox : UFeatherWidget
     {
         PopulateClasses(NewFilter.ToString());
         OnFilterChanged.Broadcast(this, NewFilter.ToString());
+    }
+
+    UFUNCTION()
+    void ClassSelectionChanged(FString NewSelection, ESelectInfo SelectionType)
+    {
+        OnClassSelectionChanged.Broadcast(this, GetSelectedClass());
     }
 
     void PopulateClasses(FString FilterText)

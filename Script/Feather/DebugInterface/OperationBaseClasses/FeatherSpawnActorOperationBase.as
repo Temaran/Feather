@@ -99,6 +99,8 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
         FillSize.SizeRule = ESlateSizeRule::Fill;
         SelectorSlot.SetSize(FillSize);
 		ClassSelectorComboBox.BaseClass = SelectorBaseClass;
+		ClassSelectorComboBox.OnFilterChanged.AddUFunction(this, n"OnFilterChanged");
+		ClassSelectorComboBox.OnClassSelectionChanged.AddUFunction(this, n"OnClassSelectionChanged");
 		ClassSelectorComboBox.FeatherConstruct();
         
 		UTextBlock SpawnButtonText = Cast<UTextBlock>(ConstructWidget(UTextBlock::StaticClass()));
@@ -109,6 +111,17 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 		ActualSpawnButton.SetContent(SpawnButtonText);
 		ActualSpawnButton.SetToolTipText(ButtonToolTipText);
 		ActualSpawnButton.OnClicked.AddUFunction(this, n"SpawnButtonClicked");
+	}
+
+	UFUNCTION()
+	void OnFilterChanged(UFeatherClassSelectorComboBox ComboBox, FString NewFilter)
+	{
+		SaveSettings();
+	}
+	UFUNCTION()
+	void OnClassSelectionChanged(UFeatherClassSelectorComboBox ComboBox, UClass SelectedClass)
+	{
+		SaveSettings();
 	}
 
 	UFUNCTION()

@@ -78,6 +78,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 			OperationWidget.Style = Style;
 			OperationWidget.FeatherConstruct();
+			OperationWidget.LoadSettings();
 			Operations.Add(OperationWidget);
 
 			// Add all search terms

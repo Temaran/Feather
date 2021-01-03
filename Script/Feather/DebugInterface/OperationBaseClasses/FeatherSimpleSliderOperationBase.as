@@ -109,6 +109,7 @@ class UFeatherSimpleSliderOperationBase : UFeatherDebugInterfaceOperation
 	void OnSliderValueChangedInternal(float NewSliderValue)
 	{
 		MainSlider.GetSliderWidget().SetToolTipText(FText::FromString(SliderToolTipPrefix + NewSliderValue));
+		SaveSettings();
 		OnSliderValueChanged(NewSliderValue);
 	}
 

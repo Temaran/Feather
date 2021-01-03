@@ -107,6 +107,13 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 		CheckBox.OnCheckStateChanged.AddUFunction(this, n"OnCheckStateChanged");
 	}
 
+	UFUNCTION()
+	void OnCheckStateChanged_Internal(bool bChecked)
+	{		
+        SaveSettings();
+		OnCheckStateChanged(bChecked);
+	}
+
 //////////////////////////////////////////////////////
 // Subclass API
 

@@ -109,6 +109,13 @@ class UFeatherSimpleComboBoxOperationBase : UFeatherDebugInterfaceOperation
 		ComboBox.OnSelectionChanged.AddUFunction(this, n"OnComboBoxSelectionChanged");
 	}
 
+	UFUNCTION()
+	void OnComboBoxSelectionChanged_Internal(FString NewSelectedItem, ESelectInfo SelectionType)
+	{
+		SaveSettings();
+		OnComboBoxSelectionChanged(NewSelectedItem, SelectionType);
+	}
+
 //////////////////////////////////////////////////////
 // Subclass API
 

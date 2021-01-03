@@ -100,6 +100,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
         TextSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
         TeleportTargetEditableText.GetEditableText().SetHintText(FText::FromString("Type in target coordinates here. Or capture some with the store button"));
         TeleportTargetEditableText.SetToolTipText(FText::FromString("Type in the coordinates you want to teleport to here. It's easiest to fill this using the store button."));
+        TeleportTargetEditableText.GetEditableText().OnTextChanged.AddUFunction(this, n"TargetChanged");
 
         StoreButton = CreateButton();
         HorizontalLayout.AddChildToHorizontalBox(StoreButton);
@@ -133,4 +134,10 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
             TeleportTargetEditableText.GetEditableText().SetText(FText::FromString(FeatherUtils::VectorToString(PlayerPawn.GetActorLocation())));
         }
 	}
+
+    UFUNCTION()
+    void TargetChanged(FText& NewTargetText)
+    {        
+        SaveSettings();
+    }
 };

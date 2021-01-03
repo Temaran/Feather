@@ -5,6 +5,12 @@
 
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
 import Feather.DebugInterface.FeatherDebugInterfaceUtils;
+import Feather.FeatherSettings;
+
+struct FAbilitySystemDebugSaveState
+{
+	bool bShowingDebug;
+};
 
 // Adds a more user friendly way of interacting with the ability system debugger.
 class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
@@ -28,6 +34,42 @@ class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 	void Execute(FString Context)
 	{
         ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().SetIsChecked(!ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().IsChecked());
+	}
+
+	UFUNCTION(BlueprintOverride)
+	bool SaveSettings()
+	{
+		FAbilitySystemDebugSaveState SaveState;
+        SaveState.bShowingDebug = ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().IsChecked();
+
+		FString SaveStateString;
+		if(FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveStateString))
+		{
+			return FeatherSettings::SaveFeatherSettings(this, SaveStateString);
+		}
+
+		return false;
+	}
+
+	UFUNCTION(BlueprintOverride)
+	bool LoadSettings()
+	{
+		FString SaveStateString;
+		FAbilitySystemDebugSaveState SaveState;
+		if(FeatherSettings::LoadFeatherSettings(this, SaveStateString)
+			&& FJsonObjectConverter::JsonObjectStringToUStruct(SaveStateString, SaveState))
+		{
+            ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().SetIsChecked(SaveState.bShowingDebug);
+			return true;
+		}
+
+		return false;
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void ResetSettingsToDefault()
+	{
+        ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().SetIsChecked(false);
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -86,6 +128,7 @@ class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
     void OnShowAbilityCheckBoxStateChanged(bool bNewCheckState)
     {
         System::ExecuteConsoleCommand(bNewCheckState ? "ShowDebug AbilitySystem" : "ShowDebug");
+        SaveSettings();
     }
 
     UFUNCTION()

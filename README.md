@@ -20,6 +20,7 @@ Don't forget to override and hook up all the overrides in the window as well if 
 
 # TODO
  - Verify that op serialization works. Assume all ops want to serialize.
+ - Simplify saving via cpp...
  - Implement operation wrapper with fav+save buttons.
  - Make sure selective saving works
 
