@@ -37,45 +37,31 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 	UFUNCTION(BlueprintOverride)
 	void Execute(FString Context)
 	{
-		ECheckBoxState ToggleState = MainCheckBox.GetCheckBoxWidget().IsChecked() ? ECheckBoxState::Unchecked : ECheckBoxState::Checked;
-		MainCheckBox.GetCheckBoxWidget().SetCheckedState(ToggleState);
+		MainCheckBox.SetIsChecked(!MainCheckBox.IsChecked());
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void SaveToString(FString& OutSaveString)
 	{
 		FFeatherSimpleCheckBoxSaveState SaveState;
-		SaveState.bIsChecked = MainCheckBox.GetCheckBoxWidget().IsChecked();
-
-		FString SaveStateString;
-		if(FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveStateString))
-		{
-			return FeatherSettings::SaveFeatherSettings(this, SaveStateString);
-		}
-
-		return false;
+		SaveState.bIsChecked = MainCheckBox.IsChecked();
+		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadFromString(const FString& InSaveString)
 	{
-		FString SaveStateString;
 		FFeatherSimpleCheckBoxSaveState SaveState;
-		if(FeatherSettings::LoadFeatherSettings(this, SaveStateString)
-			&& FJsonObjectConverter::JsonObjectStringToUStruct(SaveStateString, SaveState))
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
-			MainCheckBox.GetCheckBoxWidget().SetCheckedState(SaveState.bIsChecked ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
-			return true;
+			MainCheckBox.SetIsChecked(SaveState.bIsChecked);
 		}
-
-		return false;
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void ResetSettingsToDefault()
 	{
-		ECheckBoxState DefaultState = IsCheckedByDefault() ? ECheckBoxState::Checked : ECheckBoxState::Unchecked;
-		MainCheckBox.GetCheckBoxWidget().SetCheckedState(DefaultState);
+		MainCheckBox.SetIsChecked(IsCheckedByDefault());
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -102,14 +88,14 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 
 		UCheckBox CheckBox = MainCheckBox.GetCheckBoxWidget();
 		CheckBox.SetToolTipText(CheckBoxToolTip);
-		CheckBox.SetCheckedState(IsCheckedByDefault() ? ECheckBoxState::Checked : ECheckBoxState::Unchecked);
+		CheckBox.SetIsChecked(IsCheckedByDefault());
 
-		CheckBox.OnCheckStateChanged.AddUFunction(this, n"OnCheckStateChanged");
+		CheckBox.OnCheckStateChanged.AddUFunction(this, n"OnCheckStateChanged_Internal");
 	}
 
 	UFUNCTION()
 	void OnCheckStateChanged_Internal(bool bChecked)
-	{		
+	{
         SaveSettings();
 		OnCheckStateChanged(bChecked);
 	}

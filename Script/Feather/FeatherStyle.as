@@ -11,7 +11,7 @@ class UFeatherWindowStyle : UUserWidget
 	UWidget ActualWindow;
 
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
-	UNamedSlot GetWindowContentSlot() { return nullptr; }
+	UNamedSlot GetWindowContentSlot() const { return nullptr; }
 };
 
 event void FButtonClickedWithContextSignature(UFeatherButtonStyle ThisButton);
@@ -31,7 +31,7 @@ class UFeatherButtonStyle : UUserWidget
 	FButtonClickedWithContextSignature OnClickedWithContext;
 
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
-	UButton GetButtonWidget() { return nullptr; }
+	UButton GetButtonWidget() const { return nullptr; }
 
 	UFUNCTION(BlueprintOverride)
 	void PreConstruct(bool IsDesignTime)
@@ -65,35 +65,115 @@ UCLASS(Abstract)
 class UFeatherCheckBoxStyle : UUserWidget
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
-	UCheckBox GetCheckBoxWidget() { return nullptr; }
+	UCheckBox GetCheckBoxWidget() const { return nullptr; }
+
+	UFUNCTION(Category = "Feather|Style", BlueprintPure)
+	bool IsChecked() const
+	{		
+		return GetCheckBoxWidget().IsChecked();
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	void SetIsChecked(bool bNewCheckedState)
+	{		
+		GetCheckBoxWidget().SetIsChecked(bNewCheckedState);
+		
+		// CheckStateChanged is not called for checkboxes when set from code
+		GetCheckBoxWidget().OnCheckStateChanged.Broadcast(bNewCheckedState);
+	}
 };
 
 UCLASS(Abstract)
 class UFeatherComboBoxStyle : UUserWidget
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
-	UComboBoxString GetComboBoxWidget() { return nullptr; }
+	UComboBoxString GetComboBoxWidget() const { return nullptr; }
+	
+	UFUNCTION(Category = "Feather|Style", BlueprintPure)
+	FString GetSelectedOption() const
+	{
+		return GetComboBoxWidget().GetSelectedOption();
+	}
+	
+	UFUNCTION(Category = "Feather|Style", BlueprintPure)
+	int GetSelectedIndex() const
+	{
+		return GetComboBoxWidget().GetSelectedIndex();
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	void SetSelectedOption(FString NewSelectedOption)
+	{
+		GetComboBoxWidget().SetSelectedOption(NewSelectedOption);
+	}
+	
+	UFUNCTION(Category = "Feather|Style")
+	void SetSelectedIndex(int NewSelectedIndex)
+	{
+		GetComboBoxWidget().SetSelectedIndex(NewSelectedIndex);
+	}
 };
 
 UCLASS(Abstract)
 class UFeatherSliderStyle : UUserWidget
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
-	USlider GetSliderWidget() { return nullptr; }
+	USlider GetSliderWidget() const { return nullptr; }
+	
+	UFUNCTION(Category = "Feather|Style", BlueprintPure)
+	float GetValue() const
+	{
+		return GetSliderWidget().GetValue();
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	void SetValue(float NewValue)
+	{
+		GetSliderWidget().SetValue(NewValue);
+		GetSliderWidget().OnValueChanged.Broadcast(NewValue);
+	}
 };
 
 UCLASS(Abstract)
 class UFeatherTextBlockStyle : UUserWidget
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
-	UTextBlock GetTextWidget() { return nullptr; }
+	UTextBlock GetTextWidget() const { return nullptr; }
+	
+	UFUNCTION(Category = "Feather|Style", BlueprintPure)
+	FText GetText() const
+	{
+		return GetTextWidget().GetText();
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	void SetText(FText NewText)
+	{
+		GetTextWidget().SetText(NewText);
+	}
 };
 
 UCLASS(Abstract)
 class UFeatherEditableTextStyle : UUserWidget
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
-	UEditableText GetEditableText() { return nullptr; }
+	UEditableText GetEditableText() const { return nullptr; }
+	
+	UFUNCTION(Category = "Feather|Style", BlueprintPure)
+	FText GetText() const
+	{
+		return GetEditableText().GetText();
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	void SetText(FText NewText)
+	{
+		GetEditableText().SetText(NewText);
+		
+		// Not called when set from code
+		GetEditableText().OnTextChanged.Broadcast(NewText);
+		GetEditableText().OnTextCommitted.Broadcast(NewText, ETextCommit::Default);
+	}
 };
 
 // This is the main style container. You can add multiple styles and identify them by name. Default styles have an empty identifier

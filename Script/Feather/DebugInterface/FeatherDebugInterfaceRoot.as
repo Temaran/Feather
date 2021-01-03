@@ -91,9 +91,7 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 		}
 
 		MainWindow.ToolWindows = ToolWindows;
-		MainWindow.FeatherConstruct();
-
-		LoadSettings();
+		MainWindow.ConstructFeatherWidget();
 
 		// Set up Z-Order updating
 		for(UFeatherDebugInterfaceWindow Window : AllWindows)
@@ -101,6 +99,12 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 			Window.OnResizeStart.AddUFunction(this, n"ReorderZ");
 			Window.OnMoveStart.AddUFunction(this, n"ReorderZ");
 		}
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void Construct()
+	{
+		LoadSettings();
 	}
 
 	UFUNCTION()
@@ -159,25 +163,25 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 // Settings
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void SaveSettings()
 	{
+		Super::SaveSettings();
+
 		for(auto Window : AllWindows)
 		{
 			Window.SaveSettings();
 		}
-
-		return Super::SaveSettings();
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadSettings()
 	{
+		Super::LoadSettings();
+
 		for(auto Window : AllWindows)
 		{
 			Window.LoadSettings();
 		}
-
-		return Super::LoadSettings();
 	}
 
 	UFUNCTION(BlueprintOverride)

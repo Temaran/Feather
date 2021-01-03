@@ -33,44 +33,31 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	{
 		TeleportToTarget();
 	}
-
-	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	
+    UFUNCTION(BlueprintOverride)
+	void SaveToString(FString& OutSaveString)
 	{
-		FTeleportToLocationSaveState SaveState;
-        if(!FeatherUtils::StringToVector(TeleportTargetEditableText.GetEditableText().GetText().ToString(), SaveState.SavedLocation))
+        FTeleportToLocationSaveState SaveState;
+        if(FeatherUtils::StringToVector(TeleportTargetEditableText.GetText().ToString(), SaveState.SavedLocation))
         {
-            return false;
+            FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
         }
-
-		FString SaveStateString;
-		if(FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveStateString))
-		{
-			return FeatherSettings::SaveFeatherSettings(this, SaveStateString);
-		}
-
-		return false;
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadFromString(const FString& InSaveString)
 	{
-		FString SaveStateString;
 		FTeleportToLocationSaveState SaveState;
-		if(FeatherSettings::LoadFeatherSettings(this, SaveStateString)
-			&& FJsonObjectConverter::JsonObjectStringToUStruct(SaveStateString, SaveState))
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
-            TeleportTargetEditableText.GetEditableText().SetText(FText::FromString(FeatherUtils::VectorToString(SaveState.SavedLocation)));
-			return true;
+            TeleportTargetEditableText.SetText(FText::FromString(FeatherUtils::VectorToString(SaveState.SavedLocation)));
 		}
-
-		return false;
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void ResetSettingsToDefault()
 	{
-        TeleportTargetEditableText.GetEditableText().SetText(FText::FromString(FeatherUtils::VectorToString(FVector::ZeroVector)));
+        TeleportTargetEditableText.SetText(FText::FromString(FeatherUtils::VectorToString(FVector::ZeroVector)));
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -115,7 +102,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	void TeleportToTarget()
 	{
         FVector TeleportTarget;
-        if(FeatherUtils::StringToVector(TeleportTargetEditableText.GetEditableText().GetText().ToString(), TeleportTarget))
+        if(FeatherUtils::StringToVector(TeleportTargetEditableText.GetText().ToString(), TeleportTarget))
         {
             APawn PlayerPawn = Gameplay::GetPlayerPawn(0);
             if(System::IsValid(PlayerPawn))
@@ -131,7 +118,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
         APawn PlayerPawn = Gameplay::GetPlayerPawn(0);
         if(System::IsValid(PlayerPawn))
         {
-            TeleportTargetEditableText.GetEditableText().SetText(FText::FromString(FeatherUtils::VectorToString(PlayerPawn.GetActorLocation())));
+            TeleportTargetEditableText.SetText(FText::FromString(FeatherUtils::VectorToString(PlayerPawn.GetActorLocation())));
         }
 	}
 

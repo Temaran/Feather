@@ -38,39 +38,27 @@ class UFeatherSimpleSliderOperationBase : UFeatherDebugInterfaceOperation
 
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void SaveToString(FString& OutSaveString)
 	{
 		FFeatherSimpleSliderSaveState SaveState;
-		SaveState.SliderValue = MainSlider.GetSliderWidget().GetValue();
-
-		FString SaveStateString;
-		if(FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveStateString))
-		{
-			return FeatherSettings::SaveFeatherSettings(this, SaveStateString);
-		}
-
-		return false;
+		SaveState.SliderValue = MainSlider.GetValue();
+		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadFromString(const FString& InSaveString)
 	{
-		FString SaveStateString;
 		FFeatherSimpleSliderSaveState SaveState;
-		if(FeatherSettings::LoadFeatherSettings(this, SaveStateString)
-			&& FJsonObjectConverter::JsonObjectStringToUStruct(SaveStateString, SaveState))
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
-			MainSlider.GetSliderWidget().SetValue(SaveState.SliderValue);
-			return true;
+			MainSlider.SetValue(SaveState.SliderValue);
 		}
-
-		return false;
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void ResetSettingsToDefault()
 	{
-		MainSlider.GetSliderWidget().SetValue(GetDefaultSliderValue());
+		MainSlider.SetValue(GetDefaultSliderValue());
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -102,11 +90,11 @@ class UFeatherSimpleSliderOperationBase : UFeatherDebugInterfaceOperation
 		Slider.SetValue(GetDefaultSliderValue());
 		Slider.SetToolTipText(FText::FromString(SliderToolTipPrefix + Slider.GetValue()));
 
-		Slider.OnValueChanged.AddUFunction(this, n"OnSliderValueChangedInternal");
+		Slider.OnValueChanged.AddUFunction(this, n"OnSliderValueChanged_Internal");
 	}
 
 	UFUNCTION()
-	void OnSliderValueChangedInternal(float NewSliderValue)
+	void OnSliderValueChanged_Internal(float NewSliderValue)
 	{
 		MainSlider.GetSliderWidget().SetToolTipText(FText::FromString(SliderToolTipPrefix + NewSliderValue));
 		SaveSettings();

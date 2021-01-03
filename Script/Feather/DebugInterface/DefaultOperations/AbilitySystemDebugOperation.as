@@ -33,43 +33,35 @@ class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 	UFUNCTION(BlueprintOverride)
 	void Execute(FString Context)
 	{
-        ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().SetIsChecked(!ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().IsChecked());
+        ShowAbilitySystemDebugCheckBox.SetIsChecked(!ShowAbilitySystemDebugCheckBox.IsChecked());
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void SaveToString(FString& OutSaveString)
 	{
-		FAbilitySystemDebugSaveState SaveState;
-        SaveState.bShowingDebug = ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().IsChecked();
-
-		FString SaveStateString;
-		if(FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveStateString))
-		{
-			return FeatherSettings::SaveFeatherSettings(this, SaveStateString);
-		}
-
-		return false;
+        FAbilitySystemDebugSaveState SaveState;
+        SaveState.bShowingDebug = ShowAbilitySystemDebugCheckBox.IsChecked();
+        FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadFromString(const FString& InSaveString)
 	{
-		FString SaveStateString;
 		FAbilitySystemDebugSaveState SaveState;
-		if(FeatherSettings::LoadFeatherSettings(this, SaveStateString)
-			&& FJsonObjectConverter::JsonObjectStringToUStruct(SaveStateString, SaveState))
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
-            ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().SetIsChecked(SaveState.bShowingDebug);
-			return true;
+            if(SaveState.bShowingDebug)
+            {
+                // Only call this if it's actually saved to be on. Since this is using the hidden state in-engine, it's a bit wonky.
+                ShowAbilitySystemDebugCheckBox.SetIsChecked(true);
+            }
 		}
-
-		return false;
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void ResetSettingsToDefault()
 	{
-        ShowAbilitySystemDebugCheckBox.GetCheckBoxWidget().SetIsChecked(false);
+        ShowAbilitySystemDebugCheckBox.SetIsChecked(false);
 	}
 
 	UFUNCTION(BlueprintOverride)

@@ -30,19 +30,31 @@ class UFeatherDebugInterfaceWindow : UFeatherWindow
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void SaveSettings()
 	{
-		return Super::SaveSettings();
+		Super::SaveSettings();
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadSettings()
 	{
-		return Super::LoadSettings();
+		Super::LoadSettings();
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void SaveToString(FString& OutSaveString)
+	{
+		Super::SaveToString(OutSaveString);
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void LoadFromString(const FString& InSaveString)
+	{
+		Super::LoadFromString(InSaveString);
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void ResetSettingsToDefault() 
 	{
 		Super::ResetSettingsToDefault();
 	}

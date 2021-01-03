@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////
 
 import Feather.FeatherStyle;
+import Feather.FeatherSettings;
 
 // This is the base class we use for all widgets. Supports styling.
 UCLASS(Abstract)
@@ -11,14 +12,25 @@ class UFeatherWidget : UUserWidget
 {
 	default SetPaletteCategory(FText::FromString("Feather"));
 
+	UPROPERTY(Category = "Feather", NotEditable)
+	bool bIsLoading = false;
+
+	UPROPERTY(Category = "Feather", NotEditable)
+	bool bIsConstructed = false;
+
 	UPROPERTY(Category = "Feather|Style")
 	FFeatherStyle Style;
 
 	// We want our own construct function that can be called after a style has been set.
-	UFUNCTION(Category = "Feather", BlueprintEvent)
-	void FeatherConstruct()
+	UFUNCTION(Category = "Feather")
+	void ConstructFeatherWidget()
 	{
+		FeatherConstruct();
+		bIsConstructed = true;
 	}
+	
+	UFUNCTION(Category = "Feather", BlueprintEvent)
+	protected void FeatherConstruct() { }
 
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherWindowStyle CreateWindow(FName StyleName = NAME_None, FName Opt_WindowName = NAME_None)
@@ -84,7 +96,7 @@ class UFeatherWidget : UUserWidget
 		
 		if(bConstructRightAway)
 		{
-			NewWidget.FeatherConstruct();
+			NewWidget.ConstructFeatherWidget();
 		}
 
 		return NewWidget;
@@ -92,23 +104,44 @@ class UFeatherWidget : UUserWidget
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
-	// Save operation settings. Use the FeatherSettings namespace to do stuff in here!
-	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)
-	bool SaveSettings()
+	// Call this when you want to save.
+	UFUNCTION(Category = "Feather|Settings", BlueprintEvent, BlueprintCallable)
+	void SaveSettings()
 	{
-		return false;
+		if(!bIsLoading && bIsConstructed)
+		{		
+			FString SaveString;
+			SaveToString(SaveString);
+			SaveString = SaveString.Replace("\r\n}{", ","); // Support widget hierarchies with unique save structs.
+			FeatherSettings::SaveFeatherSettings(this, SaveString);
+		}
 	}
 
-	// Load operation settings. Use the FeatherSettings namespace to do stuff in here!
-	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)
-	bool LoadSettings()
+	// Call this when you want to load
+	UFUNCTION(Category = "Feather|Settings", BlueprintEvent, BlueprintCallable)
+	void LoadSettings()
 	{
-		return false;
+		if(!bIsLoading)
+		{
+			bIsLoading = true;
+			FString LoadString;
+			if(FeatherSettings::LoadFeatherSettings(this, LoadString))
+			{
+				LoadFromString(LoadString);
+			}
+			bIsLoading = false;
+		}
 	}
+
+	// This is the main override to actually save your settings.
+	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)
+	protected void SaveToString(FString& OutSaveString) { }
+
+	// This is the main override to actually load your settings.
+	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)
+	protected void LoadFromString(const FString& InSaveString) { }
 
 	// Reset all settings to the default
 	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)
-	void ResetSettingsToDefault()
-	{
-	}
+	void ResetSettingsToDefault() {	}
 };

@@ -44,35 +44,22 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 	// You should be using this for your initialization logic as base class properties and the environment will have been set up by the time this is called.
 	UFUNCTION(Category = "Feather", BlueprintEvent)
-	void ConstructOperation()
-	{
-	}
+	protected void ConstructOperation() {	}
 
 	// Execute this operation. This means different things depending on the operation. Usually this is what's called when you execute the key combo bound to this operation.
 	UFUNCTION(Category = "Feather", BlueprintEvent)
-	void Execute(FString Context = "")
-	{
-	}
+	void Execute(FString Context = "") { }
 
 // Settings API - It is recommended to use the JSON API here since that will work no matter the type of instance you are running (Standalone / PIE / Built).
 // Another option is using the default ini-config system, but it will not work in all situations.
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
-	{
-		return Super::SaveSettings();
-	}
+	void SaveToString(FString& OutSaveString) {	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
-	{
-		return Super::LoadSettings();
-	}
+	void LoadFromString(const FString& InSaveString) { }
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
-	{
-		Super::ResetSettingsToDefault();
-	}
+	void ResetSettingsToDefault() { }
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Static API - Should only be called from CDO

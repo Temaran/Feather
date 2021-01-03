@@ -179,45 +179,40 @@ class UFeatherWindow : UFeatherWidget
 
 //////////////////////////////////////////////////////////////////////////////
 // Settings
+	UFUNCTION(BlueprintOverride)
+	void SaveSettings()
+	{
+		Super::SaveSettings();
+	}
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void LoadSettings()
+	{
+		Super::LoadSettings();
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void SaveToString(FString& OutSaveString)
 	{
 		FFeatherWindowSaveState SaveState;
 		SaveState.WindowPosition = GetWindowPosition();
 		SaveState.WindowSize = GetWindowSize();
 		SaveState.TransparencyAlpha = GetWindowTransparency();
 		SaveState.bIsVisible = IsVisible();
-
-		FString SaveStateString;
-		if(FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveStateString))
-		{
-			return FeatherSettings::SaveFeatherSettings(this, SaveStateString);
-		}
-
-		return false;
+		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadFromString(const FString& InSaveString)
 	{
-		FString SaveStateString;
 		FFeatherWindowSaveState SaveState;
-		if(FeatherSettings::LoadFeatherSettings(this, SaveStateString)
-			&& FJsonObjectConverter::JsonObjectStringToUStruct(SaveStateString, SaveState))
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
 			SetWindowPosition(SaveState.WindowPosition);
 			SetWindowSize(SaveState.WindowSize);
 			SetWindowTransparency(SaveState.TransparencyAlpha);
 			SetVisibility(SaveState.bIsVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
-			return true;
 		}
-		else
-		{
-			ResetSettingsToDefault();
-		}
-
-		return false;
 	}
 
 	UFUNCTION(BlueprintOverride)

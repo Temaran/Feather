@@ -6,6 +6,11 @@
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceUtils;
 
+struct FDebugInterfaceMainWindowSaveState
+{
+	FString SearchText;
+};
+
 UCLASS(Abstract)
 class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 {
@@ -77,8 +82,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			}
 
 			OperationWidget.Style = Style;
-			OperationWidget.FeatherConstruct();
-			OperationWidget.LoadSettings();
+			OperationWidget.ConstructFeatherWidget();
 			Operations.Add(OperationWidget);
 
 			// Add all search terms
@@ -146,6 +150,8 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		{
 			RegenerateSearch(SearchTokens);
 		}
+
+		SaveSettings();
 	}
 
 	UFUNCTION()
@@ -398,28 +404,49 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 ///////////////////////////////////////////////////////////////////////
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void SaveSettings()
 	{
+		Super::SaveSettings();
+		
 		for(auto Op : Operations)
 		{
 			Op.SaveSettings();
 		}
-
-		return Super::SaveSettings();
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadSettings()
 	{
+		Super::LoadSettings();
+
 		for(auto Op : Operations)
 		{
-			if(!Op.LoadSettings())
-			{
-				Op.ResetSettingsToDefault();
-			}
+			Op.LoadSettings();
 		}
+	}
 
-		return Super::LoadSettings();
+	UFUNCTION(BlueprintOverride)
+	void SaveToString(FString& OutSaveString)
+	{
+		Super::SaveToString(OutSaveString);
+
+		FString SaveString;
+		FDebugInterfaceMainWindowSaveState SaveState;
+		SaveState.SearchText = GetSearchTextBox().GetText().ToString();
+		FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveString);
+		OutSaveString += SaveString;
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void LoadFromString(const FString& InSaveString)
+	{
+		Super::LoadFromString(InSaveString);
+
+		FDebugInterfaceMainWindowSaveState SaveState;
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
+		{
+			GetSearchTextBox().SetText(FText::FromString(SaveState.SearchText));
+		}
 	}
 
 	UFUNCTION(BlueprintOverride)

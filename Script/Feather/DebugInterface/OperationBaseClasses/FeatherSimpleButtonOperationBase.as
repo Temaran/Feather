@@ -31,18 +31,6 @@ class UFeatherSimpleButtonOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
-	{
-		return true;
-	}
-
-	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
-	{
-		return true;
-	}
-
-	UFUNCTION(BlueprintOverride)
 	void ConstructOperation()
 	{
 		// Setup button

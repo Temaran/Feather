@@ -42,42 +42,30 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void SaveToString(FString& OutSaveString)
 	{
 		FSpawnActorSaveState SaveState;
-		SaveState.Filter = ClassSelectorComboBox.FilterBox.GetEditableText().GetText().ToString();
-		SaveState.SelectedClass = ClassSelectorComboBox.ClassComboBox.GetComboBoxWidget().GetSelectedOption();
-
-		FString SaveStateString;
-		if(FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveStateString))
-		{
-			return FeatherSettings::SaveFeatherSettings(this, SaveStateString);
-		}
-
-		return false;
+		SaveState.Filter = ClassSelectorComboBox.FilterBox.GetText().ToString();
+		SaveState.SelectedClass = ClassSelectorComboBox.ClassComboBox.GetSelectedOption();
+		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadFromString(const FString& InSaveString)
 	{
-		FString SaveStateString;
 		FSpawnActorSaveState SaveState;
-		if(FeatherSettings::LoadFeatherSettings(this, SaveStateString)
-			&& FJsonObjectConverter::JsonObjectStringToUStruct(SaveStateString, SaveState))
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
-			ClassSelectorComboBox.FilterBox.GetEditableText().SetText(FText::FromString(SaveState.Filter));
-			ClassSelectorComboBox.ClassComboBox.GetComboBoxWidget().SetSelectedOption(SaveState.SelectedClass);
-			return true;
+			ClassSelectorComboBox.FilterBox.SetText(FText::FromString(SaveState.Filter));
+			ClassSelectorComboBox.ClassComboBox.SetSelectedOption(SaveState.SelectedClass);
 		}
-
-		return false;
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void ResetSettingsToDefault()
 	{
-		ClassSelectorComboBox.FilterBox.GetEditableText().SetText(FText());
-		ClassSelectorComboBox.ClassComboBox.GetComboBoxWidget().SetSelectedIndex(0);
+		ClassSelectorComboBox.FilterBox.SetText(FText());
+		ClassSelectorComboBox.ClassComboBox.SetSelectedIndex(0);
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -101,7 +89,7 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 		ClassSelectorComboBox.BaseClass = SelectorBaseClass;
 		ClassSelectorComboBox.OnFilterChanged.AddUFunction(this, n"OnFilterChanged");
 		ClassSelectorComboBox.OnClassSelectionChanged.AddUFunction(this, n"OnClassSelectionChanged");
-		ClassSelectorComboBox.FeatherConstruct();
+		ClassSelectorComboBox.ConstructFeatherWidget();
         
 		UTextBlock SpawnButtonText = Cast<UTextBlock>(ConstructWidget(UTextBlock::StaticClass()));
 		SpawnButtonText.SetText(ButtonText);

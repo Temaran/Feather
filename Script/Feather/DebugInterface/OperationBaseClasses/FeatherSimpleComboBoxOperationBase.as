@@ -38,39 +38,27 @@ class UFeatherSimpleComboBoxOperationBase : UFeatherDebugInterfaceOperation
 
 
 	UFUNCTION(BlueprintOverride)
-	bool SaveSettings()
+	void SaveToString(FString& OutSaveString)
 	{
 		FFeatherSimpleComboBoxSaveState SaveState;
-		SaveState.SelectedIndex = MainComboBox.GetComboBoxWidget().GetSelectedIndex();
-
-		FString SaveStateString;
-		if(FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveStateString))
-		{
-			return FeatherSettings::SaveFeatherSettings(this, SaveStateString);
-		}
-
-		return false;
+		SaveState.SelectedIndex = MainComboBox.GetSelectedIndex();
+		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	bool LoadSettings()
+	void LoadFromString(const FString& InSaveString)
 	{
-		FString SaveStateString;
 		FFeatherSimpleComboBoxSaveState SaveState;
-		if(FeatherSettings::LoadFeatherSettings(this, SaveStateString)
-			&& FJsonObjectConverter::JsonObjectStringToUStruct(SaveStateString, SaveState))
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
-			MainComboBox.GetComboBoxWidget().SetSelectedIndex(SaveState.SelectedIndex);
-			return true;
+			MainComboBox.SetSelectedIndex(SaveState.SelectedIndex);
 		}
-
-		return false;
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void ResetSettingsToDefault()
 	{
-		MainComboBox.GetComboBoxWidget().SetSelectedIndex(GetDefaultSelectedOptionIndex());
+		MainComboBox.SetSelectedIndex(GetDefaultSelectedOptionIndex());
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -106,7 +94,7 @@ class UFeatherSimpleComboBoxOperationBase : UFeatherDebugInterfaceOperation
 		}
 		ComboBox.SetSelectedIndex(GetDefaultSelectedOptionIndex());
 
-		ComboBox.OnSelectionChanged.AddUFunction(this, n"OnComboBoxSelectionChanged");
+		ComboBox.OnSelectionChanged.AddUFunction(this, n"OnComboBoxSelectionChanged_Internal");
 	}
 
 	UFUNCTION()
