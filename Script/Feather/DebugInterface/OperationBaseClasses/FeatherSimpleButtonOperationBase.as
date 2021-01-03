@@ -25,7 +25,7 @@ class UFeatherSimpleButtonOperationBase : UFeatherDebugInterfaceOperation
 
 
 	UFUNCTION(BlueprintOverride)
-	void Execute(FString Context = "")
+	void Execute(FString Context)
 	{
 		OnButtonClicked();
 	}

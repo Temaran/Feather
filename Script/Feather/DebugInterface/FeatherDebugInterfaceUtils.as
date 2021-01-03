@@ -46,6 +46,60 @@ namespace FeatherUtils
 
 		return false;
 	}
+
+	UFUNCTION(Category = "Feather|Utils")
+	bool StringToVector(const FString& InString, FVector& OutVector)
+	{
+		FString Temp;
+		FString X;
+		FString Y;
+		FString Z;
+
+		if(InString.Split(" ", X, Temp) && Temp.Split(" ", Y, Z))
+		{
+			OutVector.X = ParseLocaleInvariantFloat(X);
+			OutVector.Y = ParseLocaleInvariantFloat(Y);
+			OutVector.Z = ParseLocaleInvariantFloat(Z);
+			return true;
+		}
+
+		return false;
+	}
+
+	UFUNCTION(Category = "Feather|Utils", BlueprintPure)
+	FString VectorToString(const FVector& InVector)
+	{
+		return "" + InVector.X + " " + InVector.Y + " " + InVector.Z;
+	}
+	
+	UFUNCTION(Category = "Feather|Utils", BlueprintPure)
+	FString CleanNumeric(const FString& Input)
+	{
+		FString InputString = Input.Replace(",", ".");
+		FString OutputString = "";
+		for(int CharIdx = 0; CharIdx < InputString.Len(); CharIdx++)
+		{
+			FString Char = InputString.Mid(CharIdx, 1);
+			if(Char.IsNumeric() || Char.Compare(".") == 0)
+			{
+				OutputString += Char;
+			}
+		}
+
+		return OutputString;
+	}
+
+	UFUNCTION(Category = "Feather|Utils", BlueprintPure)
+	int ParseLocaleInvariantInt(const FString& LocalIntString)
+	{
+		return String::Conv_StringToInt(CleanNumeric(LocalIntString));
+	}
+
+	UFUNCTION(Category = "Feather|Utils", BlueprintPure)
+	float ParseLocaleInvariantFloat(const FString& LocaleFloatString)
+	{
+		return String::Conv_StringToFloat(CleanNumeric(LocaleFloatString));
+	}
 }
 
 struct FOperationWithScore

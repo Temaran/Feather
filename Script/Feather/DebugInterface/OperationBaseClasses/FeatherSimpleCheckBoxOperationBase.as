@@ -35,7 +35,7 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 
 
 	UFUNCTION(BlueprintOverride)
-	void Execute(FString Context = "")
+	void Execute(FString Context)
 	{
 		ECheckBoxState ToggleState = MainCheckBox.GetCheckBoxWidget().IsChecked() ? ECheckBoxState::Unchecked : ECheckBoxState::Checked;
 		MainCheckBox.GetCheckBoxWidget().SetCheckedState(ToggleState);

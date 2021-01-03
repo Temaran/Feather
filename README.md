@@ -19,10 +19,6 @@ Don't forget to override and hook up all the overrides in the window as well if 
 ----------------------------------------------------------------------
 
 # TODO
- - DefaultTeleportToLookat
- - DefaultTeleportToSavedLocation
- - DefaultGodMode
- - DefaultAbilitySystemDebug
  - Verify that op serialization works. Assume all ops want to serialize.
  - Implement operation wrapper with fav+save buttons.
  - Make sure selective saving works

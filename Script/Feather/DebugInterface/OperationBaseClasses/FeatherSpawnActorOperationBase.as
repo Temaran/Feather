@@ -34,8 +34,9 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	FText ButtonToolTipText = FText::FromString("Click to spawn an actor of the selected type at the cursor/screen center.");
 	float ButtonSeparation = 10.0f;
 
+
 	UFUNCTION(BlueprintOverride)
-	void Execute(FString Context = "")
+	void Execute(FString Context)
 	{
 		SpawnClass(false);
 	}
@@ -120,19 +121,19 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	void SpawnClass(bool bForceLookAt)
 	{
 		FHitResult PlayerFocus;
+		bool bFocusFound = false;
 		if(bForceLookAt)
 		{
-			if(FeatherUtils::GetPlayerLookAt(PlayerFocus))
-			{			
-				SpawnActor(ClassSelectorComboBox.GetSelectedClass(), PlayerFocus.Location);
-			}
+			bFocusFound = FeatherUtils::GetPlayerLookAt(PlayerFocus);
 		}
 		else
 		{
-			if(FeatherUtils::GetPlayerFocus(PlayerFocus))
-			{			
-				SpawnActor(ClassSelectorComboBox.GetSelectedClass(), PlayerFocus.Location);
-			}
+			bFocusFound = FeatherUtils::GetPlayerFocus(PlayerFocus);
+		}
+
+		if(bFocusFound)
+		{
+			SpawnActor(ClassSelectorComboBox.GetSelectedClass(), PlayerFocus.Location);
 		}
 	}
 };
