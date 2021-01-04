@@ -62,7 +62,6 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		UFeatherSearchBox MySearchBox = GetSearchBox();
 		MySearchBox.Style = Style;
 		MySearchBox.OnSearchChanged.AddUFunction(this, n"SearchChanged");
-		MySearchBox.ConstructFeatherWidget();
 
 		for(UClass DebugOpType : AllDebugOperationTypes)
 		{
@@ -85,12 +84,15 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			Operations.Add(OperationWidget);
 
 			// Add all search terms
-			MySearchBox.SearchTargetTokens.Add(GetSanitizedOperationName(OperationCDO));
+			MySearchBox.AllSearchTargetTokens.Add(GetSanitizedOperationName(OperationCDO));
 			for(FName OperationTag : OperationCDO.OperationTags)
 			{
-				MySearchBox.SearchTargetTokens.Add(OperationTag.ToString());
+				const FString TagToken = OperationTag.ToString();
+				MySearchBox.AllSearchTargetTokens.Add(TagToken);
+				MySearchBox.QuickSelectTokens.Add(TagToken);
 			}
 		}
+		MySearchBox.ConstructFeatherWidget();
 
 		SetupWindowManager();
 
