@@ -5,6 +5,7 @@
 
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceSorting;
+import Feather.UtilWidgets.FeatherSearchBox;
 import Feather.FeatherSorting;
 import Feather.FeatherUtils;
 
@@ -31,29 +32,19 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	UPROPERTY(Category = "Feather", EditDefaultsOnly)
 	bool bAlternateOperationBackgroundColor = true;
 
+	UPROPERTY(Category = "Feather", EditDefaultsOnly)
+	bool bOnlyRegenerateSearchOnCommit = false;
+
+	UPROPERTY(Category = "Feather", EditDefaultsOnly)
+	TArray<FString> IgnoredTokenSubstrings;
+	default IgnoredTokenSubstrings.Add("feather");
+	default IgnoredTokenSubstrings.Add("operation");
+
 	UPROPERTY(Category = "Feather", EditDefaultsOnly, meta = (EditCondition = bAlternateOperationBackgroundColor))
 	FLinearColor AlternatingOperationColor;
 	default AlternatingOperationColor.R = 0.08f;
 	default AlternatingOperationColor.G = 0.08f;
 	default AlternatingOperationColor.B = 0.08f;
-
-	UPROPERTY(Category = "Feather|Search", EditDefaultsOnly)
-	bool bOnlyRegenerateSearchOnCommit = false;
-	UPROPERTY(Category = "Feather|Search", EditDefaultsOnly)
-	bool bGenerateSearchSuggestions = true;
-	UPROPERTY(Category = "Feather|Search", EditDefaultsOnly)
-	int MaxSearchSuggestions = 3;
-	UPROPERTY(Category = "Feather|Search", EditDefaultsOnly)
-	float MaxScoreFromMatch = 0.8f;
-	UPROPERTY(Category = "Feather|Search", EditDefaultsOnly)
-	float MaxScoreFromPosition = 1.0f - MaxScoreFromMatch;
-	UPROPERTY(Category = "Feather|Search", EditDefaultsOnly)
-	TArray<FString> IgnoredTokenSubstrings;
-	default IgnoredTokenSubstrings.Add("feather");
-	default IgnoredTokenSubstrings.Add("operation");
-
-	// TODO: This could probably be done a lot better with nested lookup maps or something. Might not be necessary for a long time though.
-	TSet<FString> SearchTargetTokens;
 
 
 	UFUNCTION(BlueprintOverride)
@@ -67,6 +58,11 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		{
 			AllDebugOperationTypes.Remove(IgnoredType);
 		}
+
+		UFeatherSearchBox MySearchBox = GetSearchBox();
+		MySearchBox.Style = Style;
+		MySearchBox.OnSearchChanged.AddUFunction(this, n"SearchChanged");
+		MySearchBox.ConstructFeatherWidget();
 
 		for(UClass DebugOpType : AllDebugOperationTypes)
 		{
@@ -89,18 +85,14 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			Operations.Add(OperationWidget);
 
 			// Add all search terms
-			SearchTargetTokens.Add(GetSanitizedOperationName(OperationCDO));
+			MySearchBox.SearchTargetTokens.Add(GetSanitizedOperationName(OperationCDO));
 			for(FName OperationTag : OperationCDO.OperationTags)
 			{
-				SearchTargetTokens.Add(OperationTag.ToString());
+				MySearchBox.SearchTargetTokens.Add(OperationTag.ToString());
 			}
 		}
 
 		SetupWindowManager();
-
-		GetSearchTextBox().OnTextChanged.AddUFunction(this, n"SearchChanged");
-		GetSearchTextBox().OnTextCommitted.AddUFunction(this, n"FinalizeSearch");
-		GetSearchButton().OnCheckStateChanged.AddUFunction(this, n"SearchButtonStateChanged");
 
 		RegenerateSearch(TArray<FString>());
 	}
@@ -141,147 +133,14 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION()
-	void SearchChanged(FText& SearchText)
+	void SearchChanged(UFeatherSearchBox SearchBox, const TArray<FString>& SearchTokens, bool bSearchWasFinalized)
 	{
-		TArray<FString> SearchTokens;
-		ParseSearchTokens(SearchText.ToString(), SearchTokens);
-
-		ESlateVisibility SuggestionVisibility = RegenerateSearchSuggestions(SearchTokens)
-			? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
-		GetSearchSuggestionsPanel().SetVisibility(SuggestionVisibility);
-
-		if(!bOnlyRegenerateSearchOnCommit)
+		if(bOnlyRegenerateSearchOnCommit == bSearchWasFinalized)
 		{
 			RegenerateSearch(SearchTokens);
 		}
 
 		SaveSettings();
-	}
-
-	UFUNCTION()
-	void FinalizeSearch(FText& SearchText, ETextCommit CommitMethod)
-	{
-		if(CommitMethod == ETextCommit::OnEnter)
-		{
-			GetSearchSuggestionsPanel().SetVisibility(ESlateVisibility::Collapsed);
-		}
-
-		if(bOnlyRegenerateSearchOnCommit)
-		{
-			TArray<FString> SearchTokens;
-			ParseSearchTokens(SearchText.ToString(), SearchTokens);
-
-			RegenerateSearch(SearchTokens);
-		}
-	}
-
-	UFUNCTION()
-	void SearchButtonStateChanged(bool bNewSearchState)
-	{
-
-	}
-
-	void ParseSearchTokens(FString SearchText, TArray<FString>& OutSearchTokens)
-	{
-		OutSearchTokens.Empty();
-
-		FString Corpus = SearchText;
-		FString LeftChop;
-		FString RightChop;
-		while(Corpus.Split(",", LeftChop, RightChop)
-		   || Corpus.Split(" ", LeftChop, RightChop))
-		{
-			OutSearchTokens.Add(LeftChop.TrimStartAndEnd());
-			Corpus = RightChop;
-		}
-
-		if(!Corpus.IsEmpty())
-		{
-			OutSearchTokens.Add(Corpus);
-		}
-	}
-
-	bool RegenerateSearchSuggestions(const TArray<FString>& SearchTokens)
-	{
-		UVerticalBox SearchSuggestions = GetSearchSuggestionsPanel();
-		SearchSuggestions.ClearChildren();
-
-		if(SearchTokens.Num() <= 0 || !bGenerateSearchSuggestions)
-		{
-			return false;
-		}
-
-		// Only ever try to complete the last token.
-		FString CurrentSearchToken = SearchTokens[SearchTokens.Num() - 1];
-		TArray<FNameWithScore> ValidSuggestionsWithScores;
-		for(FString TargetToken : SearchTargetTokens)
-		{
-			float MatchScore = CalculateTokenMatchScore(TargetToken, CurrentSearchToken);
-			if(MatchScore == 1.0f)
-			{
-				// This token is already complete! Nothing to do here.
-				return false;
-			}
-			else if(MatchScore > 0.0f)
-			{
-				FNameWithScore NewSuggestionWithScore;
-				NewSuggestionWithScore.Name = FName(TargetToken);
-				NewSuggestionWithScore.RankingScoreUNorm = MatchScore;
-				ValidSuggestionsWithScores.Add(NewSuggestionWithScore);
-			}
-		}
-		FeatherSorting::QuickSortSuggestions(ValidSuggestionsWithScores, 0, ValidSuggestionsWithScores.Num() - 1);
-
-		int NumberOfSuggestions = FMath::Min(MaxSearchSuggestions, ValidSuggestionsWithScores.Num());
-		if(NumberOfSuggestions == 0)
-		{
-			GetSearchSuggestionsPanel().SetVisibility(ESlateVisibility::Collapsed);
-		}
-		else
-		{
-			for(int i = 0; i < NumberOfSuggestions; i++)
-			{
-				FNameWithScore Suggestion = ValidSuggestionsWithScores[i];
-
-				UFeatherButtonStyle SuggestionButton = CreateButton();
-				UFeatherTextBlockStyle SuggestionText = CreateTextBlock();
-				SuggestionText.GetTextWidget().SetText(FText::FromString(Suggestion.Name.ToString()));
-				SuggestionButton.GetButtonWidget().SetContent(SuggestionText);
-				SuggestionButton.OnClickedWithContext.AddUFunction(this, n"SuggestionClicked");
-				SearchSuggestions.AddChildToVerticalBox(SuggestionButton);
-			}
-		}
-
-		return NumberOfSuggestions > 0;
-	}
-
-	UFUNCTION()
-	void SuggestionClicked(UFeatherButtonStyle ClickedButton)
-	{
-		GetSearchSuggestionsPanel().SetVisibility(ESlateVisibility::Collapsed);
-
-		UFeatherTextBlockStyle SuggestionText = Cast<UFeatherTextBlockStyle>(ClickedButton.GetButtonWidget().GetContent());
-		if(System::IsValid(SuggestionText))
-		{
-			FString SuggestionToUse = SuggestionText.GetTextWidget().GetText().ToString();
-			FString CurrentSearchString = GetSearchTextBox().GetText().ToString();
-
-			// Remove the final term.
-			FString LeftChop;
-			FString RightChop;
-			if(CurrentSearchString.Split(",", LeftChop, RightChop)
-				|| CurrentSearchString.Split(" ", LeftChop, RightChop))
-			{
-				CurrentSearchString = LeftChop;
-			}
-			else
-			{
-				CurrentSearchString = "";
-			}
-
-			FString NewSearchString = CurrentSearchString + " " + SuggestionToUse;
-			GetSearchTextBox().SetText(FText::FromString(NewSearchString));
-		}
 	}
 
 	void RegenerateSearch(const TArray<FString>& SearchTokens)
@@ -351,7 +210,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		float CumulativeScore = 0.0f;
 		for(FString Token : SearchTokens)
 		{
-			float NameMatchScore = CalculateTokenMatchScore(OperationName, Token);
+			float NameMatchScore = FeatherUtils::CalculateTokenMatchScore(OperationName, Token);
 			if(NameMatchScore > 0.99f)
 			{
 				// Direct hit on name. Always place at the top.
@@ -362,25 +221,11 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 			for(FString OperationTag : Operation.OperationTags)
 			{
-				CumulativeScore += CalculateTokenMatchScore(OperationTag, Token);
+				CumulativeScore += FeatherUtils::CalculateTokenMatchScore(OperationTag, Token);
 			}
 		}
 
 		return CumulativeScore / float(SearchTokens.Num() + 1); // Add one for name
-	}
-
-	float CalculateTokenMatchScore(FString TargetToken, FString InputToTest)
-	{
-		int SubStringIndex = TargetToken.Find(InputToTest);
-		if(SubStringIndex >= 0)
-		{
-			float MatchDegreeScore = float(InputToTest.Len()) / float(TargetToken.Len()) * MaxScoreFromMatch;
-			float PositionScore = (1.0f - (float(SubStringIndex) / float(TargetToken.Len()))) * MaxScoreFromPosition;
-			return FMath::Clamp(MatchDegreeScore + PositionScore, 0.0f, 1.0f);
-		}
-
-		// Token doesn't even contain input
-		return 0.0f;
 	}
 
 	FString GetSanitizedOperationName(UFeatherDebugInterfaceOperation Operation)
@@ -429,7 +274,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		Super::SaveToString(InOutSaveString);
 
 		FDebugInterfaceMainWindowSaveState SaveState;
-		SaveState.SearchText = GetSearchTextBox().GetText().ToString();
+		SaveState.SearchText = GetSearchBox().GetSearchText().ToString();
 		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
@@ -441,7 +286,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		FDebugInterfaceMainWindowSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
-			GetSearchTextBox().SetText(FText::FromString(SaveState.SearchText));
+			GetSearchBox().SetSearchText(FText::FromString(SaveState.SearchText));
 		}
 	}
 
@@ -477,19 +322,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION(Category = "Feather", BlueprintEvent)
-	UCheckBox GetSearchButton()
-	{
-		return nullptr;
-	}
-
-	UFUNCTION(Category = "Feather", BlueprintEvent)
-	UVerticalBox GetSearchSuggestionsPanel()
-	{
-		return nullptr;
-	}
-
-	UFUNCTION(Category = "Feather", BlueprintEvent)
-	UEditableTextBox GetSearchTextBox()
+	UFeatherSearchBox GetSearchBox()
 	{
 		return nullptr;
 	}
