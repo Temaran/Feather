@@ -93,13 +93,15 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 		FavouriteButton = CreateCheckBox(n"FavouriteButton");
 		UHorizontalBoxSlot FavouriteSlot = LayoutBox.AddChildToHorizontalBox(FavouriteButton);
-		FavouriteSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);		
+		FavouriteSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+		FavouriteButton.SetToolTipText(FText::FromString("Favourite operations can be displayed by searching for 'Favourite'"));
 		FavouriteButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"FavouriteStateChanged");
 
 		SaveButton = CreateCheckBox(n"SaveButton");
 		UHorizontalBoxSlot SaveSlot = LayoutBox.AddChildToHorizontalBox(SaveButton);
 		SaveSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 		SaveSlot.SetPadding(LeftPadding);
+		SaveButton.SetToolTipText(FText::FromString("If this is checked, your current settings for this operation will be saved"));
 		SaveButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"SaveStateChanged");
 		SaveButton.SetIsChecked(bSaveByDefault);
 
