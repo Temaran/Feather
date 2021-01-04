@@ -38,15 +38,15 @@ class UFeatherSimpleComboBoxOperationBase : UFeatherDebugInterfaceOperation
 
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveOperationToString(FString& InOutSaveString)
 	{
 		FFeatherSimpleComboBoxSaveState SaveState;
 		SaveState.SelectedIndex = MainComboBox.GetSelectedIndex();
-		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString)
+	void LoadOperationFromString(const FString& InSaveString)
 	{
 		FFeatherSimpleComboBoxSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
@@ -62,11 +62,11 @@ class UFeatherSimpleComboBoxOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ConstructOperation()
+	void ConstructOperation(UNamedSlot OperationRoot)
 	{
 		// Create layout
 		HorizontalBoxLayout = Cast<UHorizontalBox>(ConstructWidget(TSubclassOf<UWidget>(UHorizontalBox::StaticClass())));
-		SetRootWidget(HorizontalBoxLayout);
+        OperationRoot.SetContent(HorizontalBoxLayout);
 
 		// Create actual content
 		MainComboBoxLabel = CreateTextBlock();

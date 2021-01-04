@@ -21,7 +21,6 @@ class UFeatherDebugInterfaceWindow : UFeatherWindow
 	UPROPERTY(Category = "Feather", EditDefaultsOnly)
 	bool bIsPersistent = false;
 
-///////////////////////////////////////////////////////////////////////
 
 	UFUNCTION(BlueprintOverride)
 	void FeatherConstruct()
@@ -42,9 +41,9 @@ class UFeatherDebugInterfaceWindow : UFeatherWindow
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveToString(FString& InOutSaveString)
 	{
-		Super::SaveToString(OutSaveString);
+		Super::SaveToString(InOutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)

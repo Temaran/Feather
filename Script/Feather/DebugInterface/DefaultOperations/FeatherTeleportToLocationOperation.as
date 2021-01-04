@@ -4,8 +4,8 @@
 ////////////////////////////////////////////////////////////
 
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.DebugInterface.FeatherDebugInterfaceUtils;
 import Feather.FeatherSettings;
+import Feather.FeatherUtils;
 
 struct FTeleportToLocationSaveState
 {
@@ -35,17 +35,17 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	}
 	
     UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveOperationToString(FString& InOutSaveString)
 	{
         FTeleportToLocationSaveState SaveState;
         if(FeatherUtils::StringToVector(TeleportTargetEditableText.GetText().ToString(), SaveState.SavedLocation))
         {
-            FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
+            FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
         }
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString)
+	void LoadOperationFromString(const FString& InSaveString)
 	{
 		FTeleportToLocationSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
@@ -61,11 +61,11 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ConstructOperation()
+	void ConstructOperation(UNamedSlot OperationRoot)
 	{
         // Setup widget hierarchy
         UHorizontalBox HorizontalLayout = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
-        SetRootWidget(HorizontalLayout);
+        OperationRoot.SetContent(HorizontalLayout);
 
         TeleportButton = CreateButton();
         HorizontalLayout.AddChildToHorizontalBox(TeleportButton);

@@ -4,7 +4,9 @@
 ////////////////////////////////////////////////////////////
 
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
-import Feather.DebugInterface.FeatherDebugInterfaceUtils;
+import Feather.DebugInterface.FeatherDebugInterfaceSorting;
+import Feather.FeatherSorting;
+import Feather.FeatherUtils;
 
 struct FDebugInterfaceMainWindowSaveState
 {
@@ -53,6 +55,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	// TODO: This could probably be done a lot better with nested lookup maps or something. Might not be necessary for a long time though.
 	TSet<FString> SearchTargetTokens;
 
+
 	UFUNCTION(BlueprintOverride)
 	void FeatherConstruct()
 	{
@@ -97,6 +100,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 		GetSearchTextBox().OnTextChanged.AddUFunction(this, n"SearchChanged");
 		GetSearchTextBox().OnTextCommitted.AddUFunction(this, n"FinalizeSearch");
+		GetSearchButton().OnCheckStateChanged.AddUFunction(this, n"SearchButtonStateChanged");
 
 		RegenerateSearch(TArray<FString>());
 	}
@@ -171,6 +175,12 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		}
 	}
 
+	UFUNCTION()
+	void SearchButtonStateChanged(bool bNewSearchState)
+	{
+
+	}
+
 	void ParseSearchTokens(FString SearchText, TArray<FString>& OutSearchTokens)
 	{
 		OutSearchTokens.Empty();
@@ -203,7 +213,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 		// Only ever try to complete the last token.
 		FString CurrentSearchToken = SearchTokens[SearchTokens.Num() - 1];
-		TArray<FSearchSuggestionWithScore> ValidSuggestionsWithScores;
+		TArray<FNameWithScore> ValidSuggestionsWithScores;
 		for(FString TargetToken : SearchTargetTokens)
 		{
 			float MatchScore = CalculateTokenMatchScore(TargetToken, CurrentSearchToken);
@@ -214,8 +224,8 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			}
 			else if(MatchScore > 0.0f)
 			{
-				FSearchSuggestionWithScore NewSuggestionWithScore;
-				NewSuggestionWithScore.SearchSuggestion = FName(TargetToken);
+				FNameWithScore NewSuggestionWithScore;
+				NewSuggestionWithScore.Name = FName(TargetToken);
 				NewSuggestionWithScore.RankingScoreUNorm = MatchScore;
 				ValidSuggestionsWithScores.Add(NewSuggestionWithScore);
 			}
@@ -231,18 +241,18 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		{
 			for(int i = 0; i < NumberOfSuggestions; i++)
 			{
-				FSearchSuggestionWithScore Suggestion = ValidSuggestionsWithScores[i];
+				FNameWithScore Suggestion = ValidSuggestionsWithScores[i];
 
 				UFeatherButtonStyle SuggestionButton = CreateButton();
 				UFeatherTextBlockStyle SuggestionText = CreateTextBlock();
-				SuggestionText.GetTextWidget().SetText(FText::FromString(Suggestion.SearchSuggestion.ToString()));
+				SuggestionText.GetTextWidget().SetText(FText::FromString(Suggestion.Name.ToString()));
 				SuggestionButton.GetButtonWidget().SetContent(SuggestionText);
 				SuggestionButton.OnClickedWithContext.AddUFunction(this, n"SuggestionClicked");
 				SearchSuggestions.AddChildToVerticalBox(SuggestionButton);
 			}
 		}
 
-		return true;
+		return NumberOfSuggestions > 0;
 	}
 
 	UFUNCTION()
@@ -324,18 +334,6 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			if(bAlternateOperationBackgroundColor)
 			{
 				bUseAlternateBackgroundForEntry = !bUseAlternateBackgroundForEntry;
-			}
-		}
-
-		if(SearchResults.ChildrenCount > 0)
-		{
-			// No top padding allowed for first op!
-			UFeatherDebugInterfaceOperation FirstOp = Cast<UFeatherDebugInterfaceOperation>(SearchResults.GetChildAt(0));
-			if(System::IsValid(FirstOp))
-			{
-				FMargin NewPadding = FirstOp.GetPadding();
-				NewPadding.Top = 0.0f;
-				FirstOp.SetPadding(NewPadding);
 			}
 		}
 	}
@@ -426,15 +424,13 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveToString(FString& InOutSaveString)
 	{
-		Super::SaveToString(OutSaveString);
+		Super::SaveToString(InOutSaveString);
 
-		FString SaveString;
 		FDebugInterfaceMainWindowSaveState SaveState;
 		SaveState.SearchText = GetSearchTextBox().GetText().ToString();
-		FJsonObjectConverter::UStructToJsonObjectString(SaveState, SaveString);
-		OutSaveString += SaveString;
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -476,6 +472,12 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 	UFUNCTION(Category = "Feather", BlueprintEvent)
 	UVerticalBox GetWindowManagerPanel()
+	{
+		return nullptr;
+	}
+
+	UFUNCTION(Category = "Feather", BlueprintEvent)
+	UCheckBox GetSearchButton()
 	{
 		return nullptr;
 	}

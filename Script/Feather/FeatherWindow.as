@@ -42,12 +42,9 @@ event void FTransparencyChangedEvent(UFeatherWindow Window, float NewTransparenc
 UCLASS(Abstract)
 class UFeatherWindow : UFeatherWidget
 {
-	default SetPaletteCategory(FText::FromString("Feather"));
-
 	// All windows must live on a "root canvas". This canvas usually covers the entire screen, but it could be smaller. The window will attempt to find its own slot on root canvas when it initializes.
 	UPROPERTY(Category = "Feather", NotEditable)
 	UCanvasPanelSlot RootCanvasSlot;
-
 
 	UPROPERTY(Category = "Feather|Events")
 	FMovedEvent OnMoveStart;
@@ -69,7 +66,6 @@ class UFeatherWindow : UFeatherWidget
 	UPROPERTY(Category = "Feather|Events")
 	FTransparencyChangedEvent OnTransparencyChanged;
 
-
 	UPROPERTY(Category = "Feather|Transformation", NotEditable)
 	EFeatherWindowTransformState TransformState = EFeatherWindowTransformState::NotBeingTransformed;
 
@@ -87,7 +83,6 @@ class UFeatherWindow : UFeatherWidget
 	UPROPERTY(Category = "Feather|Transformation")
 	float DragMarginPx = 100.0f;
 
-
 	// If this is true, the window will save every time you transform the window with the mouse
 	UPROPERTY(Category = "Feather|Settings")
 	bool bAutoSaveOnCompletedTransform = true;
@@ -96,8 +91,6 @@ class UFeatherWindow : UFeatherWidget
 	private FVector2D CachedStartPosition;
 	private FVector2D CachedStartSize;
 
-//////////////////////////////////////////////////////////////////////////////
-// UUserWidget
 
 	UFUNCTION(BlueprintOverride)
 	void FeatherConstruct()
@@ -192,14 +185,14 @@ class UFeatherWindow : UFeatherWidget
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveToString(FString& InOutSaveString)
 	{
 		FFeatherWindowSaveState SaveState;
 		SaveState.WindowPosition = GetWindowPosition();
 		SaveState.WindowSize = GetWindowSize();
 		SaveState.TransparencyAlpha = GetWindowTransparency();
 		SaveState.bIsVisible = IsVisible();
-		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)

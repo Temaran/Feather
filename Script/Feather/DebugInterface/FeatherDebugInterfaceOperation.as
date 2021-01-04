@@ -5,9 +5,27 @@
 
 import Feather.FeatherWidget;
 
+struct FDebugInterfaceOperationSaveState
+{
+	bool bIsFavourite;
+	bool bSaveOperationState;
+};
+
 UCLASS(Abstract)
 class UFeatherDebugInterfaceOperation : UFeatherWidget
 {
+	// The favourite button lets users add this operation to their favourites.
+	UPROPERTY(Category = "Feather")
+	UFeatherCheckBoxStyle FavouriteButton;
+
+	// The save button lets users save their chosen operation state.
+	UPROPERTY(Category = "Feather")
+	UFeatherCheckBoxStyle SaveButton;
+
+	// Should this operation save its state by default?
+	UPROPERTY(Category = "Feather")
+	bool bSaveByDefault = false;
+
 	// Operations that only work in standalone should not even show up when running networked!
 	UPROPERTY(Category = "Feather")
 	bool bOnlyWorksInStandalone = false;
@@ -24,13 +42,87 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	default AutoPadding.Left = 0.0f;
 	default AutoPadding.Right = 0.0f;
 
-	// Don't try to override this one, override ConstructOperation instead.
+//////////////////////////////////////////////////////////////////////////////////////////////////
+// Final Overrides
+// Don't override these further. I wish we had the final keyword in AS.
+
+	UFUNCTION(BlueprintOverride)
+	void SaveToString(FString& InOutSaveString) 
+	{
+		FDebugInterfaceOperationSaveState SaveState;
+		SaveState.bIsFavourite = FavouriteButton.IsChecked();
+		SaveState.bSaveOperationState = SaveButton.IsChecked();
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
+
+		if(SaveState.bSaveOperationState)
+		{
+			SaveOperationToString(InOutSaveString);
+		}
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void LoadFromString(const FString& InSaveString) 
+	{
+		FDebugInterfaceOperationSaveState SaveState;
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
+		{
+			FavouriteButton.SetIsChecked(SaveState.bIsFavourite);
+			SaveButton.SetIsChecked(SaveState.bSaveOperationState);
+
+			if(SaveState.bSaveOperationState)
+			{				
+				LoadOperationFromString(InSaveString);
+			}
+		}
+	}
+
 	UFUNCTION(BlueprintOverride)
 	void FeatherConstruct()
 	{
 		Super::FeatherConstruct();
 		Padding = AutoPadding;
-		ConstructOperation();
+
+		FMargin LeftPadding;
+		LeftPadding.Left = 5.0f;
+		
+		FMargin SeparationPadding;
+		SeparationPadding.Left = 20.0f;
+
+		UHorizontalBox LayoutBox = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
+		SetRootWidget(LayoutBox);
+
+		FavouriteButton = CreateCheckBox(n"FavouriteButton");
+		UHorizontalBoxSlot FavouriteSlot = LayoutBox.AddChildToHorizontalBox(FavouriteButton);
+		FavouriteSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);		
+		FavouriteButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"FavouriteStateChanged");
+
+		SaveButton = CreateCheckBox(n"SaveButton");
+		UHorizontalBoxSlot SaveSlot = LayoutBox.AddChildToHorizontalBox(SaveButton);
+		SaveSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+		SaveSlot.SetPadding(LeftPadding);
+		SaveButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"SaveStateChanged");
+		SaveButton.SetIsChecked(bSaveByDefault);
+
+		UNamedSlot Operation = Cast<UNamedSlot>(ConstructWidget(UNamedSlot::StaticClass()));
+		UHorizontalBoxSlot OperationSlot = LayoutBox.AddChildToHorizontalBox(Operation);
+		FSlateChildSize FillSize;
+		FillSize.SizeRule = ESlateSizeRule::Fill;
+		OperationSlot.SetSize(FillSize);
+		OperationSlot.SetPadding(SeparationPadding);
+
+		ConstructOperation(Operation);
+	}
+
+	UFUNCTION()
+	void FavouriteStateChanged(bool bNewFavouriteState)
+	{
+		SaveSettings();
+	}
+
+	UFUNCTION()
+	void SaveStateChanged(bool bNewSaveState)
+	{
+		SaveSettings();
 	}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
@@ -44,7 +136,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 	// You should be using this for your initialization logic as base class properties and the environment will have been set up by the time this is called.
 	UFUNCTION(Category = "Feather", BlueprintEvent)
-	protected void ConstructOperation() {	}
+	protected void ConstructOperation(UNamedSlot OperationRoot) { }
 
 	// Execute this operation. This means different things depending on the operation. Usually this is what's called when you execute the key combo bound to this operation.
 	UFUNCTION(Category = "Feather", BlueprintEvent)
@@ -52,11 +144,11 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 // Settings API - It is recommended to use the JSON API here since that will work no matter the type of instance you are running (Standalone / PIE / Built).
 // Another option is using the default ini-config system, but it will not work in all situations.
-	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString) {	}
+	UFUNCTION(Category = "Feather", BlueprintEvent)
+	void SaveOperationToString(FString& InOutSaveString) { }
 
-	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString) { }
+	UFUNCTION(Category = "Feather", BlueprintEvent)
+	void LoadOperationFromString(const FString& InSaveString) { }
 
 	UFUNCTION(BlueprintOverride)
 	void ResetSettingsToDefault() { }

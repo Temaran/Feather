@@ -16,7 +16,6 @@ class UFeatherSimpleButtonOperationBase : UFeatherDebugInterfaceOperation
 	UPROPERTY(Category = "Simple Button")
 	UFeatherTextBlockStyle MainButtonText;
 
-
 	UPROPERTY(Category = "Simple Button")
 	FText ButtonText;
 
@@ -31,7 +30,7 @@ class UFeatherSimpleButtonOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ConstructOperation()
+	void ConstructOperation(UNamedSlot OperationRoot)
 	{
 		// Setup button
 		MainButtonText = CreateTextBlock();
@@ -40,12 +39,11 @@ class UFeatherSimpleButtonOperationBase : UFeatherDebugInterfaceOperation
 		Text.SetToolTipText(ButtonToolTip);
 
 		MainButton = CreateButton();
+        OperationRoot.SetContent(MainButton);
 		UButton Button = MainButton.GetButtonWidget();
 		Button.SetContent(MainButtonText);
 		Button.SetToolTipText(ButtonToolTip);
 		Button.OnClicked.AddUFunction(this, n"OnButtonClicked");
-
-		SetRootWidget(MainButton);
 	}
 
 //////////////////////////////////////////////////////

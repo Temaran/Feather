@@ -19,11 +19,12 @@ Don't forget to override and hook up all the overrides in the window as well if 
 ----------------------------------------------------------------------
 
 # TODO
- - Reset Ability system when it's off
- - Implement operation wrapper with fav+save buttons.
- - Make sure selective saving works
+ - Break out search window into its own widget
+ - Implement Quick-Term selector interface (make a button from magnifier glass button)
+ 
+ - Break out window selector widget into its own widget
+ 
 
- - Implement Quick-Term selector interface
  - Implement Favourite ops
  - Implement Recent ops
  - Implement Options window

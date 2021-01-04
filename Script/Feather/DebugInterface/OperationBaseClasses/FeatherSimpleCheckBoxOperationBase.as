@@ -41,15 +41,15 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveOperationToString(FString& InOutSaveString)
 	{
 		FFeatherSimpleCheckBoxSaveState SaveState;
 		SaveState.bIsChecked = MainCheckBox.IsChecked();
-		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString)
+	void LoadOperationFromString(const FString& InSaveString)
 	{
 		FFeatherSimpleCheckBoxSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
@@ -65,18 +65,19 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ConstructOperation()
+	void ConstructOperation(UNamedSlot OperationRoot)
 	{
 		// Create layout
 		HorizontalBoxLayout = Cast<UHorizontalBox>(ConstructWidget(TSubclassOf<UWidget>(UHorizontalBox::StaticClass())));
-		SetRootWidget(HorizontalBoxLayout);
+        OperationRoot.SetContent(HorizontalBoxLayout);
 
 		// Create actual content
 		MainCheckBox = CreateCheckBox();
 		FMargin SeparationPadding;
 		SeparationPadding.Right = LabelSeparation;
 		MainCheckBox.SetPadding(SeparationPadding);
-		HorizontalBoxLayout.AddChildToHorizontalBox(MainCheckBox);
+		UHorizontalBoxSlot MainSlot = HorizontalBoxLayout.AddChildToHorizontalBox(MainCheckBox);
+		MainSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 
 		MainCheckBoxLabel = CreateTextBlock();
 		HorizontalBoxLayout.AddChildToHorizontalBox(MainCheckBoxLabel);

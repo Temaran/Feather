@@ -4,9 +4,9 @@
 ////////////////////////////////////////////////////////////
 
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.DebugInterface.FeatherDebugInterfaceUtils;
 import Feather.UtilWidgets.FeatherClassSelectorComboBox;
 import Feather.FeatherSettings;
+import Feather.FeatherUtils;
 
 struct FSpawnActorSaveState
 {
@@ -42,16 +42,16 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveOperationToString(FString& InOutSaveString)
 	{
 		FSpawnActorSaveState SaveState;
 		SaveState.Filter = ClassSelectorComboBox.FilterBox.GetText().ToString();
 		SaveState.SelectedClass = ClassSelectorComboBox.ClassComboBox.GetSelectedOption();
-		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString)
+	void LoadOperationFromString(const FString& InSaveString)
 	{
 		FSpawnActorSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
@@ -69,11 +69,11 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ConstructOperation()
+	void ConstructOperation(UNamedSlot OperationRoot)
 	{
         // Setup widget hierarchy
         UHorizontalBox HorizontalLayout = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
-        SetRootWidget(HorizontalLayout);
+        OperationRoot.SetContent(HorizontalLayout);
 
         SpawnButton = CreateButton();
         UHorizontalBoxSlot ButtonSlot = HorizontalLayout.AddChildToHorizontalBox(SpawnButton);

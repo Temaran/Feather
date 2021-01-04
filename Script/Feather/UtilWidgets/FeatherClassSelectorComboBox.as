@@ -48,6 +48,7 @@ class UFeatherClassSelectorComboBox : UFeatherWidget
 
     TMap<FName, UClass> ClassDictionary;
 
+
     UFUNCTION(BlueprintOverride)
     void FeatherConstruct()
     {
@@ -80,7 +81,10 @@ class UFeatherClassSelectorComboBox : UFeatherWidget
         FilterSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 
         ClassComboBox = CreateComboBox();
-        HorizontalLayout.AddChildToHorizontalBox(ClassComboBox);
+        UHorizontalBoxSlot ClassComboBoxSlot = HorizontalLayout.AddChildToHorizontalBox(ClassComboBox);
+        FMargin ComboBoxPadding;
+        ComboBoxPadding.Left = 10.0f;
+        ClassComboBox.SetPadding(ComboBoxPadding);
         
         UEditableText ActualFilterBox = FilterBox.GetEditableText();
         ActualFilterBox.SetToolTipText(FilterToolTip);

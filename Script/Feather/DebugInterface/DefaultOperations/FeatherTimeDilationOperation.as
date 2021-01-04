@@ -15,6 +15,7 @@ class UFeatherTimeDilationOperation : UFeatherSimpleSliderOperationBase
 	default SliderLabelToolTip = FText::FromString("Control how quickly time flows for everyone.");
 	default SliderToolTipPrefix = "Time Dilation: ";
 
+
 	UFUNCTION(BlueprintOverride)
 	float GetDefaultSliderValue() const
 	{

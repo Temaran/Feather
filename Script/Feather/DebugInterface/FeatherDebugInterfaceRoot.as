@@ -38,6 +38,7 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	TArray<UFeatherDebugInterfaceWindow> AllWindows;
 	int CurrentTopZ;
 
+
 	UFUNCTION(BlueprintOverride)
 	void OnInitialized()
 	{
@@ -165,8 +166,6 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	UFUNCTION(BlueprintOverride)
 	void SaveSettings()
 	{
-		Super::SaveSettings();
-
 		for(auto Window : AllWindows)
 		{
 			Window.SaveSettings();
@@ -176,8 +175,6 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	UFUNCTION(BlueprintOverride)
 	void LoadSettings()
 	{
-		Super::LoadSettings();
-
 		for(auto Window : AllWindows)
 		{
 			Window.LoadSettings();

@@ -38,15 +38,15 @@ class UFeatherSimpleSliderOperationBase : UFeatherDebugInterfaceOperation
 
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveOperationToString(FString& InOutSaveString)
 	{
 		FFeatherSimpleSliderSaveState SaveState;
 		SaveState.SliderValue = MainSlider.GetValue();
-		FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString)
+	void LoadOperationFromString(const FString& InSaveString)
 	{
 		FFeatherSimpleSliderSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
@@ -62,11 +62,11 @@ class UFeatherSimpleSliderOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ConstructOperation()
+	void ConstructOperation(UNamedSlot OperationRoot)
 	{
 		// Create layout
 		HorizontalBoxLayout = Cast<UHorizontalBox>(ConstructWidget(TSubclassOf<UWidget>(UHorizontalBox::StaticClass())));
-		SetRootWidget(HorizontalBoxLayout);
+        OperationRoot.SetContent(HorizontalBoxLayout);
 
 		// Create actual content
 		MainSliderLabel = CreateTextBlock();

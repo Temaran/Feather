@@ -21,6 +21,11 @@ namespace FeatherSettings
 	UFUNCTION(Category = "Feather|Settings")
 	bool SaveFeatherSettings(UObject Owner, FString SettingsToSave, FString FileNameOverride = "")
 	{
+		if(!ensure(System::IsValid(Owner), "Cannot save for null object"))
+		{
+			return false;
+		}
+
 		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride);
 		if(FFileHelper::SaveStringToFile(SettingsToSave, FilePath))
 		{
@@ -37,6 +42,11 @@ namespace FeatherSettings
 	UFUNCTION(Category = "Feather|Settings")
 	bool LoadFeatherSettings(UObject Owner, FString& SettingsToLoad, FString FileNameOverride = "")
 	{
+		if(!ensure(System::IsValid(Owner), "Cannot load for null object"))
+		{
+			return false;
+		}
+
 		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride);
 		if(FFileHelper::LoadFileToString(SettingsToLoad, FilePath))
 		{
@@ -44,7 +54,7 @@ namespace FeatherSettings
 			return true;
 		}
 
-		Error("Feather: Could not load settings from file! \n\nPath:" + FilePath);
+		Log("Feather: " + Owner.GetName() + " did not load any settings from file: " + FilePath);
 		return false;
 	}
 

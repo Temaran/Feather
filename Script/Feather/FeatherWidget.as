@@ -21,6 +21,7 @@ class UFeatherWidget : UUserWidget
 	UPROPERTY(Category = "Feather|Style")
 	FFeatherStyle Style;
 
+
 	// We want our own construct function that can be called after a style has been set.
 	UFUNCTION(Category = "Feather")
 	void ConstructFeatherWidget()
@@ -35,7 +36,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherWindowStyle CreateWindow(FName StyleName = NAME_None, FName Opt_WindowName = NAME_None)
 	{
-		return Style.WindowStyles.Contains(StyleName)
+		return ensure(Style.WindowStyles.Contains(StyleName), "Requested style must exist!")
 			? Cast<UFeatherWindowStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.WindowStyles[StyleName]), Opt_WindowName))
 			: nullptr;
 	}
@@ -43,7 +44,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherButtonStyle CreateButton(FName StyleName = NAME_None, FName Opt_ButtonName = NAME_None)
 	{
-		return Style.ButtonStyles.Contains(StyleName)
+		return ensure(Style.ButtonStyles.Contains(StyleName), "Requested style must exist!")
 			? Cast<UFeatherButtonStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.ButtonStyles[StyleName]), Opt_ButtonName))
 			: nullptr;
 	}
@@ -51,7 +52,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherCheckBoxStyle CreateCheckBox(FName StyleName = NAME_None, FName Opt_CheckBoxName = NAME_None)
 	{
-		return Style.CheckBoxStyles.Contains(StyleName)
+		return ensure(Style.CheckBoxStyles.Contains(StyleName), "Requested style must exist!")
 			? Cast<UFeatherCheckBoxStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.CheckBoxStyles[StyleName]), Opt_CheckBoxName))
 			: nullptr;
 	}
@@ -59,7 +60,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherComboBoxStyle CreateComboBox(FName StyleName = NAME_None, FName Opt_ComboBoxName = NAME_None)
 	{
-		return Style.ComboBoxStyles.Contains(StyleName)
+		return ensure(Style.ComboBoxStyles.Contains(StyleName), "Requested style must exist!")
 			? Cast<UFeatherComboBoxStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.ComboBoxStyles[StyleName]), Opt_ComboBoxName))
 			: nullptr;
 	}
@@ -67,7 +68,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherSliderStyle CreateSlider(FName StyleName = NAME_None, FName Opt_SliderName = NAME_None)
 	{
-		return Style.SliderStyles.Contains(StyleName)
+		return ensure(Style.SliderStyles.Contains(StyleName), "Requested style must exist!")
 			? Cast<UFeatherSliderStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.SliderStyles[StyleName]), Opt_SliderName))
 			: nullptr;
 	}
@@ -75,7 +76,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherTextBlockStyle CreateTextBlock(FName StyleName = NAME_None, FName Opt_TextBlockName = NAME_None)
 	{
-		return Style.TextBlockStyles.Contains(StyleName)
+		return ensure(Style.TextBlockStyles.Contains(StyleName), "Requested style must exist!")
 			? Cast<UFeatherTextBlockStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.TextBlockStyles[StyleName]), Opt_TextBlockName))
 			: nullptr;
 	}
@@ -83,7 +84,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherEditableTextStyle CreateEditableText(FName StyleName = NAME_None, FName Opt_EditableTextName = NAME_None)
 	{
-		return Style.EditableTextStyles.Contains(StyleName)
+		return ensure(Style.EditableTextStyles.Contains(StyleName), "Requested style must exist!")
 			? Cast<UFeatherEditableTextStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.EditableTextStyles[StyleName]), Opt_EditableTextName))
 			: nullptr;
 	}
@@ -135,7 +136,7 @@ class UFeatherWidget : UUserWidget
 
 	// This is the main override to actually save your settings.
 	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)
-	protected void SaveToString(FString& OutSaveString) { }
+	protected void SaveToString(FString& InOutSaveString) { }
 
 	// This is the main override to actually load your settings.
 	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)

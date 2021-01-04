@@ -4,8 +4,8 @@
 ////////////////////////////////////////////////////////////
 
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.DebugInterface.FeatherDebugInterfaceUtils;
 import Feather.FeatherSettings;
+import Feather.FeatherUtils;
 
 struct FAbilitySystemDebugSaveState
 {
@@ -37,15 +37,15 @@ class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& OutSaveString)
+	void SaveOperationToString(FString& InOutSaveString)
 	{
         FAbilitySystemDebugSaveState SaveState;
         SaveState.bShowingDebug = ShowAbilitySystemDebugCheckBox.IsChecked();
-        FJsonObjectConverter::UStructToJsonObjectString(SaveState, OutSaveString);
+        FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString)
+	void LoadOperationFromString(const FString& InSaveString)
 	{
 		FAbilitySystemDebugSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
@@ -65,7 +65,7 @@ class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ConstructOperation()
+	void ConstructOperation(UNamedSlot OperationRoot)
 	{
         FMargin LeftPadding;
         LeftPadding.Left = 10.0f;
@@ -75,7 +75,7 @@ class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 
         // Setup widget hierarchy
         UHorizontalBox HorizontalLayout = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
-        SetRootWidget(HorizontalLayout);
+        OperationRoot.SetContent(HorizontalLayout);
 
         ShowAbilitySystemDebugCheckBox = CreateCheckBox();
         UHorizontalBoxSlot CheckBoxSlot = HorizontalLayout.AddChildToHorizontalBox(ShowAbilitySystemDebugCheckBox);
