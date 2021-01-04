@@ -6,6 +6,7 @@
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceSorting;
 import Feather.UtilWidgets.FeatherSearchBox;
+import Feather.UtilWidgets.FeatherWindowSelectionBox;
 import Feather.FeatherSorting;
 import Feather.FeatherUtils;
 
@@ -17,7 +18,7 @@ struct FDebugInterfaceMainWindowSaveState
 UCLASS(Abstract)
 class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 {
-	default WindowName = n"MainWindow";
+	default WindowName = n"Debug Interface";
 
 	UPROPERTY(Category = "Feather", NotEditable)
 	TArray<UFeatherDebugInterfaceOperation> Operations;
@@ -52,17 +53,23 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	{
 		Super::FeatherConstruct();
 
+		SetupSearchBox();
+		SetupWindowManager();
+		RegenerateSearch(TArray<FString>());
+	}
+
+	void SetupSearchBox()
+	{
+		UFeatherSearchBox MySearchBox = GetSearchBox();
+		MySearchBox.Style = Style;
+		MySearchBox.OnSearchChanged.AddUFunction(this, n"SearchChanged");
+
 		// Now automatically add AS-defined debug ops to their chosen paths
 		TArray<UClass> AllDebugOperationTypes = UClass::GetAllSubclassesOf(UFeatherDebugInterfaceOperation::StaticClass());
 		for(UClass IgnoredType : IgnoredOperationTypes)
 		{
 			AllDebugOperationTypes.Remove(IgnoredType);
 		}
-
-		UFeatherSearchBox MySearchBox = GetSearchBox();
-		MySearchBox.Style = Style;
-		MySearchBox.OnSearchChanged.AddUFunction(this, n"SearchChanged");
-
 		for(UClass DebugOpType : AllDebugOperationTypes)
 		{
 			UFeatherDebugInterfaceOperation OperationCDO = Cast<UFeatherDebugInterfaceOperation>(DebugOpType.GetDefaultObject());
@@ -93,45 +100,14 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			}
 		}
 		MySearchBox.ConstructFeatherWidget();
-
-		SetupWindowManager();
-
-		RegenerateSearch(TArray<FString>());
 	}
 
 	void SetupWindowManager()
 	{
-		UVerticalBox WindowManagerBox = GetWindowManagerPanel();
-		WindowManagerBox.ClearChildren();
-
-		for(UFeatherDebugInterfaceWindow Window : ToolWindows)
-		{
-			Window.SetVisibility(ESlateVisibility::Collapsed);
-
-			UFeatherButtonStyle WindowButton = CreateButton();
-			UFeatherTextBlockStyle WindowText = CreateTextBlock();
-			WindowText.GetTextWidget().SetText(FText::FromString(Window.WindowName.ToString()));
-			WindowButton.GetButtonWidget().SetContent(WindowText);
-			WindowButton.OnClickedWithContext.AddUFunction(this, n"WindowButtonClicked");
-			WindowManagerBox.AddChildToVerticalBox(WindowButton);
-		}
-	}
-
-	UFUNCTION()
-	void WindowButtonClicked(UFeatherButtonStyle ClickedButton)
-	{
-		FText ClickedWindowName = Cast<UFeatherTextBlockStyle>(ClickedButton.GetButtonWidget().GetContent()).GetTextWidget().GetText();
-
-		for(UFeatherDebugInterfaceWindow Window : ToolWindows)
-		{
-			if(Window.WindowName == FName(ClickedWindowName.ToString()))
-			{
-				Window.SetVisibility(ESlateVisibility::Visible);
-				break;
-			}
-		}
-
-		GetWindowManager().SetIsExpanded(false);
+		UFeatherWindowSelectionBox MyWindowManager = GetWindowManager();
+		MyWindowManager.ToolWindows = ToolWindows;
+		MyWindowManager.Style = Style;
+		MyWindowManager.ConstructFeatherWidget();
 	}
 
 	UFUNCTION()
@@ -312,13 +288,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION(Category = "Feather", BlueprintEvent)
-	UExpandableArea GetWindowManager()
-	{
-		return nullptr;
-	}
-
-	UFUNCTION(Category = "Feather", BlueprintEvent)
-	UVerticalBox GetWindowManagerPanel()
+	UFeatherWindowSelectionBox GetWindowManager()
 	{
 		return nullptr;
 	}

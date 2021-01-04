@@ -6,7 +6,7 @@
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
 
 UCLASS(Abstract)
-class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
+class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
 {
-	default WindowName = n"Options";
+	default WindowName = n"AutoExec";
 };

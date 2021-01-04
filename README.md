@@ -19,14 +19,11 @@ Don't forget to override and hook up all the overrides in the window as well if 
 ----------------------------------------------------------------------
 
 # TODO
- - Break out window selector widget into its own widget. Don't forget highlight!
-
  - Implement Favourite ops
  - Implement Recent ops
  - Implement Options window
- - Implement graphs window
+ - Implement AutoExec window
  - Implement keybinds
- - Implement autoexec window
 
  - Make sure the cpp changes get merged
  
