@@ -51,6 +51,8 @@ class UFeatherWindowSelectionBox : UFeatherWidget
 			if(Window.WindowName == FName(ClickedWindowName.ToString()))
 			{
 				Window.SetVisibility(ESlateVisibility::Visible);
+				Window.ForceWindowOnTop();
+				Window.SaveSettings();
 				break;
 			}
 		}

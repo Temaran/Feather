@@ -4,6 +4,7 @@
 ////////////////////////////////////////////////////////////
 
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
+import Feather.FeatherWidget;
 import Feather.FeatherSorting;
 
 struct FOperationWithScore

@@ -38,6 +38,7 @@ event void FResizedEvent(UFeatherWindow Window, FVector2D NewSizePx);
 event void FResizeEndEvent(UFeatherWindow Window, FVector2D NewSizePx);
 event void FVisibilityChangedEvent(UFeatherWindow Window, bool NewVisibility);
 event void FTransparencyChangedEvent(UFeatherWindow Window, float NewTransparencyAlpha);
+event void FForceOnTopEvent(UFeatherWindow Window);
 
 UCLASS(Abstract)
 class UFeatherWindow : UFeatherWidget
@@ -65,6 +66,9 @@ class UFeatherWindow : UFeatherWidget
 
 	UPROPERTY(Category = "Feather|Events")
 	FTransparencyChangedEvent OnTransparencyChanged;
+
+	UPROPERTY(Category = "Feather|Events")
+	FForceOnTopEvent OnForceOnTop;
 
 	UPROPERTY(Category = "Feather|Transformation", NotEditable)
 	EFeatherWindowTransformState TransformState = EFeatherWindowTransformState::NotBeingTransformed;
@@ -172,6 +176,7 @@ class UFeatherWindow : UFeatherWidget
 
 //////////////////////////////////////////////////////////////////////////////
 // Settings
+
 	UFUNCTION(BlueprintOverride)
 	void SaveSettings()
 	{
@@ -225,6 +230,7 @@ class UFeatherWindow : UFeatherWidget
 	void CloseWindow()
 	{
 		SetVisibility(ESlateVisibility::Collapsed);
+		SaveSettings();
 	}
 
 	// You must bind this to the OnMouseButtonDown event of the element you want to use for dragging.
@@ -367,6 +373,14 @@ class UFeatherWindow : UFeatherWidget
 	{
 		SetVisibility(NewVisibility ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 		OnVisibilityChanged.Broadcast(this, NewVisibility);
+	}
+
+//////////////////////////////////////////////////////////////////////////////
+// API
+	UFUNCTION(Category = "Feather")
+	void ForceWindowOnTop()
+	{
+		OnForceOnTop.Broadcast(this);
 	}
 
 //////////////////////////////////////////////////////////////////////////////

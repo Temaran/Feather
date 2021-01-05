@@ -6,11 +6,20 @@
 import Feather.FeatherStyle;
 import Feather.FeatherSettings;
 
+event void FOnSettingsSaved(UFeatherWidget Widget);
+event void FOnSettingsLoaded(UFeatherWidget Widget);
+
 // This is the base class we use for all widgets. Supports styling.
 UCLASS(Abstract)
 class UFeatherWidget : UUserWidget
 {
 	default SetPaletteCategory(FText::FromString("Feather"));
+
+	UPROPERTY(Category = "Feather")
+	FOnSettingsSaved OnSettingsSaved;
+
+	UPROPERTY(Category = "Feather")
+	FOnSettingsLoaded OnSettingsLoaded;
 
 	UPROPERTY(Category = "Feather", NotEditable)
 	bool bIsLoading = false;
@@ -27,6 +36,11 @@ class UFeatherWidget : UUserWidget
 	void ConstructFeatherWidget()
 	{
 		FeatherConstruct();
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void Construct()	
+	{
 		bIsConstructed = true;
 	}
 	
@@ -113,8 +127,8 @@ class UFeatherWidget : UUserWidget
 		{		
 			FString SaveString;
 			SaveToString(SaveString);
-			SaveString = SaveString.Replace("\r\n}{", ","); // Support widget hierarchies with unique save structs.
 			FeatherSettings::SaveFeatherSettings(this, SaveString);
+			OnSettingsSaved.Broadcast(this);
 		}
 	}
 
@@ -131,6 +145,7 @@ class UFeatherWidget : UUserWidget
 				LoadFromString(LoadString);
 			}
 			bIsLoading = false;
+			OnSettingsLoaded.Broadcast(this);
 		}
 	}
 

@@ -19,19 +19,10 @@ Don't forget to override and hook up all the overrides in the window as well if 
 ----------------------------------------------------------------------
 
 # TODO
- - Add these to top of Quick-search:
-    - Implement Favourite ops
-    - Implement Recent ops
-    - Disallow Favourite and Recent as op-names and op-tags
+- Implement AutoExec window
+ - Execs to run on BeginPlay
+ - Execs to run on EndPlay
 
- - Implement Options window
-    - Autolaunch DI on BeginPlay
-
- - Implement AutoExec window
-    - Execs to run on BeginPlay
-    - Execs to run on EndPlay
-    
  - Implement keybinds
 
  - Make sure the cpp changes get merged
- 

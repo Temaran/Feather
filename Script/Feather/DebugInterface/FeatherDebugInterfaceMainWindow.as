@@ -4,21 +4,22 @@
 ////////////////////////////////////////////////////////////
 
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
-import Feather.DebugInterface.FeatherDebugInterfaceSorting;
+import Feather.DebugInterface.FeatherDebugInterfaceUtils;
+import Feather.DebugInterface.FeatherWindowSelectionBox;
+import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceOptionsWindow;
 import Feather.UtilWidgets.FeatherSearchBox;
-import Feather.UtilWidgets.FeatherWindowSelectionBox;
 import Feather.FeatherSorting;
 import Feather.FeatherUtils;
 
-struct FDebugInterfaceMainWindowSaveState
-{
-	FString SearchText;
-};
+event void FMainWindowClosedEvent();
 
 UCLASS(Abstract)
 class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 {
 	default WindowName = n"Debug Interface";
+
+	UPROPERTY(Category = "Feather")
+	FMainWindowClosedEvent OnMainWindowClosed;
 
 	UPROPERTY(Category = "Feather", NotEditable)
 	TArray<UFeatherDebugInterfaceOperation> Operations;
@@ -47,6 +48,9 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	default AlternatingOperationColor.G = 0.08f;
 	default AlternatingOperationColor.B = 0.08f;
 
+	FString FavouritesQuickEntry = "Favourites";
+	TArray<FString> SpecialQuickEntries;
+	default SpecialQuickEntries.Add(FavouritesQuickEntry);
 
 	UFUNCTION(BlueprintOverride)
 	void FeatherConstruct()
@@ -55,6 +59,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 		SetupSearchBox();
 		SetupWindowManager();
+		SetupToolWindows();
 		RegenerateSearch(TArray<FString>());
 	}
 
@@ -95,9 +100,16 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			for(FName OperationTag : OperationCDO.OperationTags)
 			{
 				const FString TagToken = OperationTag.ToString();
+				ensure(!SpecialQuickEntries.Contains(TagToken), "Illegal operation tag found! You cannot special quick entries as tags! Offending operation: " + OperationCDO.GetName().ToString() + " Offending tag: " + TagToken);
 				MySearchBox.AllSearchTargetTokens.Add(TagToken);
 				MySearchBox.QuickSelectTokens.Add(TagToken);
 			}
+		}
+
+		for(FString SpecialEntry : SpecialQuickEntries)
+		{
+			MySearchBox.AllSearchTargetTokens.Add(SpecialEntry);
+			MySearchBox.SpecialQuickSelectTokens.Add(SpecialEntry);
 		}
 		MySearchBox.ConstructFeatherWidget();
 	}
@@ -110,6 +122,18 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		MyWindowManager.ConstructFeatherWidget();
 	}
 
+	void SetupToolWindows()
+	{
+		for(UFeatherDebugInterfaceWindow ToolWindow : ToolWindows)
+		{
+			UFeatherDebugInterfaceOptionsWindow OptionsWindow = Cast<UFeatherDebugInterfaceOptionsWindow>(ToolWindow);
+			if(System::IsValid(OptionsWindow))
+			{
+				OptionsWindow.SetSearchBox(GetSearchBox());
+			}
+		}
+	}
+
 	UFUNCTION()
 	void SearchChanged(UFeatherSearchBox SearchBox, const TArray<FString>& SearchTokens, bool bSearchWasFinalized)
 	{
@@ -117,8 +141,6 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		{
 			RegenerateSearch(SearchTokens);
 		}
-
-		SaveSettings();
 	}
 
 	void RegenerateSearch(const TArray<FString>& SearchTokens)
@@ -126,11 +148,25 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		UVerticalBox SearchResults = GetResultsPanel();
 		SearchResults.ClearChildren();
 
+		// Test and purge Special Tokens
+		TArray<FString> ActualTokens = SearchTokens;
+		bool bFilterToFavourites = ActualTokens.Contains(FavouritesQuickEntry);
+		for(FString SpecialEntry : SpecialQuickEntries)
+		{
+			ActualTokens.RemoveAll(SpecialEntry);
+		}
+
 		// Figure out which operations should be displayed
 		TArray<FOperationWithScore> CandidateOperations;
 		for(auto Op : Operations)
 		{
-			float RankingScoreUNorm = ScoreOperation(Op, SearchTokens);
+			if(bFilterToFavourites && !Op.FavouriteButton.GetCheckBoxWidget().IsChecked())
+			{
+				// If we only allow favourites and the op is not favourited, skip.
+				continue;
+			}
+
+			float RankingScoreUNorm = ScoreOperation(Op, ActualTokens);
 			if(RankingScoreUNorm > 0.0f)
 			{
 				FOperationWithScore NewOpAndScore;
@@ -213,16 +249,25 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			return "";
 		}
 
-		FString Output = Operation.Class.GetName().ToString().TrimStartAndEnd();
+		FString OriginalName = Operation.Class.GetName().ToString().TrimStartAndEnd();
+		FString Output = OriginalName;
 		for(FString IgnoredSubstring : IgnoredTokenSubstrings)
 		{
 			Output = Output.Replace(IgnoredSubstring, "");
 		}
 
+		ensure(!SpecialQuickEntries.Contains(Output), "Illegal operation name found! You cannot name operations similarly to special quick entries! Offending operation: " + OriginalName);
+
 		return Output;
 	}
 
 ///////////////////////////////////////////////////////////////////////
+
+	UFUNCTION(BlueprintOverride)
+	void CloseWindow()
+	{
+		OnMainWindowClosed.Broadcast();
+	}
 
 	UFUNCTION(BlueprintOverride)
 	void SaveSettings()
@@ -244,28 +289,8 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		{
 			Op.LoadSettings();
 		}
-	}
 
-	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& InOutSaveString)
-	{
-		Super::SaveToString(InOutSaveString);
-
-		FDebugInterfaceMainWindowSaveState SaveState;
-		SaveState.SearchText = GetSearchBox().GetSearchText().ToString();
-		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
-	}
-
-	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString)
-	{
-		Super::LoadFromString(InSaveString);
-
-		FDebugInterfaceMainWindowSaveState SaveState;
-		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
-		{
-			GetSearchBox().SetSearchText(FText::FromString(SaveState.SearchText));
-		}
+		GetSearchBox().LoadSettings();		
 	}
 
 	UFUNCTION(BlueprintOverride)

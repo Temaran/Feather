@@ -5,7 +5,7 @@
 
 /*
  * This is the master config file for feather. Since we want this to be accessible from anywhere, and forcing the creation of a base-ini is just as much (if not more) of a hassle, this will serve as the master "config" for Feather.
- * Just make any changes you want in-line here, and if you update, you will have to merge this file like normal (but your merge tool should make this exceedingly easy).
+ * If you want to do edits here, move this file to your Script folder. When you update Feather, you will get a conflict when the new config file comes in, and you can then resolve it as you please.
  */
 
 namespace FeatherConfig

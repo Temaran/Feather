@@ -7,35 +7,44 @@ import Feather.FeatherWidget;
 import Feather.FeatherSorting;
 import Feather.FeatherUtils;
 
+struct FSearchBoxSaveState
+{
+	FString SearchText;
+	int MaxSearchSuggestions;
+	float QuickSelectFoldoutSize;
+};
+
 event void FSearchChangedEvent(UFeatherSearchBox SearchBox, const TArray<FString>& SearchTokens, bool bSearchWasFinalized);
 
 class UFeatherSearchBox : UFeatherWidget
 {
+	// Call whenever our search string changed
     UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
     FSearchChangedEvent OnSearchChanged;
 
+	// These tokens are all the search tokens. We use these for autocomplete
     UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
     TSet<FString> AllSearchTargetTokens;
 
+	// Some quick select tokens are special. This array contains those. These are added to the top of the quick select, with a small separation.
+    UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
+    TArray<FString> SpecialQuickSelectTokens;
+
+	// All the quick select tokens (except for the special ones).
     UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
     TSet<FString> QuickSelectTokens;
 
-    UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
-    bool bGenerateSearchSuggestions = true;
-
+	// How many search suggestions do we generate during autocomplete?
 	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
 	int MaxSearchSuggestions = 3;
 
+	// When showing the quick-select terms, how big do we make the foldout?
 	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
-	float MaxScoreFromMatch = 0.8f;
-
-	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
-	float MaxScoreFromPosition = 1.0f - MaxScoreFromMatch;
-
-	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
-	float SearchButtonFoldoutSize = 170.0f;
+	float QuickSelectFoldoutSize = 200.0f;
 
 	TArray<FString> SortedQuickSelectTokens;
+	TArray<FString> LatestSearchTokens;
+
 
     UFUNCTION(BlueprintOverride)
     void FeatherConstruct()
@@ -55,27 +64,27 @@ class UFeatherSearchBox : UFeatherWidget
 		GetSearchSuggestions().SetVisibility(ESlateVisibility::Collapsed);
     }
 
+	UFUNCTION(BlueprintOverride)
+	void ResetSettingsToDefault()
+	{
+		MaxSearchSuggestions = 3;
+		QuickSelectFoldoutSize = 200.0f;
+	}
+
 	UFUNCTION()
 	void SearchChanged(FText& SearchText)
 	{
-		TArray<FString> SearchTokens;
-		ParseSearchTokens(SearchText.ToString(), SearchTokens);
+		ParseSearchTokens(SearchText.ToString(), LatestSearchTokens);
 
-		if(SearchTokens.Num() > 0)
-		{
-			FString CurrentSearchToken = SearchTokens[SearchTokens.Num() - 1];
-			ESlateVisibility SuggestionVisibility = RegenerateSearchSuggestions(CurrentSearchToken)
+		ESlateVisibility SuggestionVisibility = RegenerateSearchSuggestions(LatestSearchTokens)
 				? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
-			GetSearchSuggestions().SetVisibility(SuggestionVisibility);
-			GetSearchSuggestions().ClearHeightOverride();
-			GetSearchButton().SetCheckedState(ECheckBoxState::Unchecked);
-		}
-		else
-		{
-			GetSearchSuggestions().SetVisibility(ESlateVisibility::Collapsed);
-		}
+		GetSearchSuggestions().SetVisibility(SuggestionVisibility);
+		GetSearchSuggestions().ClearHeightOverride();
+		GetSearchButton().SetCheckedState(ECheckBoxState::Unchecked);
 		
-        OnSearchChanged.Broadcast(this, SearchTokens, false);
+        OnSearchChanged.Broadcast(this, LatestSearchTokens, false);
+
+		SaveSettings();
 	}
 
 	UFUNCTION()
@@ -97,10 +106,10 @@ class UFeatherSearchBox : UFeatherWidget
 	{
 		if(bNewSearchState)
 		{
-			ESlateVisibility SuggestionVisibility = RegenerateSearchSuggestions()
+			ESlateVisibility SuggestionVisibility = RegenerateQuickSuggestions()
 				? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
 			GetSearchSuggestions().SetVisibility(SuggestionVisibility);
-			GetSearchSuggestions().SetHeightOverride(SearchButtonFoldoutSize);
+			GetSearchSuggestions().SetHeightOverride(QuickSelectFoldoutSize);
 		}
 		else
 		{
@@ -125,42 +134,69 @@ class UFeatherSearchBox : UFeatherWidget
 
 		if(!Corpus.IsEmpty())
 		{
-			OutSearchTokens.Add(Corpus);
+			OutSearchTokens.Add(Corpus.TrimStartAndEnd());
 		}
 	}
     
-	bool RegenerateSearchSuggestions()
+	bool RegenerateQuickSuggestions()
 	{
 		GetSearchSuggestionsPanel().ClearChildren();
 
-		if(!bGenerateSearchSuggestions || SortedQuickSelectTokens.Num() <= 0)
+		if(SortedQuickSelectTokens.Num() <= 0)
 		{
 			return false;
 		}
 
+		for(int i = 0; i < SpecialQuickSelectTokens.Num(); i++)
+		{
+			bool bLastEntry = i == SpecialQuickSelectTokens.Num() - 1;
+			float BottomPadding = bLastEntry ? 20.0f : 0.0f;
+			AddQuickSuggestion(SpecialQuickSelectTokens[i], BottomPadding);
+		}
+
 		for(FString Token : SortedQuickSelectTokens)
 		{
-			UFeatherButtonStyle SuggestionButton = CreateButton();
-			UFeatherTextBlockStyle SuggestionText = CreateTextBlock();
-			SuggestionText.GetTextWidget().SetText(FText::FromString(Token));
-			SuggestionButton.GetButtonWidget().SetContent(SuggestionText);
-			SuggestionButton.OnClickedWithContext.AddUFunction(this, n"QuickSuggestionClicked");
-			GetSearchSuggestionsPanel().AddChildToVerticalBox(SuggestionButton);
+			AddQuickSuggestion(Token, 0.0f);
 		}
 
 		return true;
 	}
 
-	bool RegenerateSearchSuggestions(FString SearchToken)
+	void AddQuickSuggestion(FString Entry, float BottomPadding)
+	{
+		UFeatherButtonStyle SuggestionButton = CreateButton();
+		UFeatherTextBlockStyle SuggestionText = CreateTextBlock();
+		SuggestionText.GetTextWidget().SetText(FText::FromString(Entry));
+		SuggestionButton.GetButtonWidget().SetContent(SuggestionText);
+		FMargin EntryPadding;
+		EntryPadding.Bottom = BottomPadding;
+		SuggestionButton.SetPadding(EntryPadding);
+		SuggestionButton.OnClickedWithContext.AddUFunction(this, n"QuickSuggestionClicked");
+		GetSearchSuggestionsPanel().AddChildToVerticalBox(SuggestionButton);
+	}
+
+	bool RegenerateSearchSuggestions(const TArray<FString>& SearchTokens)
 	{
 		GetSearchSuggestionsPanel().ClearChildren();
 
-		if(!bGenerateSearchSuggestions)
+		// Ignore special tokens
+		FString SearchToken;
+		for(int i = SearchTokens.Num() - 1; i >= 0; i--)
+		{
+			FString Token = SearchTokens[i];
+			if(!SpecialQuickSelectTokens.Contains(Token))
+			{
+				SearchToken = Token;
+				break;
+			}
+		}
+
+		if(MaxSearchSuggestions == 0 || SearchToken.IsEmpty())
 		{
 			return false;
 		}
 
-		// Only ever try to complete the last token.
+		// Extract valid suggestions and rank them
 		TArray<FNameWithScore> ValidSuggestionsWithScores;
 		for(FString TargetToken : AllSearchTargetTokens)
 		{
@@ -180,6 +216,7 @@ class UFeatherSearchBox : UFeatherWidget
 		}
 		FeatherSorting::QuickSortSuggestions(ValidSuggestionsWithScores, 0, ValidSuggestionsWithScores.Num() - 1);
 
+		// Generate entries
 		int NumberOfSuggestions = FMath::Min(MaxSearchSuggestions, ValidSuggestionsWithScores.Num());
 		for(int i = 0; i < NumberOfSuggestions; i++)
 		{
@@ -236,9 +273,8 @@ class UFeatherSearchBox : UFeatherWidget
 		UFeatherTextBlockStyle SuggestionText = Cast<UFeatherTextBlockStyle>(ClickedButton.GetButtonWidget().GetContent());
 		if(System::IsValid(SuggestionText))
 		{
-			const FString SuggestionToUse = SuggestionText.GetTextWidget().GetText().ToString();
 			FString CurrentSearchString = GetSearchTextBox().GetText().ToString().TrimStartAndEnd();
-
+			FString SuggestionToUse = SuggestionText.GetTextWidget().GetText().ToString();
 			if(CurrentSearchString.IsEmpty())
 			{
 				CurrentSearchString = SuggestionToUse;
@@ -251,6 +287,40 @@ class UFeatherSearchBox : UFeatherWidget
 			GetSearchTextBox().SetText(FText::FromString(CurrentSearchString));
 			GetSearchTextBox().SetKeyboardFocus();
 		}
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void SaveToString(FString& InOutSaveString)
+	{
+		FSearchBoxSaveState SaveState;
+		SaveState.SearchText = GetSearchText().ToString();
+		SaveState.MaxSearchSuggestions = MaxSearchSuggestions;
+		SaveState.QuickSelectFoldoutSize = QuickSelectFoldoutSize;
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void LoadFromString(const FString& InSaveString)
+	{
+		FSearchBoxSaveState SaveState;
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
+		{
+			SetSearchText(FText::FromString(SaveState.SearchText));
+			MaxSearchSuggestions = SaveState.MaxSearchSuggestions;
+			QuickSelectFoldoutSize = SaveState.QuickSelectFoldoutSize;
+		}
+	}
+	
+	void SetMaxSearchSuggestions(int NewMaxSearchSuggestions)
+	{
+		MaxSearchSuggestions = NewMaxSearchSuggestions;
+		RegenerateSearchSuggestions(LatestSearchTokens);
+	}
+
+	void SetQuickSelectFoldoutSize(float NewQuickSelectFoldoutSize)
+	{
+		QuickSelectFoldoutSize = NewQuickSelectFoldoutSize;
+		RegenerateQuickSuggestions();
 	}
 
 ///////////////////////////////////////////////////////////////////////
