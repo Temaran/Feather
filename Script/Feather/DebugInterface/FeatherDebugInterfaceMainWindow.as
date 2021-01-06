@@ -82,11 +82,13 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 		for(auto Op : Operations)
 		{
-			FFeatherKeyCombination& OpHotKey = Op.KeybindButton.KeyCombo;
-			if(!OpHotKey.bIsBound)
+			if(!System::IsValid(Op.KeybindButton)
+				|| !Op.KeybindButton.KeyCombo.MainKey.IsValid())
 			{
 				continue;
 			}
+
+			FFeatherKeyCombination& OpHotKey = Op.KeybindButton.KeyCombo;
 
 			bool bPrevMainKeyState = MainKeyStateMap.FindOrAdd(Op);
 			bool bCurrentMainKeyState = OwningPlayer.IsInputKeyDown(OpHotKey.MainKey);

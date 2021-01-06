@@ -12,6 +12,8 @@ class UFeatherTeleportToFocusOperation : UFeatherSimpleButtonOperationBase
 	default OperationTags.Add(n"Player");
 	default OperationTags.Add(n"Teleport");
     
+    default bCanSave = false;
+
     default ButtonText = FText::FromString("Teleport to focus");
     default ButtonToolTip = FText::FromString("Teleports you to your current focus. This is the center of the screen unless you are invoking using a hotkey with a cursor, in which case it's the cursor.");
 

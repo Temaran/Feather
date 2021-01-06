@@ -7,9 +7,14 @@ import Feather.FeatherWidget;
 
 struct FFeatherKeyCombination
 {
-    bool bIsBound;
     FKey MainKey;
     TArray<FKey> HeldKeys;
+
+    FFeatherKeyCombination()
+    {
+        MainKey = FKey();
+        HeldKeys.Empty();
+    }
 };
 
 event void FNewKeyBoundSignature(UFeatherKeybindCaptureButton CaptureButton, FFeatherKeyCombination KeyCombination);
@@ -45,10 +50,10 @@ class UFeatherKeybindCaptureButton : UFeatherWidget
     {
         if(bCurrentKeybindState)
         {
-            KeyCombo.bIsBound = false;
             KeyCombo.MainKey = FKey();
             KeyCombo.HeldKeys.Empty();
             bIsRecording = true;
+            KeybindButton.SetToolTipText(FText::FromString("Input a key combination to record it!"));
         }
         else
         {
@@ -76,7 +81,6 @@ class UFeatherKeybindCaptureButton : UFeatherWidget
             && InKeyEvent.Key != EKeys::LeftMouseButton
             && InKeyEvent.Key != EKeys::RightMouseButton)
         {
-            KeyCombo.bIsBound = true;
             KeyCombo.MainKey = InKeyEvent.Key;
             KeyCombo.HeldKeys.Remove(InKeyEvent.Key);
             UpdateToolTip();
@@ -99,7 +103,7 @@ class UFeatherKeybindCaptureButton : UFeatherWidget
 
     void UpdateToolTip()
     {
-        if(KeyCombo.bIsBound)
+        if(KeyCombo.MainKey.IsValid())
         {
             FString HotKeyString;
             for(FKey HeldKey : KeyCombo.HeldKeys)

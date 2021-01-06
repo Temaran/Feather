@@ -29,15 +29,23 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	UFeatherCheckBoxStyle SaveButton;
 
 	// Should this operation save its state by default?
-	UPROPERTY(Category = "Feather")
+	UPROPERTY(Category = "Feather", EditDefaultsOnly)
 	bool bSaveByDefault = false;
 
 	// Operations that only work in standalone should not even show up when running networked!
-	UPROPERTY(Category = "Feather")
+	UPROPERTY(Category = "Feather", EditDefaultsOnly)
 	bool bOnlyWorksInStandalone = false;
 
+	// Operations that can execute can have keys bound to them.
+	UPROPERTY(Category = "Feather", EditDefaultsOnly)
+	bool bCanExecute = true;
+
+	// Operations that can save will have a button for it.
+	UPROPERTY(Category = "Feather", EditDefaultsOnly)
+	bool bCanSave = true;
+
 	// These are the tags that will be matched when searching for operations.
-	UPROPERTY(Category = "Feather")
+	UPROPERTY(Category = "Feather", EditDefaultsOnly)
 	TArray<FName> OperationTags;
 
 	// Padding applied to the widget.
@@ -57,8 +65,8 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	{
 		FDebugInterfaceOperationSaveState SaveState;
 		SaveState.bIsFavourite = FavouriteButton.IsChecked();
-		SaveState.bSaveOperationState = SaveButton.IsChecked();
-		SaveState.KeyCombination = KeybindButton.KeyCombo;
+		SaveState.bSaveOperationState = System::IsValid(SaveButton) ? SaveButton.IsChecked() : false;
+		SaveState.KeyCombination = System::IsValid(KeybindButton) ? KeybindButton.KeyCombo : FFeatherKeyCombination();
 		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 
 		if(SaveState.bSaveOperationState)
@@ -74,8 +82,14 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
 			FavouriteButton.SetIsChecked(SaveState.bIsFavourite);
-			SaveButton.SetIsChecked(SaveState.bSaveOperationState);
-			KeybindButton.SetNewKeyCombo(SaveState.KeyCombination);
+			if(System::IsValid(SaveButton))
+			{
+				SaveButton.SetIsChecked(SaveState.bSaveOperationState);
+			}
+			if(System::IsValid(KeybindButton))
+			{
+				KeybindButton.SetNewKeyCombo(SaveState.KeyCombination);
+			}
 
 			if(SaveState.bSaveOperationState)
 			{				
@@ -96,30 +110,50 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 		FMargin SeparationPadding;
 		SeparationPadding.Left = 20.0f;
 
+		const float SpacerWidth = LeftPadding.Left + SeparationPadding.Left;
+
 		UHorizontalBox LayoutBox = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
 		SetRootWidget(LayoutBox);
-
-		KeybindButton = Cast<UFeatherKeybindCaptureButton>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(UFeatherKeybindCaptureButton::StaticClass())));
-		UHorizontalBoxSlot KeybindSlot = LayoutBox.AddChildToHorizontalBox(KeybindButton);
-		KeybindSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
-		KeybindButton.OnKeyBound.AddUFunction(this, n"KeyBound");
-		KeybindButton.FeatherConstruct();
 
 		FavouriteButton = CreateCheckBox(n"FavouriteButton");
 		UHorizontalBoxSlot FavouriteSlot = LayoutBox.AddChildToHorizontalBox(FavouriteButton);
 		FavouriteSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
-		FavouriteSlot.SetPadding(LeftPadding);
 		FavouriteButton.SetToolTipText(FText::FromString("Favourite operations can be displayed by searching for 'Favourite'"));
 		FavouriteButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"FavouriteStateChanged");
 
-		SaveButton = CreateCheckBox(n"SaveButton");
-		UHorizontalBoxSlot SaveSlot = LayoutBox.AddChildToHorizontalBox(SaveButton);
-		SaveSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
-		SaveSlot.SetPadding(LeftPadding);
-		SaveButton.SetToolTipText(FText::FromString("If this is checked, your current settings for this operation will be saved"));
-		SaveButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"SaveStateChanged");
-		SaveButton.SetIsChecked(bSaveByDefault);
+		if(bCanSave)
+		{
+			SaveButton = CreateCheckBox(n"SaveButton");
+			UHorizontalBoxSlot SaveSlot = LayoutBox.AddChildToHorizontalBox(SaveButton);
+			SaveSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+			SaveSlot.SetPadding(LeftPadding);
+			SaveButton.SetToolTipText(FText::FromString("If this is checked, your current settings for this operation will be saved"));
+			SaveButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"SaveStateChanged");
+			SaveButton.SetIsChecked(bSaveByDefault);
+		}
+		else
+		{
+			USpacer SaveSpacer = Cast<USpacer>(ConstructWidget(USpacer::StaticClass()));
+			LayoutBox.AddChildToHorizontalBox(SaveSpacer);
+			SaveSpacer.SetSize(FVector2D(SpacerWidth, 10.0f));
+		}
 
+		if(bCanExecute)
+		{
+			KeybindButton = Cast<UFeatherKeybindCaptureButton>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(UFeatherKeybindCaptureButton::StaticClass())));
+			UHorizontalBoxSlot KeybindSlot = LayoutBox.AddChildToHorizontalBox(KeybindButton);
+			KeybindSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+			KeybindSlot.SetPadding(LeftPadding);
+			KeybindButton.OnKeyBound.AddUFunction(this, n"KeyBound");
+			KeybindButton.FeatherConstruct();
+		}
+		else
+		{
+			USpacer KeybindSpacer = Cast<USpacer>(ConstructWidget(USpacer::StaticClass()));
+			LayoutBox.AddChildToHorizontalBox(KeybindSpacer);
+			KeybindSpacer.SetSize(FVector2D(SpacerWidth, 10.0f));
+		}
+		
 		UNamedSlot Operation = Cast<UNamedSlot>(ConstructWidget(UNamedSlot::StaticClass()));
 		UHorizontalBoxSlot OperationSlot = LayoutBox.AddChildToHorizontalBox(Operation);
 		FSlateChildSize FillSize;
