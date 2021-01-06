@@ -176,6 +176,29 @@ class UFeatherEditableTextStyle : UUserWidget
 	}
 };
 
+UCLASS(Abstract)
+class UFeatherMultiLineEditableTextStyle : UUserWidget
+{
+	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
+	UMultiLineEditableText GetEditableText() const { return nullptr; }
+	
+	UFUNCTION(Category = "Feather|Style", BlueprintPure)
+	FText GetText() const
+	{
+		return GetEditableText().GetText();
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	void SetText(FText NewText)
+	{
+		GetEditableText().SetText(NewText);
+		
+		// Not called when set from code
+		GetEditableText().OnTextChanged.Broadcast(NewText);
+		GetEditableText().OnTextCommitted.Broadcast(NewText, ETextCommit::Default);
+	}
+};
+
 // This is the main style container. You can add multiple styles and identify them by name. Default styles have an empty identifier
 struct FFeatherStyle
 {
@@ -199,4 +222,7 @@ struct FFeatherStyle
 
 	UPROPERTY(Category = "Feather|Style")
 	TMap<FName, TSubclassOf<UFeatherEditableTextStyle>> EditableTextStyles;
+	
+	UPROPERTY(Category = "Feather|Style")
+	TMap<FName, TSubclassOf<UFeatherMultiLineEditableTextStyle>> MultiLineEditableTextStyles;
 };

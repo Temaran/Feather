@@ -89,7 +89,7 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 		ClassSelectorComboBox.BaseClass = SelectorBaseClass;
 		ClassSelectorComboBox.OnFilterChanged.AddUFunction(this, n"OnFilterChanged");
 		ClassSelectorComboBox.OnClassSelectionChanged.AddUFunction(this, n"OnClassSelectionChanged");
-		ClassSelectorComboBox.ConstructFeatherWidget();
+		ClassSelectorComboBox.FeatherConstruct();
         
 		UTextBlock SpawnButtonText = Cast<UTextBlock>(ConstructWidget(UTextBlock::StaticClass()));
 		SpawnButtonText.SetText(ButtonText);

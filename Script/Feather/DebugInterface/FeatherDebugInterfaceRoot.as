@@ -149,11 +149,11 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 
 		for(UFeatherDebugInterfaceWindow ToolWindow : ToolWindows)
 		{
-			ToolWindow.ConstructFeatherWidget();
+			ToolWindow.FeatherConstruct();
 		}
 
 		MainWindow.ToolWindows = ToolWindows;
-		MainWindow.ConstructFeatherWidget();
+		MainWindow.FeatherConstruct();
 
 		// Set up Z-Order updating
 		for(UFeatherDebugInterfaceWindow Window : AllWindows)
@@ -167,6 +167,7 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	UFUNCTION(BlueprintOverride)
 	void Construct()
 	{
+		Super::Construct();
 		LoadSettings();
 	}
 

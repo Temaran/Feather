@@ -19,10 +19,6 @@ Don't forget to override and hook up all the overrides in the window as well if 
 ----------------------------------------------------------------------
 
 # TODO
-- Implement AutoExec window
- - Execs to run on BeginPlay
- - Execs to run on EndPlay
-
  - Implement keybinds
 
  - Make sure the cpp changes get merged

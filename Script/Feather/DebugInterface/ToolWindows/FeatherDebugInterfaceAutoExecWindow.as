@@ -5,8 +5,110 @@
 
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
 
+struct FAutoExecSaveState
+{
+	FString StartUpExecs;
+	FString ShutDownExecs;
+};
+
 UCLASS(Abstract)
 class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
 {
 	default WindowName = n"AutoExec";
+
+	private bool bHasRunStartUpExecs = false;
+
+	UFUNCTION(BlueprintOverride)
+	void FeatherConstruct()
+	{
+		Super::FeatherConstruct();
+
+		GetStartUpBox().OnTextCommitted.AddUFunction(this, n"StartUpExecsCommitted");
+		GetShutDownBox().OnTextCommitted.AddUFunction(this, n"ShutDownExecsCommitted");
+	}
+
+	UFUNCTION()
+	void StartUpExecsCommitted(FText& NewExecs, ETextCommit CommitMethod)
+	{
+		SaveSettings();
+	}
+	
+	UFUNCTION()
+	void ShutDownExecsCommitted(FText& NewExecs, ETextCommit CommitMethod)
+	{
+		SaveSettings();
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void Destruct()
+	{
+		ExecuteCorpusString(GetShutDownBox().GetText().ToString());
+	}
+
+	void ExecuteCorpusString(FString ExecCorpus)
+	{
+		FString Corpus = ExecCorpus;
+		FString CurrentExec;
+		FString RemainingString;
+		while(Corpus.Split("\r\n", CurrentExec, RemainingString))
+		{
+			CurrentExec = CurrentExec.TrimStartAndEnd();
+			if(!CurrentExec.IsEmpty())
+			{
+				System::ExecuteConsoleCommand(CurrentExec);
+			}
+			
+			Corpus = RemainingString;
+		}
+		
+		Corpus = Corpus.TrimStartAndEnd();
+		if(!Corpus.IsEmpty())
+		{
+			System::ExecuteConsoleCommand(Corpus);
+		}
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void SaveToString(FString& InOutSaveString)
+	{
+		Super::SaveToString(InOutSaveString);
+		
+		FAutoExecSaveState SaveState;
+		SaveState.StartUpExecs = GetStartUpBox().GetText().ToString();
+		SaveState.ShutDownExecs = GetShutDownBox().GetText().ToString();
+		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void LoadFromString(const FString& InSaveString)
+	{
+		Super::LoadFromString(InSaveString);
+
+		FAutoExecSaveState SaveState;
+		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
+		{
+			GetStartUpBox().SetText(FText::FromString(SaveState.StartUpExecs));
+			GetShutDownBox().SetText(FText::FromString(SaveState.ShutDownExecs));
+		}
+		
+		if(!bHasRunStartUpExecs)
+		{
+			ExecuteCorpusString(GetStartUpBox().GetText().ToString());
+			bHasRunStartUpExecs = true;
+		}
+	}
+
+////////////////////////////////////////////////////////////////////////
+
+	UFUNCTION(Category = "AutoExec", BlueprintEvent)
+	UMultiLineEditableText GetStartUpBox()
+	{
+		return nullptr;
+	}
+
+	UFUNCTION(Category = "AutoExec", BlueprintEvent)
+	UMultiLineEditableText GetShutDownBox()
+	{
+		return nullptr;
+	}
 };

@@ -92,7 +92,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			}
 
 			OperationWidget.Style = Style;
-			OperationWidget.ConstructFeatherWidget();
+			OperationWidget.FeatherConstruct();
 			Operations.Add(OperationWidget);
 
 			// Add all search terms
@@ -111,7 +111,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			MySearchBox.AllSearchTargetTokens.Add(SpecialEntry);
 			MySearchBox.SpecialQuickSelectTokens.Add(SpecialEntry);
 		}
-		MySearchBox.ConstructFeatherWidget();
+		MySearchBox.FeatherConstruct();
 	}
 
 	void SetupWindowManager()
@@ -119,7 +119,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		UFeatherWindowSelectionBox MyWindowManager = GetWindowManager();
 		MyWindowManager.ToolWindows = ToolWindows;
 		MyWindowManager.Style = Style;
-		MyWindowManager.ConstructFeatherWidget();
+		MyWindowManager.FeatherConstruct();
 	}
 
 	void SetupToolWindows()

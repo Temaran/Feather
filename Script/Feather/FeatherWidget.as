@@ -32,11 +32,9 @@ class UFeatherWidget : UUserWidget
 
 
 	// We want our own construct function that can be called after a style has been set.
-	UFUNCTION(Category = "Feather")
-	void ConstructFeatherWidget()
-	{
-		FeatherConstruct();
-	}
+	// Generally, you should be calling this yourself when you have set all necessary input variables.
+	UFUNCTION(Category = "Feather", BlueprintEvent)
+	protected void FeatherConstruct() { }
 
 	UFUNCTION(BlueprintOverride)
 	void Construct()	
@@ -44,9 +42,6 @@ class UFeatherWidget : UUserWidget
 		bIsConstructed = true;
 	}
 	
-	UFUNCTION(Category = "Feather", BlueprintEvent)
-	protected void FeatherConstruct() { }
-
 	UFUNCTION(Category = "Feather|Style")
 	UFeatherWindowStyle CreateWindow(FName StyleName = NAME_None, FName Opt_WindowName = NAME_None)
 	{
@@ -104,6 +99,14 @@ class UFeatherWidget : UUserWidget
 	}
 
 	UFUNCTION(Category = "Feather|Style")
+	UFeatherMultiLineEditableTextStyle CreateMultiLineEditableText(FName StyleName = NAME_None, FName Opt_EditableTextName = NAME_None)
+	{
+		return ensure(Style.MultiLineEditableTextStyles.Contains(StyleName), "Requested style must exist!")
+			? Cast<UFeatherMultiLineEditableTextStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.MultiLineEditableTextStyles[StyleName]), Opt_EditableTextName))
+			: nullptr;
+	}
+
+	UFUNCTION(Category = "Feather|Style")
 	UFeatherWidget CreateStyledWidget(TSubclassOf<UFeatherWidget> WidgetClass, bool bConstructRightAway = false, FName Opt_WidgetName = NAME_None)
 	{
 		UFeatherWidget NewWidget = Cast<UFeatherWidget>(ConstructWidget(WidgetClass, Opt_WidgetName));
@@ -111,7 +114,7 @@ class UFeatherWidget : UUserWidget
 		
 		if(bConstructRightAway)
 		{
-			NewWidget.ConstructFeatherWidget();
+			NewWidget.FeatherConstruct();
 		}
 
 		return NewWidget;
