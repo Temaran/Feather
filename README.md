@@ -19,6 +19,6 @@ Don't forget to override and hook up all the overrides in the window as well if 
 ----------------------------------------------------------------------
 
 # TODO
- - Implement keybinds
+ - Only process keybinds for ops that actually have them.
 
  - Make sure the cpp changes get merged

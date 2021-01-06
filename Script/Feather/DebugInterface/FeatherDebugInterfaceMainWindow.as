@@ -30,6 +30,10 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	UPROPERTY(Category = "Feather", EditDefaultsOnly)
 	TArray<TSubclassOf<UFeatherDebugInterfaceOperation>> IgnoredOperationTypes;
 
+	// We run a custom input system in the main window to react to our custom hotkeys. This is the frequency of which this system is updated.
+	UPROPERTY(Category = "Feather", EditDefaultsOnly)
+	float InputPollFrequencyHz = 30.0f;
+
 	// To make it easier to see the different ops, we can alternate the background. This is the alternate color
 	UPROPERTY(Category = "Feather", EditDefaultsOnly)
 	bool bAlternateOperationBackgroundColor = true;
@@ -50,6 +54,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 	FString FavouritesQuickEntry = "Favourites";
 	TArray<FString> SpecialQuickEntries;
+	TMap<UFeatherDebugInterfaceOperation, bool> MainKeyStateMap;
 	default SpecialQuickEntries.Add(FavouritesQuickEntry);
 
 	UFUNCTION(BlueprintOverride)
@@ -61,6 +66,52 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		SetupWindowManager();
 		SetupToolWindows();
 		RegenerateSearch(TArray<FString>());
+
+		const float UpdateFreqToUse = (InputPollFrequencyHz < SMALL_NUMBER) ? 30.0f : InputPollFrequencyHz;
+		const float UpdateTime = 1.0f / UpdateFreqToUse;
+		System::SetTimer(this, n"PollInput", UpdateTime, true);
+	}
+
+	UFUNCTION()
+	void PollInput()
+	{
+		if(!System::IsValid(OwningPlayer))
+		{
+			return;
+		}
+
+		for(auto Op : Operations)
+		{
+			FFeatherKeyCombination& OpHotKey = Op.KeybindButton.KeyCombo;
+			if(!OpHotKey.bIsBound)
+			{
+				continue;
+			}
+
+			bool bPrevMainKeyState = MainKeyStateMap.FindOrAdd(Op);
+			bool bCurrentMainKeyState = OwningPlayer.IsInputKeyDown(OpHotKey.MainKey);
+			MainKeyStateMap[Op] = bCurrentMainKeyState;
+
+			if(!bPrevMainKeyState && bCurrentMainKeyState)
+			{
+				// Was just pressed, check the held keys
+				bool bAllHeldKeysArePressed = true;
+				for(FKey HeldKey : OpHotKey.HeldKeys)
+				{
+					if(!OwningPlayer.IsInputKeyDown(HeldKey))
+					{
+						bAllHeldKeysArePressed = false;
+						break;
+					}
+				}
+
+				if(bAllHeldKeysArePressed)
+				{
+					// All conditions were met!
+					Op.Execute();
+				}
+			}
+		}
 	}
 
 	void SetupSearchBox()

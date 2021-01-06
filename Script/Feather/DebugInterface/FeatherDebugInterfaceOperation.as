@@ -3,17 +3,23 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
+import Feather.UtilWidgets.FeatherKeybindCaptureButton;
 import Feather.FeatherWidget;
 
 struct FDebugInterfaceOperationSaveState
 {
 	bool bIsFavourite;
 	bool bSaveOperationState;
+	FFeatherKeyCombination KeyCombination;
 };
 
 UCLASS(Abstract)
 class UFeatherDebugInterfaceOperation : UFeatherWidget
 {
+	// The keybind button lets the user bind custom key combinations to execute this operation
+	UPROPERTY(Category = "Feather")
+	UFeatherKeybindCaptureButton KeybindButton;
+
 	// The favourite button lets users add this operation to their favourites.
 	UPROPERTY(Category = "Feather")
 	UFeatherCheckBoxStyle FavouriteButton;
@@ -52,6 +58,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 		FDebugInterfaceOperationSaveState SaveState;
 		SaveState.bIsFavourite = FavouriteButton.IsChecked();
 		SaveState.bSaveOperationState = SaveButton.IsChecked();
+		SaveState.KeyCombination = KeybindButton.KeyCombo;
 		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 
 		if(SaveState.bSaveOperationState)
@@ -68,6 +75,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 		{
 			FavouriteButton.SetIsChecked(SaveState.bIsFavourite);
 			SaveButton.SetIsChecked(SaveState.bSaveOperationState);
+			KeybindButton.SetNewKeyCombo(SaveState.KeyCombination);
 
 			if(SaveState.bSaveOperationState)
 			{				
@@ -91,9 +99,16 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 		UHorizontalBox LayoutBox = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
 		SetRootWidget(LayoutBox);
 
+		KeybindButton = Cast<UFeatherKeybindCaptureButton>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(UFeatherKeybindCaptureButton::StaticClass())));
+		UHorizontalBoxSlot KeybindSlot = LayoutBox.AddChildToHorizontalBox(KeybindButton);
+		KeybindSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+		KeybindButton.OnKeyBound.AddUFunction(this, n"KeyBound");
+		KeybindButton.FeatherConstruct();
+
 		FavouriteButton = CreateCheckBox(n"FavouriteButton");
 		UHorizontalBoxSlot FavouriteSlot = LayoutBox.AddChildToHorizontalBox(FavouriteButton);
 		FavouriteSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
+		FavouriteSlot.SetPadding(LeftPadding);
 		FavouriteButton.SetToolTipText(FText::FromString("Favourite operations can be displayed by searching for 'Favourite'"));
 		FavouriteButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"FavouriteStateChanged");
 
@@ -113,6 +128,12 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 		OperationSlot.SetPadding(SeparationPadding);
 
 		ConstructOperation(Operation);
+	}
+
+	UFUNCTION()
+	void KeyBound(UFeatherKeybindCaptureButton CaptureButton, FFeatherKeyCombination KeyCombination)
+	{
+		SaveSettings();
 	}
 
 	UFUNCTION()
