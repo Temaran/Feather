@@ -54,7 +54,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 	FString FavouritesQuickEntry = "Favourites";
 	TArray<FString> SpecialQuickEntries;
-	TMap<UFeatherDebugInterfaceOperation, bool> MainKeyStateMap;
+	TMap<UFeatherDebugInterfaceOperation, bool> KeybindOpsToMainButtonStates;
 	default SpecialQuickEntries.Add(FavouritesQuickEntry);
 
 	UFUNCTION(BlueprintOverride)
@@ -73,6 +73,19 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION()
+	void KeyBoundToOperation(UFeatherKeybindCaptureButton CaptureButton, FFeatherKeyCombination KeyCombination)
+	{
+		// We are conservative here in that we will never remove operations from the poll list during runtime.
+		// This is maybe a bit hacky. Would be nice to find a better way to do this.
+		if(KeyCombination.MainKey.IsValid())
+		{
+			UFeatherDebugInterfaceOperation Operation = Cast<UFeatherDebugInterfaceOperation>(CaptureButton.Outer.Outer);
+			ensure(System::IsValid(Operation), "The way we have set it up, the outer here should always be an op.");
+			KeybindOpsToMainButtonStates.Add(Operation, false);
+		}
+	}
+
+	UFUNCTION()
 	void PollInput()
 	{
 		if(!System::IsValid(OwningPlayer))
@@ -80,19 +93,21 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			return;
 		}
 
-		for(auto Op : Operations)
+		TMap<UFeatherDebugInterfaceOperation, bool> NewKeybindOpsToMainButtonStates;
+		for(auto OperationPair : KeybindOpsToMainButtonStates)
 		{
-			if(!System::IsValid(Op.KeybindButton)
-				|| !Op.KeybindButton.KeyCombo.MainKey.IsValid())
+			UFeatherDebugInterfaceOperation Operation = OperationPair.Key;
+			if(!System::IsValid(Operation.KeybindButton)
+				|| !Operation.KeybindButton.KeyCombo.MainKey.IsValid())
 			{
 				continue;
 			}
 
-			FFeatherKeyCombination& OpHotKey = Op.KeybindButton.KeyCombo;
+			FFeatherKeyCombination& OpHotKey = Operation.KeybindButton.KeyCombo;
 
-			bool bPrevMainKeyState = MainKeyStateMap.FindOrAdd(Op);
+			bool bPrevMainKeyState = OperationPair.Value;
 			bool bCurrentMainKeyState = OwningPlayer.IsInputKeyDown(OpHotKey.MainKey);
-			MainKeyStateMap[Op] = bCurrentMainKeyState;
+			NewKeybindOpsToMainButtonStates.Add(Operation, bCurrentMainKeyState);
 
 			if(!bPrevMainKeyState && bCurrentMainKeyState)
 			{
@@ -110,10 +125,12 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 				if(bAllHeldKeysArePressed)
 				{
 					// All conditions were met!
-					Op.Execute();
+					Operation.Execute();
 				}
 			}
 		}
+
+		KeybindOpsToMainButtonStates = NewKeybindOpsToMainButtonStates;
 	}
 
 	void SetupSearchBox()
@@ -147,6 +164,10 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			OperationWidget.Style = Style;
 			OperationWidget.FeatherConstruct();
 			Operations.Add(OperationWidget);
+			if(System::IsValid(OperationWidget.KeybindButton))
+			{
+				OperationWidget.KeybindButton.OnKeyBound.AddUFunction(this, n"KeyBoundToOperation");
+			}
 
 			// Add all search terms
 			MySearchBox.AllSearchTargetTokens.Add(GetSanitizedOperationName(OperationCDO));

@@ -19,6 +19,7 @@ Don't forget to override and hook up all the overrides in the window as well if 
 ----------------------------------------------------------------------
 
 # TODO
- - Only process keybinds for ops that actually have them.
+ - Reset to default button somewhere
+ - Unbind key support
 
  - Make sure the cpp changes get merged
