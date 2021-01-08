@@ -59,9 +59,14 @@ class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
-        ShowAbilitySystemDebugCheckBox.SetIsChecked(false);
+		Super::Reset();
+		
+        if(ShowAbilitySystemDebugCheckBox.IsChecked())
+        {
+            ShowAbilitySystemDebugCheckBox.SetIsChecked(false);
+        }
 	}
 
 	UFUNCTION(BlueprintOverride)

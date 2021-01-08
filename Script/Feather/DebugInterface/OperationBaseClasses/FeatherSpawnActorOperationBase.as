@@ -30,7 +30,7 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	UPROPERTY(Category = "Spawn Actor", EditDefaultsOnly)
 	UClass SelectorBaseClass;
 	
-	FText ButtonText = FText::FromString("Spawn");
+	FText ButtonText = FText::FromString(" Spawn ");
 	FText ButtonToolTipText = FText::FromString("Click to spawn an actor of the selected type at the cursor/screen center.");
 	float ButtonSeparation = 10.0f;
 
@@ -62,8 +62,10 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
+		Super::Reset();
+		
 		ClassSelectorComboBox.FilterBox.SetText(FText());
 		ClassSelectorComboBox.ClassComboBox.SetSelectedIndex(0);
 	}
@@ -91,7 +93,7 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 		ClassSelectorComboBox.OnClassSelectionChanged.AddUFunction(this, n"OnClassSelectionChanged");
 		ClassSelectorComboBox.FeatherConstruct();
         
-		UTextBlock SpawnButtonText = Cast<UTextBlock>(ConstructWidget(UTextBlock::StaticClass()));
+		UFeatherTextBlockStyle SpawnButtonText = CreateTextBlock();
 		SpawnButtonText.SetText(ButtonText);
 		SpawnButtonText.SetToolTipText(ButtonToolTipText);
 

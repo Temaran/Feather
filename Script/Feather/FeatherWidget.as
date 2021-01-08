@@ -22,10 +22,7 @@ class UFeatherWidget : UUserWidget
 	FOnSettingsLoaded OnSettingsLoaded;
 
 	UPROPERTY(Category = "Feather", NotEditable)
-	bool bIsLoading = false;
-
-	UPROPERTY(Category = "Feather", NotEditable)
-	bool bIsConstructed = false;
+	bool bIsPossibleToSave = false;
 
 	UPROPERTY(Category = "Feather|Style")
 	FFeatherStyle Style;
@@ -39,7 +36,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(BlueprintOverride)
 	void Construct()	
 	{
-		bIsConstructed = true;
+		bIsPossibleToSave = true;
 	}
 	
 	UFUNCTION(Category = "Feather|Style")
@@ -126,7 +123,7 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Settings", BlueprintEvent, BlueprintCallable)
 	void SaveSettings()
 	{
-		if(!bIsLoading && bIsConstructed)
+		if(bIsPossibleToSave)
 		{		
 			FString SaveString;
 			SaveToString(SaveString);
@@ -139,15 +136,15 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather|Settings", BlueprintEvent, BlueprintCallable)
 	void LoadSettings()
 	{
-		if(!bIsLoading)
+		if(bIsPossibleToSave)
 		{
-			bIsLoading = true;
+			bIsPossibleToSave = false;
 			FString LoadString;
 			if(FeatherSettings::LoadFeatherSettings(this, LoadString))
 			{
 				LoadFromString(LoadString);
 			}
-			bIsLoading = false;
+			bIsPossibleToSave = true;
 			OnSettingsLoaded.Broadcast(this);
 		}
 	}
@@ -161,6 +158,14 @@ class UFeatherWidget : UUserWidget
 	protected void LoadFromString(const FString& InSaveString) { }
 
 	// Reset all settings to the default
+	UFUNCTION(Category = "Feather|Settings")
+	void ResetSettingsToDefault() 
+	{
+		bIsPossibleToSave = false;
+		Reset();
+		bIsPossibleToSave = true;
+	}
+
 	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)
-	void ResetSettingsToDefault() {	}
+	void Reset() { }
 };

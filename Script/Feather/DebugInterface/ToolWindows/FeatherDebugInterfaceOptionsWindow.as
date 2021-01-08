@@ -8,6 +8,7 @@ import Feather.UtilWidgets.FeatherSearchBox;
 import Feather.FeatherUtils;
 
 event void FSaveOptionsEvent();
+event void FResetEverythingEvent();
 
 UCLASS(Abstract)
 class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
@@ -16,6 +17,9 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 
 	UPROPERTY(Category = "Feather|Options")
 	FSaveOptionsEvent OnSaveOptions;
+	
+	UPROPERTY(Category = "Feather|Options")
+	FResetEverythingEvent OnResetEverything;
 
 	private UFeatherSearchBox SearchBox;
 
@@ -26,7 +30,7 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 
 		GetMaxSearchSuggestionsText().OnTextChanged.AddUFunction(this, n"MaxSearchSuggestionsChanged");
 		GetQuickSelectFoldoutSizeText().OnTextChanged.AddUFunction(this, n"QuickSelectFoldoutSizeChanged");
-		GetResetButton().OnClicked.AddUFunction(this, n"OnResetSearch");
+		GetResetButton().OnClicked.AddUFunction(this, n"ResetEverything");
 	}
 
 	void SetSearchBox(UFeatherSearchBox InSearchBox)
@@ -64,16 +68,15 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION()
-	void OnResetSearch()
+	void ResetEverything()
 	{
-		SearchBox.ResetSettingsToDefault();
-		SaveSearchBoxSettings();
+		OnResetEverything.Broadcast();
 		ReloadValues();
 	}
 
 	void SaveSearchBoxSettings()
 	{
-		if(bIsConstructed)
+		if(bIsPossibleToSave)
 		{
 			SearchBox.SaveSettings();
 		}

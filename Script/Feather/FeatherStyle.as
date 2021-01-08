@@ -34,7 +34,7 @@ class UFeatherButtonStyle : UUserWidget
 	UButton GetButtonWidget() const { return nullptr; }
 
 	UFUNCTION(BlueprintOverride)
-	void PreConstruct(bool IsDesignTime)
+	void PreConstruct(bool bIsDesignTime)
 	{
 		SetStyleOverride();
 	}

@@ -55,8 +55,10 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
+		Super::Reset();
+		
         TeleportTargetEditableText.SetText(FText::FromString(FeatherUtils::VectorToString(FVector::ZeroVector)));
 	}
 
@@ -71,7 +73,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
         HorizontalLayout.AddChildToHorizontalBox(TeleportButton);
         UFeatherTextBlockStyle TeleportButtonText = CreateTextBlock();
         TeleportButton.GetButtonWidget().SetContent(TeleportButtonText);
-        TeleportButtonText.GetTextWidget().SetText(FText::FromString("Teleport To:"));
+        TeleportButtonText.GetTextWidget().SetText(FText::FromString(" Teleport To: "));
         TeleportButton.SetToolTipText(FText::FromString("Teleport to the coordinates in the target field"));
         TeleportButton.GetButtonWidget().OnClicked.AddUFunction(this, n"TeleportToTarget");
 
@@ -93,7 +95,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
         HorizontalLayout.AddChildToHorizontalBox(StoreButton);
         UFeatherTextBlockStyle StoreButtonText = CreateTextBlock();
         StoreButton.GetButtonWidget().SetContent(StoreButtonText);
-        StoreButtonText.GetTextWidget().SetText(FText::FromString("Store Current"));
+        StoreButtonText.GetTextWidget().SetText(FText::FromString(" Store Current "));
         StoreButton.SetToolTipText(FText::FromString("Store your current position in the target field"));
         StoreButton.GetButtonWidget().OnClicked.AddUFunction(this, n"StoreCurrentPosition");
 	}

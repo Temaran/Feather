@@ -56,8 +56,10 @@ class UFeatherSimpleSliderOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
+		Super::Reset();
+		
 		MainSlider.SetValue(GetDefaultSliderValue());
 	}
 

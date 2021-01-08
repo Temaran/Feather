@@ -65,8 +65,9 @@ class UFeatherSearchBox : UFeatherWidget
     }
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
+		SetSearchText(FText());
 		MaxSearchSuggestions = 3;
 		QuickSelectFoldoutSize = 200.0f;
 	}

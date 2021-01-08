@@ -150,6 +150,12 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 		for(UFeatherDebugInterfaceWindow ToolWindow : ToolWindows)
 		{
 			ToolWindow.FeatherConstruct();
+			
+			UFeatherDebugInterfaceOptionsWindow OptionsWindow = Cast<UFeatherDebugInterfaceOptionsWindow>(ToolWindow);
+			if(System::IsValid(OptionsWindow))
+			{
+				OptionsWindow.OnResetEverything.AddUFunction(this, n"ResetEverything");
+			}
 		}
 
 		MainWindow.ToolWindows = ToolWindows;
@@ -169,6 +175,13 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	{
 		Super::Construct();
 		LoadSettings();
+	}
+
+	UFUNCTION()
+	void ResetEverything()
+	{
+		ResetSettingsToDefault();
+		SaveSettings();
 	}
 
 	UFUNCTION()
@@ -195,20 +208,20 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	}
 
 	UFUNCTION(Category = "Feather")
-	void SetDebugInterfaceVisibility(bool NewVisibility)
+	void SetDebugInterfaceVisibility(bool bNewVisibility)
 	{
 		if(IsVisible() && IsAnyWindowVisible(true))
 		{
 			// Let each window handle itself, but we cannot hide the layout.
 			for(UFeatherDebugInterfaceWindow Window : AllWindows)
 			{
-				Window.SetWindowVisibility(NewVisibility);
+				Window.SetWindowVisibility(bNewVisibility);
 			}
 		}
 		else
 		{
 			// Since no persistant windows are visible we can just hide the entire layout!
-			SetVisibility(NewVisibility ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+			SetVisibility(bNewVisibility ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 		}
 	}
 	UFUNCTION(Category = "Feather", BlueprintPure)
@@ -223,11 +236,11 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	}
 
 	UFUNCTION(Category = "Feather", BlueprintPure)
-	bool IsAnyWindowVisible(bool OnlyCheckPersistentWindows = false) const
+	bool IsAnyWindowVisible(bool bOnlyCheckPersistentWindows = false) const
 	{
 		for(UFeatherDebugInterfaceWindow Window : AllWindows)
 		{
-			if(OnlyCheckPersistentWindows)
+			if(bOnlyCheckPersistentWindows)
 			{
 				return Window.bIsPersistent && Window.IsVisible();
 			}
@@ -262,9 +275,9 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
-		Super::ResetSettingsToDefault();
+		Super::Reset();
 
 		for(auto Window : AllWindows)
 		{

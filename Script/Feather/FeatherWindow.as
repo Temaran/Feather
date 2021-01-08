@@ -214,13 +214,12 @@ class UFeatherWindow : UFeatherWidget
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
 		// Try to figure out a good configuration here.
-		SetWindowPosition(FVector2D(0.0f, 0.0f));
-		SetWindowSize(FVector2D(400.0f, 600.0f));
+		SetWindowSize(MinimumWindowSize);
 		SetWindowTransparency(1.0f);
-		SetVisibility(ESlateVisibility::Visible);
+		SetVisibility(ESlateVisibility::Collapsed);
 	}
 
 //////////////////////////////////////////////////////////////////////////////
@@ -369,10 +368,10 @@ class UFeatherWindow : UFeatherWidget
 		return IsVisible();
 	}
 	UFUNCTION(Category = "Feather|Accessors")
-	void SetWindowVisibility(bool NewVisibility)
+	void SetWindowVisibility(bool bNewVisibility)
 	{
-		SetVisibility(NewVisibility ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
-		OnVisibilityChanged.Broadcast(this, NewVisibility);
+		SetVisibility(bNewVisibility ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
+		OnVisibilityChanged.Broadcast(this, bNewVisibility);
 	}
 
 //////////////////////////////////////////////////////////////////////////////

@@ -10,15 +10,20 @@ struct FDebugInterfaceOperationSaveState
 {
 	bool bIsFavourite;
 	bool bSaveOperationState;
-	FFeatherKeyCombination KeyCombination;
+	FFeatherHotkey Hotkey;
 };
+
+event void FOperationHotkeyBoundSignature(UFeatherDebugInterfaceOperation Operation, FFeatherHotkey Hotkey);
 
 UCLASS(Abstract)
 class UFeatherDebugInterfaceOperation : UFeatherWidget
-{
-	// The keybind button lets the user bind custom key combinations to execute this operation
+{   
+	UPROPERTY(Category = "Keybind Capture")
+    FOperationHotkeyBoundSignature OnHotkeyBound;
+
+	// The hotkey capture button lets the user bind custom key combinations to execute this operation
 	UPROPERTY(Category = "Feather")
-	UFeatherKeybindCaptureButton KeybindButton;
+	UFeatherHotkeyCaptureButton HotkeyCaptureButton;
 
 	// The favourite button lets users add this operation to their favourites.
 	UPROPERTY(Category = "Feather")
@@ -66,7 +71,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 		FDebugInterfaceOperationSaveState SaveState;
 		SaveState.bIsFavourite = FavouriteButton.IsChecked();
 		SaveState.bSaveOperationState = System::IsValid(SaveButton) ? SaveButton.IsChecked() : false;
-		SaveState.KeyCombination = System::IsValid(KeybindButton) ? KeybindButton.KeyCombo : FFeatherKeyCombination();
+		SaveState.Hotkey = System::IsValid(HotkeyCaptureButton) ? HotkeyCaptureButton.Hotkey : FFeatherHotkey();
 		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 
 		if(SaveState.bSaveOperationState)
@@ -86,9 +91,9 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 			{
 				SaveButton.SetIsChecked(SaveState.bSaveOperationState);
 			}
-			if(System::IsValid(KeybindButton))
+			if(System::IsValid(HotkeyCaptureButton))
 			{
-				KeybindButton.SetNewKeyCombo(SaveState.KeyCombination);
+				HotkeyCaptureButton.SetNewHotkey(SaveState.Hotkey);
 			}
 
 			if(SaveState.bSaveOperationState)
@@ -140,12 +145,12 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 		if(bCanExecute)
 		{
-			KeybindButton = Cast<UFeatherKeybindCaptureButton>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(UFeatherKeybindCaptureButton::StaticClass())));
-			UHorizontalBoxSlot KeybindSlot = LayoutBox.AddChildToHorizontalBox(KeybindButton);
+			HotkeyCaptureButton = Cast<UFeatherHotkeyCaptureButton>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(UFeatherHotkeyCaptureButton::StaticClass())));
+			UHorizontalBoxSlot KeybindSlot = LayoutBox.AddChildToHorizontalBox(HotkeyCaptureButton);
 			KeybindSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 			KeybindSlot.SetPadding(LeftPadding);
-			KeybindButton.OnKeyBound.AddUFunction(this, n"KeyBound");
-			KeybindButton.FeatherConstruct();
+			HotkeyCaptureButton.OnHotkeyBound.AddUFunction(this, n"HotkeyBound");
+			HotkeyCaptureButton.FeatherConstruct();
 		}
 		else
 		{
@@ -165,8 +170,9 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	}
 
 	UFUNCTION()
-	void KeyBound(UFeatherKeybindCaptureButton CaptureButton, FFeatherKeyCombination KeyCombination)
+	void HotkeyBound(UFeatherHotkeyCaptureButton CaptureButton, FFeatherHotkey Hotkey)
 	{
+		OnHotkeyBound.Broadcast(this, Hotkey);
 		SaveSettings();
 	}
 
@@ -208,7 +214,18 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	void LoadOperationFromString(const FString& InSaveString) { }
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault() { }
+	void Reset() 
+	{
+		FavouriteButton.SetIsChecked(false);
+		if(System::IsValid(SaveButton))
+		{
+			SaveButton.SetIsChecked(bSaveByDefault);
+		}
+		if(System::IsValid(HotkeyCaptureButton))
+		{
+			HotkeyCaptureButton.SetNewHotkey(FFeatherHotkey());
+		}
+	}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Static API - Should only be called from CDO

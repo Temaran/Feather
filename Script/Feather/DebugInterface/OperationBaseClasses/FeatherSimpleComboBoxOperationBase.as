@@ -56,8 +56,10 @@ class UFeatherSimpleComboBoxOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
+		Super::Reset();
+		
 		MainComboBox.SetSelectedIndex(GetDefaultSelectedOptionIndex());
 	}
 

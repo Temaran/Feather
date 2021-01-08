@@ -59,8 +59,10 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
+		Super::Reset();
+		
 		MainCheckBox.SetIsChecked(IsCheckedByDefault());
 	}
 

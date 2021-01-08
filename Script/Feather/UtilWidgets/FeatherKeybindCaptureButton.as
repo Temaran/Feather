@@ -5,32 +5,33 @@
 
 import Feather.FeatherWidget;
 
-struct FFeatherKeyCombination
+struct FFeatherHotkey
 {
     FKey MainKey;
     TArray<FKey> HeldKeys;
 
-    FFeatherKeyCombination()
+    FFeatherHotkey()
     {
         MainKey = FKey();
         HeldKeys.Empty();
     }
 };
 
-event void FNewKeyBoundSignature(UFeatherKeybindCaptureButton CaptureButton, FFeatherKeyCombination KeyCombination);
+event void FHotkeyBoundSignature(UFeatherHotkeyCaptureButton CaptureButton, FFeatherHotkey Hotkey);
 
-class UFeatherKeybindCaptureButton : UFeatherWidget
+class UFeatherHotkeyCaptureButton : UFeatherWidget
 {
     // This is called when a key combo is successfully bound
     UPROPERTY(Category = "Keybind Capture")
-    FNewKeyBoundSignature OnKeyBound;
+    FHotkeyBoundSignature OnHotkeyBound;
     
     UPROPERTY(Category = "Keybind Capture")
     UFeatherCheckBoxStyle KeybindButton;
 
     UPROPERTY(Category = "Keybind Capture")
-    FFeatherKeyCombination KeyCombo;
+    FFeatherHotkey Hotkey;
 
+    float RecordedTimestamp = 0.0f;
     bool bIsRecording = false;
 
     UFUNCTION(BlueprintOverride)
@@ -38,7 +39,7 @@ class UFeatherKeybindCaptureButton : UFeatherWidget
     {
         Super::FeatherConstruct();
 
-        KeybindButton = CreateCheckBox(n"KeybindButton");
+        KeybindButton = CreateCheckBox(n"HotkeyCaptureButton");
         KeybindButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"KeybindButtonClicked");
         SetRootWidget(KeybindButton);
 
@@ -50,14 +51,26 @@ class UFeatherKeybindCaptureButton : UFeatherWidget
     {
         if(bCurrentKeybindState)
         {
-            KeyCombo.MainKey = FKey();
-            KeyCombo.HeldKeys.Empty();
+            Hotkey.MainKey = FKey();
+            Hotkey.HeldKeys.Empty();
             bIsRecording = true;
-            KeybindButton.SetToolTipText(FText::FromString("Input a key combination to record it!"));
+            UpdateToolTip();
         }
         else
         {
-            bIsRecording = false;
+            if(bIsRecording)
+            {
+                // Reset hotkey
+                Hotkey.MainKey = FKey();
+                Hotkey.HeldKeys.Empty();
+                OnHotkeyBound.Broadcast(this, Hotkey);
+                bIsRecording = false;
+                UpdateToolTip();
+            }
+            else
+            {
+                bIsRecording = false;
+            }
         }
     }
 
@@ -68,7 +81,7 @@ class UFeatherKeybindCaptureButton : UFeatherWidget
             && InKeyEvent.Key != EKeys::LeftMouseButton
             && InKeyEvent.Key != EKeys::RightMouseButton)
         {
-            KeyCombo.HeldKeys.Add(InKeyEvent.Key);
+            Hotkey.HeldKeys.Add(InKeyEvent.Key);
         }
 
         return FEventReply::Unhandled();
@@ -81,38 +94,44 @@ class UFeatherKeybindCaptureButton : UFeatherWidget
             && InKeyEvent.Key != EKeys::LeftMouseButton
             && InKeyEvent.Key != EKeys::RightMouseButton)
         {
-            KeyCombo.MainKey = InKeyEvent.Key;
-            KeyCombo.HeldKeys.Remove(InKeyEvent.Key);
-            UpdateToolTip();
-            KeybindButton.SetIsChecked(false);
-            OnKeyBound.Broadcast(this, KeyCombo);
+            Hotkey.MainKey = InKeyEvent.Key;
+            Hotkey.HeldKeys.Remove(InKeyEvent.Key);
+            RecordedTimestamp = System::GetGameTimeInSeconds();
+            
+            // Turn off recording before setting the checked state, otherwise the key could be cleared.
             bIsRecording = false;
-
-            return FEventReply::Handled();
+            KeybindButton.SetIsChecked(false);
+            
+            UpdateToolTip();
+            OnHotkeyBound.Broadcast(this, Hotkey);
         }
         
         return FEventReply::Unhandled();
     }
 
-    void SetNewKeyCombo(FFeatherKeyCombination NewKeyCombo)
+    void SetNewHotkey(FFeatherHotkey NewHotkey)
     {
-        KeyCombo = NewKeyCombo;
+        Hotkey = NewHotkey;
         UpdateToolTip();
-        OnKeyBound.Broadcast(this, KeyCombo);
+        OnHotkeyBound.Broadcast(this, Hotkey);
     }
 
     void UpdateToolTip()
     {
-        if(KeyCombo.MainKey.IsValid())
+        if(bIsRecording)
+        {            
+            KeybindButton.SetToolTipText(FText::FromString("Input a key combination to record it! Click the button again to reset the hotkey."));
+        }
+        else if(Hotkey.MainKey.IsValid())
         {
-            FString HotKeyString;
-            for(FKey HeldKey : KeyCombo.HeldKeys)
+            FString HotkeyString;
+            for(FKey HeldKey : Hotkey.HeldKeys)
             {
-                HotKeyString += HeldKey.ToString() + "+";
+                HotkeyString += HeldKey.ToString() + "+";
             }
-            HotKeyString += KeyCombo.MainKey.ToString();
+            HotkeyString += Hotkey.MainKey.ToString();
 
-            KeybindButton.SetToolTipText(FText::FromString("Click to rebind. Current hotkey is: " + HotKeyString));
+            KeybindButton.SetToolTipText(FText::FromString("Click to rebind. Double click to reset. Current hotkey is: " + HotkeyString));
         }
         else
         {

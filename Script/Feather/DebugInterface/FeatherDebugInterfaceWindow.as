@@ -53,9 +53,9 @@ class UFeatherDebugInterfaceWindow : UFeatherWindow
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault() 
+	void Reset() 
 	{
-		Super::ResetSettingsToDefault();
+		Super::Reset();
 	}
 	
 	UFUNCTION(BlueprintOverride)

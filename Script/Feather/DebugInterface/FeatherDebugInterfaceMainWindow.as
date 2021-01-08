@@ -73,14 +73,11 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION()
-	void KeyBoundToOperation(UFeatherKeybindCaptureButton CaptureButton, FFeatherKeyCombination KeyCombination)
+	void HotkeyBoundToOperation(UFeatherDebugInterfaceOperation Operation, FFeatherHotkey Hotkey)
 	{
 		// We are conservative here in that we will never remove operations from the poll list during runtime.
-		// This is maybe a bit hacky. Would be nice to find a better way to do this.
-		if(KeyCombination.MainKey.IsValid())
+		if(Hotkey.MainKey.IsValid() && System::IsValid(Operation))
 		{
-			UFeatherDebugInterfaceOperation Operation = Cast<UFeatherDebugInterfaceOperation>(CaptureButton.Outer.Outer);
-			ensure(System::IsValid(Operation), "The way we have set it up, the outer here should always be an op.");
 			KeybindOpsToMainButtonStates.Add(Operation, false);
 		}
 	}
@@ -93,44 +90,59 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			return;
 		}
 
+		const float PollTime = System::GetGameTimeInSeconds();
+		const float PostRecordIgnoreTimeSecs = 0.5;
+
 		TMap<UFeatherDebugInterfaceOperation, bool> NewKeybindOpsToMainButtonStates;
 		for(auto OperationPair : KeybindOpsToMainButtonStates)
 		{
 			UFeatherDebugInterfaceOperation Operation = OperationPair.Key;
-			if(!System::IsValid(Operation.KeybindButton)
-				|| !Operation.KeybindButton.KeyCombo.MainKey.IsValid())
+			if(!System::IsValid(Operation.HotkeyCaptureButton)
+				|| !Operation.HotkeyCaptureButton.Hotkey.MainKey.IsValid())
 			{
 				continue;
 			}
 
-			FFeatherKeyCombination& OpHotKey = Operation.KeybindButton.KeyCombo;
+			FFeatherHotkey& OpHotKey = Operation.HotkeyCaptureButton.Hotkey;
 
 			bool bPrevMainKeyState = OperationPair.Value;
 			bool bCurrentMainKeyState = OwningPlayer.IsInputKeyDown(OpHotKey.MainKey);
 			NewKeybindOpsToMainButtonStates.Add(Operation, bCurrentMainKeyState);
-
+			
 			if(!bPrevMainKeyState && bCurrentMainKeyState)
 			{
 				// Was just pressed, check the held keys
-				bool bAllHeldKeysArePressed = true;
-				for(FKey HeldKey : OpHotKey.HeldKeys)
-				{
-					if(!OwningPlayer.IsInputKeyDown(HeldKey))
-					{
-						bAllHeldKeysArePressed = false;
-						break;
-					}
-				}
 
-				if(bAllHeldKeysArePressed)
+				const float TimeSinceRecording = PollTime - Operation.HotkeyCaptureButton.RecordedTimestamp;
+				if(TimeSinceRecording > PostRecordIgnoreTimeSecs)
 				{
-					// All conditions were met!
-					Operation.Execute();
-				}
+					bool bAllHeldKeysArePressed = true;
+					for(FKey HeldKey : OpHotKey.HeldKeys)
+					{
+						if(!OwningPlayer.IsInputKeyDown(HeldKey))
+						{
+							bAllHeldKeysArePressed = false;
+							break;
+						}
+					}
+
+					if(bAllHeldKeysArePressed)
+					{
+						// All conditions were met!
+						Operation.Execute();
+					}
+				}				
 			}
 		}
 
-		KeybindOpsToMainButtonStates = NewKeybindOpsToMainButtonStates;
+		// Update Keystates
+		for(auto OperationPair : NewKeybindOpsToMainButtonStates)
+		{
+			if(KeybindOpsToMainButtonStates.Contains(OperationPair.Key))
+			{
+				KeybindOpsToMainButtonStates[OperationPair.Key] = OperationPair.Value;
+			}
+		}
 	}
 
 	void SetupSearchBox()
@@ -163,11 +175,8 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 			OperationWidget.Style = Style;
 			OperationWidget.FeatherConstruct();
+			OperationWidget.OnHotkeyBound.AddUFunction(this, n"HotkeyBoundToOperation");
 			Operations.Add(OperationWidget);
-			if(System::IsValid(OperationWidget.KeybindButton))
-			{
-				OperationWidget.KeybindButton.OnKeyBound.AddUFunction(this, n"KeyBoundToOperation");
-			}
 
 			// Add all search terms
 			MySearchBox.AllSearchTargetTokens.Add(GetSanitizedOperationName(OperationCDO));
@@ -368,14 +377,19 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void ResetSettingsToDefault()
+	void Reset()
 	{
-		Super::ResetSettingsToDefault();
+		// Don't call super		
+		SetWindowSize(MinimumWindowSize);
+		SetWindowTransparency(1.0f);
+		SetVisibility(ESlateVisibility::Visible);
 
 		for(auto Op : Operations)
 		{
 			Op.ResetSettingsToDefault();
 		}
+
+		GetSearchBox().ResetSettingsToDefault();
 	}
 
 ///////////////////////////////////////////////////////////////////////
