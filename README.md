@@ -2,7 +2,9 @@
 A library for creating an AS/UMG hybrid window system. Also includes a template debug interface for UE4 dev.
 
 # Installation
-To install Feather, simply copy the entire FeatherDemo/Script/Feather/... folder to your project's #MyProject#/Script/Feather/... folder.
+To install Feather you currently need this PR: https://github.com/Hazelight/UnrealEngine-Angelscript/pull/128
+Hopefully, it will get merged into angelscript-master fairly soon!
+Then, simply copy the entire FeatherDemo/Script/Feather/... folder to your project's #MyProject#/Script/Feather/... folder.
 
 You can also optionally copy the FeatherDemo/Content/DebugInterface/... folder to your project's #MyProject#/Content/DebugInterface/... folder if you want a default root with some windows and styles.
 
