@@ -3,90 +3,16 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.FeatherWidget;
+import Feather.FeatherRoot;
 import Feather.FeatherWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceMainWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
 
-enum EDebugInterfaceState
-{
-	Disabled,
-	EnabledWithGame,
-	EnabledUIOnly
-};
-
-namespace FeatherDebugInterfaceRoot
-{
-	UFUNCTION(Category = "Feather|Debug Interface")
-	UFeatherDebugInterfaceRoot CreateDebugInterface(APlayerController Player, TSubclassOf<UFeatherDebugInterfaceRoot> RootWidgetType, int ZOrder = 0)
-	{
-		if(!ensure(RootWidgetType.IsValid(), "Must supply valid root widget type!")
-		 || !ensure(System::IsValid(Player), "Must supply valid player!"))
-		{
-			return nullptr;
-		}
-
-		UFeatherDebugInterfaceRoot RootWidget = Cast<UFeatherDebugInterfaceRoot>(WidgetBlueprint::CreateWidget(RootWidgetType.Get(), Player));
-		RootWidget.AddToViewport(ZOrder);
-		return RootWidget;
-	}
-
-	UFUNCTION(Category = "Feather|Debug Interface")
-	void SetDebugInterfaceState(UFeatherDebugInterfaceRoot DebugInterface, EDebugInterfaceState NewState, bool bAffectsMouseCursor = false)
-	{
-		if(!System::IsValid(DebugInterface))
-		{
-			return;
-		}
-
-		switch(NewState)
-		{
-			case EDebugInterfaceState::EnabledWithGame:
-			{
-				DebugInterface.SetDebugInterfaceVisibility(true);
-				WidgetBlueprint::SetInputMode_GameAndUIEx(DebugInterface.OwningPlayer, bHideCursorDuringCapture = false);
-				
-				if(bAffectsMouseCursor)
-				{
-					DebugInterface.OwningPlayer.SetbShowMouseCursor(true);
-				}
-				break;
-			}
-
-			case EDebugInterfaceState::EnabledUIOnly:
-			{
-				DebugInterface.SetDebugInterfaceVisibility(true);
-				WidgetBlueprint::SetInputMode_UIOnlyEx(DebugInterface.OwningPlayer);
-				
-				if(bAffectsMouseCursor)
-				{
-					DebugInterface.OwningPlayer.SetbShowMouseCursor(true);
-				}
-				break;
-			}
-
-			default:
-			{
-				DebugInterface.SetDebugInterfaceVisibility(false);
-				WidgetBlueprint::SetInputMode_GameOnly(DebugInterface.OwningPlayer);
-				
-				if(bAffectsMouseCursor)
-				{
-					DebugInterface.OwningPlayer.SetbShowMouseCursor(false);
-				}
-				break;
-			}
-		}
-	}
-}
-
 // This is just a container to configure the debug interface and provide a root canvas.
 UCLASS(Abstract)
-class UFeatherDebugInterfaceRoot : UFeatherWidget
+class UFeatherDebugInterfaceRoot : UFeatherRoot
 {
-	default SetPaletteCategory(FText::FromString("Feather"));
-
 	UPROPERTY(Category = "Feather", NotEditable)
 	UCanvasPanel RootCanvasPanel;
 
@@ -114,6 +40,8 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	UFUNCTION(BlueprintOverride)
 	void OnInitialized()
 	{
+		Super::OnInitialized();
+
 		RootCanvasPanel = Cast<UCanvasPanel>(GetRootWidget());
 		if(!System::IsValid(RootCanvasPanel))
 		{
@@ -161,7 +89,7 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 
 		for(UFeatherDebugInterfaceWindow ToolWindow : ToolWindows)
 		{
-			ToolWindow.FeatherConstruct();
+			ToolWindow.FeatherConstruct(Style, FeatherConfiguration);
 			
 			UFeatherDebugInterfaceOptionsWindow OptionsWindow = Cast<UFeatherDebugInterfaceOptionsWindow>(ToolWindow);
 			if(System::IsValid(OptionsWindow))
@@ -171,7 +99,7 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 		}
 
 		MainWindow.ToolWindows = ToolWindows;
-		MainWindow.FeatherConstruct();
+		MainWindow.FeatherConstruct(Style, FeatherConfiguration);
 
 		// Set up Z-Order updating
 		for(UFeatherDebugInterfaceWindow Window : AllWindows)
@@ -199,7 +127,7 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	UFUNCTION()
 	void MainWindowClosed()
 	{
-		FeatherDebugInterfaceRoot::SetDebugInterfaceState(this, EDebugInterfaceState::Disabled);
+		SetRootVisibility(EFeatherRootVisibility::Disabled);
 	}
 
 	UFUNCTION()
@@ -219,8 +147,20 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 		}
 	}
 
-	UFUNCTION(Category = "Feather")
-	void SetDebugInterfaceVisibility(bool bNewVisibility)
+	UFUNCTION(BlueprintOverride)
+	void SetRootVisibility(EFeatherRootVisibility NewRootVisibility, bool bAffectMouseCursor)
+	{
+		Super::SetRootVisibility(NewRootVisibility, bAffectMouseCursor);
+		SetWindowVisibility(NewRootVisibility != EFeatherRootVisibility::Disabled);
+	}
+
+	UFUNCTION(BlueprintOverride)
+	bool IsRootVisible() const
+	{
+		return IsVisible() && IsAnyWindowVisible();
+	}
+
+	void SetWindowVisibility(bool bNewVisibility)
 	{
 		if(IsVisible() && IsAnyWindowVisible(true))
 		{
@@ -236,29 +176,21 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 			SetVisibility(bNewVisibility ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 		}
 	}
-	UFUNCTION(Category = "Feather", BlueprintPure)
-	bool GetDebugInterfaceVisibility() const
-	{
-		return IsVisible() && IsAnyWindowVisible();
-	}
-	UFUNCTION(Category = "Feather")
-	void ToggleDebugInterfaceVisibility()
-	{
-		SetDebugInterfaceVisibility(!GetDebugInterfaceVisibility());
-	}
 
-	UFUNCTION(Category = "Feather", BlueprintPure)
 	bool IsAnyWindowVisible(bool bOnlyCheckPersistentWindows = false) const
 	{
 		for(UFeatherDebugInterfaceWindow Window : AllWindows)
 		{
 			if(bOnlyCheckPersistentWindows)
 			{
-				return Window.bIsPersistent && Window.IsVisible();
+				if(Window.bIsPersistent && Window.IsVisible())
+				{
+					return true;
+				}
 			}
-			else
+			else if(Window.IsVisible())
 			{
-				return Window.IsVisible();
+				return true;
 			}
 		}
 
@@ -271,6 +203,8 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	UFUNCTION(BlueprintOverride)
 	void SaveSettings()
 	{
+		Super::SaveSettings();
+
 		for(auto Window : AllWindows)
 		{
 			Window.SaveSettings();
@@ -280,6 +214,8 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	UFUNCTION(BlueprintOverride)
 	void LoadSettings()
 	{
+		Super::LoadSettings();
+
 		for(auto Window : AllWindows)
 		{
 			Window.LoadSettings();

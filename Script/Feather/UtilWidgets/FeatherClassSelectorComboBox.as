@@ -50,9 +50,9 @@ class UFeatherClassSelectorComboBox : UFeatherWidget
 
 
     UFUNCTION(BlueprintOverride)
-    void FeatherConstruct()
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
     {
-        Super::FeatherConstruct();
+		Super::FeatherConstruct(InStyle, InConfig);
 
         if(!ensure(System::IsValid(BaseClass), "You must specify a base class for the class selector!"))
         {

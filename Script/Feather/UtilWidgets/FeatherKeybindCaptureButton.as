@@ -35,9 +35,9 @@ class UFeatherHotkeyCaptureButton : UFeatherWidget
     bool bIsRecording = false;
 
     UFUNCTION(BlueprintOverride)
-    void FeatherConstruct()
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
     {
-        Super::FeatherConstruct();
+		Super::FeatherConstruct(InStyle, InConfig);
 
         KeybindButton = CreateCheckBox(n"HotkeyCaptureButton");
         KeybindButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"KeybindButtonClicked");

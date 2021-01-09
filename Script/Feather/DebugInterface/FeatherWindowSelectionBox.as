@@ -12,9 +12,9 @@ class UFeatherWindowSelectionBox : UFeatherWidget
 	TArray<UFeatherDebugInterfaceWindow> ToolWindows;
 
     UFUNCTION(BlueprintOverride)
-    void FeatherConstruct()
+    void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
     {
-		Super::FeatherConstruct();
+		Super::FeatherConstruct(InStyle, InConfig);
 		
 		GetMenuPanel().ClearChildren();
 		for(UFeatherDebugInterfaceWindow Window : ToolWindows)

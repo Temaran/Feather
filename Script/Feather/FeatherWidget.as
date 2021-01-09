@@ -31,11 +31,17 @@ class UFeatherWidget : UUserWidget
 	UPROPERTY(Category = "Feather|Style")
 	FFeatherStyle Style;
 
+	// This cascades down from the root
+	FFeatherConfig FeatherConfiguration;
 
 	// We want our own construct function that can be called after a style has been set.
 	// Generally, you should be calling this yourself when you have set all necessary input variables.
 	UFUNCTION(Category = "Feather", BlueprintEvent)
-	protected void FeatherConstruct() { }
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
+	{
+		Style = InStyle;
+		FeatherConfiguration = InConfig;
+	}
 
 	UFUNCTION(BlueprintOverride)
 	void Construct()	
@@ -111,11 +117,10 @@ class UFeatherWidget : UUserWidget
 	UFeatherWidget CreateStyledWidget(TSubclassOf<UFeatherWidget> WidgetClass, bool bConstructRightAway = false, FName Opt_WidgetName = NAME_None)
 	{
 		UFeatherWidget NewWidget = Cast<UFeatherWidget>(ConstructWidget(WidgetClass, Opt_WidgetName));
-		NewWidget.Style = Style;
 		
 		if(bConstructRightAway)
 		{
-			NewWidget.FeatherConstruct();
+			NewWidget.FeatherConstruct(Style, FeatherConfiguration);
 		}
 
 		return NewWidget;
@@ -131,7 +136,7 @@ class UFeatherWidget : UUserWidget
 		{		
 			FString SaveString;
 			SaveToString(SaveString);
-			FeatherSettings::SaveFeatherSettings(this, SaveString);
+			FeatherSettings::SaveFeatherSettings(this, SaveString, FeatherConfiguration);
 			OnSettingsSaved.Broadcast(this);
 		}
 	}
@@ -144,7 +149,7 @@ class UFeatherWidget : UUserWidget
 		{
 			bIsPossibleToSave = false;
 			FString LoadString;
-			if(FeatherSettings::LoadFeatherSettings(this, LoadString))
+			if(FeatherSettings::LoadFeatherSettings(this, LoadString, FeatherConfiguration))
 			{
 				LoadFromString(LoadString);
 			}

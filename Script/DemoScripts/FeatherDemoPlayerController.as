@@ -12,21 +12,21 @@ class AFeatherDemoPlayerPawn : APawn
 
 #if !RELEASE
 	UPROPERTY(Category = "Debug", EditDefaultsOnly)
-	TSubclassOf<UFeatherDebugInterfaceRoot> DebugInterfaceType;
-    private UFeatherDebugInterfaceRoot DebugInterface;
+	TSubclassOf<UFeatherRoot> DebugInterfaceType;
+    private UFeatherRoot DebugInterface;
 
 	UFUNCTION()
 	void ToggleDebugInterface(FKey Key)
 	{
 		if(System::IsValid(DebugInterface))
 		{
-			if(DebugInterface.GetDebugInterfaceVisibility())
+			if(DebugInterface.IsRootVisible())
 			{
-				FeatherDebugInterfaceRoot::SetDebugInterfaceState(DebugInterface, EDebugInterfaceState::Disabled);
+				DebugInterface.SetRootVisibility(EFeatherRootVisibility::Disabled);
 			}
 			else
 			{
-				FeatherDebugInterfaceRoot::SetDebugInterfaceState(DebugInterface, EDebugInterfaceState::EnabledWithGame);
+				DebugInterface.SetRootVisibility(EFeatherRootVisibility::EnabledWithGame);
 			}
 		}
 	}
@@ -37,8 +37,8 @@ class AFeatherDemoPlayerPawn : APawn
     {
 #if !RELEASE
 		ensure(DebugInterfaceType.IsValid(), "Cannot find Debug Interface!");
-		DebugInterface = FeatherDebugInterfaceRoot::CreateDebugInterface(Cast<APlayerController>(GetController()), DebugInterfaceType);
-		FeatherDebugInterfaceRoot::SetDebugInterfaceState(DebugInterface, EDebugInterfaceState::EnabledWithGame);
+		DebugInterface = Feather::CreateFeatherRoot(Cast<APlayerController>(GetController()), DebugInterfaceType);
+		DebugInterface.SetRootVisibility(EFeatherRootVisibility::EnabledWithGame);
         
 		ScriptInputComponent.BindAction(n"ToggleDebugInterface", EInputEvent::IE_Pressed, FInputActionHandlerDynamicSignature(this, n"ToggleDebugInterface"));
 #endif // RELEASE

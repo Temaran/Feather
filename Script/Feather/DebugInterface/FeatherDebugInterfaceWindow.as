@@ -23,9 +23,9 @@ class UFeatherDebugInterfaceWindow : UFeatherWindow
 
 
 	UFUNCTION(BlueprintOverride)
-	void FeatherConstruct()
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
 	{
-		Super::FeatherConstruct();
+		Super::FeatherConstruct(InStyle, InConfig);
 	}
 
 	UFUNCTION(BlueprintOverride)

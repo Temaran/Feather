@@ -47,9 +47,9 @@ class UFeatherSearchBox : UFeatherWidget
 
 
     UFUNCTION(BlueprintOverride)
-    void FeatherConstruct()
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
     {
-		Super::FeatherConstruct();
+		Super::FeatherConstruct(InStyle, InConfig);
 		
 		GetSearchButton().OnCheckStateChanged.AddUFunction(this, n"SearchButtonStateChanged");
 		GetSearchTextBox().OnTextChanged.AddUFunction(this, n"SearchChanged");

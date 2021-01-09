@@ -58,9 +58,9 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	default SpecialQuickEntries.Add(FavouritesQuickEntry);
 
 	UFUNCTION(BlueprintOverride)
-	void FeatherConstruct()
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
 	{
-		Super::FeatherConstruct();
+		Super::FeatherConstruct(InStyle, InConfig);
 
 		SetupSearchBox();
 		SetupWindowManager();
@@ -148,7 +148,6 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	void SetupSearchBox()
 	{
 		UFeatherSearchBox MySearchBox = GetSearchBox();
-		MySearchBox.Style = Style;
 		MySearchBox.OnSearchChanged.AddUFunction(this, n"SearchChanged");
 
 		// Now automatically add AS-defined debug ops to their chosen paths
@@ -174,7 +173,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			}
 
 			OperationWidget.Style = Style;
-			OperationWidget.FeatherConstruct();
+			OperationWidget.FeatherConstruct(Style, FeatherConfiguration);
 			OperationWidget.OnHotkeyBound.AddUFunction(this, n"HotkeyBoundToOperation");
 			Operations.Add(OperationWidget);
 
@@ -194,7 +193,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			MySearchBox.AllSearchTargetTokens.Add(SpecialEntry);
 			MySearchBox.SpecialQuickSelectTokens.Add(SpecialEntry);
 		}
-		MySearchBox.FeatherConstruct();
+		MySearchBox.FeatherConstruct(Style, FeatherConfiguration);
 	}
 
 	void SetupWindowManager()
@@ -202,7 +201,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		UFeatherWindowSelectionBox MyWindowManager = GetWindowManager();
 		MyWindowManager.ToolWindows = ToolWindows;
 		MyWindowManager.Style = Style;
-		MyWindowManager.FeatherConstruct();
+		MyWindowManager.FeatherConstruct(Style, FeatherConfiguration);
 	}
 
 	void SetupToolWindows()

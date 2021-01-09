@@ -19,9 +19,9 @@ class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
 	private bool bHasRunStartUpExecs = false;
 
 	UFUNCTION(BlueprintOverride)
-	void FeatherConstruct()
-	{
-		Super::FeatherConstruct();
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
+    {
+		Super::FeatherConstruct(InStyle, InConfig);
 
 		GetStartUpBox().OnTextCommitted.AddUFunction(this, n"StartUpExecsCommitted");
 		GetShutDownBox().OnTextCommitted.AddUFunction(this, n"ShutDownExecsCommitted");

@@ -14,7 +14,7 @@ struct FAbilitySystemDebugSaveState
 };
 
 // Adds a more user friendly way of interacting with the ability system debugger.
-class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
+class UFeatherAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 {
 	default OperationTags.Add(n"GAS");
 

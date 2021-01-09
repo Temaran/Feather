@@ -97,9 +97,9 @@ class UFeatherWindow : UFeatherWidget
 
 
 	UFUNCTION(BlueprintOverride)
-	void FeatherConstruct()
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
 	{
-		Super::FeatherConstruct();
+		Super::FeatherConstruct(InStyle, InConfig);
 
 		if(!System::IsValid(RootCanvasSlot))
 		{

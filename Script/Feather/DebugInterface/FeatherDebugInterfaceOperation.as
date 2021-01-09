@@ -104,9 +104,9 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void FeatherConstruct()
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
 	{
-		Super::FeatherConstruct();
+		Super::FeatherConstruct(InStyle, InConfig);
 		Padding = AutoPadding;
 
 		FMargin LeftPadding;
@@ -150,7 +150,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 			KeybindSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 			KeybindSlot.SetPadding(LeftPadding);
 			HotkeyCaptureButton.OnHotkeyBound.AddUFunction(this, n"HotkeyBound");
-			HotkeyCaptureButton.FeatherConstruct();
+			HotkeyCaptureButton.FeatherConstruct(Style, FeatherConfiguration);
 		}
 		else
 		{

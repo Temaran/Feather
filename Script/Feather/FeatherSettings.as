@@ -19,14 +19,14 @@ import Feather.FeatherConfig;
 namespace FeatherSettings
 {
 	UFUNCTION(Category = "Feather|Settings")
-	bool SaveFeatherSettings(UObject Owner, FString SettingsToSave, FString FileNameOverride = "")
+	bool SaveFeatherSettings(UObject Owner, const FString& SettingsToSave, const FFeatherConfig& FeatherConfig, FString FileNameOverride = "")
 	{
 		if(!ensure(System::IsValid(Owner), "Cannot save for null object"))
 		{
 			return false;
 		}
 
-		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride);
+		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride, FeatherConfig);
 		if(FFileHelper::SaveStringToFile(SettingsToSave, FilePath))
 		{
 			//Log("Feather: Saved window settings to path: " + FilePath);
@@ -40,14 +40,14 @@ namespace FeatherSettings
 	}
 
 	UFUNCTION(Category = "Feather|Settings")
-	bool LoadFeatherSettings(UObject Owner, FString& SettingsToLoad, FString FileNameOverride = "")
+	bool LoadFeatherSettings(UObject Owner, FString& SettingsToLoad, const FFeatherConfig& FeatherConfig, FString FileNameOverride = "")
 	{
 		if(!ensure(System::IsValid(Owner), "Cannot load for null object"))
 		{
 			return false;
 		}
 
-		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride);
+		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride, FeatherConfig);
 		if(FFileHelper::LoadFileToString(SettingsToLoad, FilePath))
 		{
 			//Log("Feather: Loaded window settings from path: " + FilePath);
@@ -59,10 +59,10 @@ namespace FeatherSettings
 	}
 
 	UFUNCTION(Category = "Feather|Settings")
-	FString GetSaveFilePath(FString RecordNameOverride)
+	FString GetSaveFilePath(FString RecordNameOverride, const FFeatherConfig& FeatherConfig)
 	{
-		const FString BasePath = FeatherConfig::bAlwaysSaveToAppData ? FPlatformProcess::UserSettingsDir() : FPaths::ProjectUserDir();
-		const FString ExpandedPath = FPaths::CombinePaths(BasePath, FeatherConfig::SettingsSavePath);
+		const FString BasePath = FeatherConfig.bAlwaysSaveToAppData ? FPlatformProcess::UserSettingsDir() : FPaths::ProjectUserDir();
+		const FString ExpandedPath = FPaths::CombinePaths(BasePath, FeatherConfig.SettingsSavePath);
 		const FString SaveFileName = RecordNameOverride + ".json";
 		const FString FullPath = FPaths::CombinePaths(ExpandedPath, SaveFileName);
 		return FullPath;

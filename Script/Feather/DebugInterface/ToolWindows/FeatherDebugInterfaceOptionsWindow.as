@@ -24,9 +24,9 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 	private UFeatherSearchBox SearchBox;
 
 	UFUNCTION(BlueprintOverride)
-	void FeatherConstruct()
-	{
-		Super::FeatherConstruct();
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
+    {
+		Super::FeatherConstruct(InStyle, InConfig);
 
 		GetMaxSearchSuggestionsText().OnTextChanged.AddUFunction(this, n"MaxSearchSuggestionsChanged");
 		GetQuickSelectFoldoutSizeText().OnTextChanged.AddUFunction(this, n"QuickSelectFoldoutSizeChanged");
