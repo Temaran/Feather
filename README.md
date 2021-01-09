@@ -29,6 +29,3 @@ That's really it. To see a concrete example, have a look in the demo project "Fe
 To get full use out of Feather, I recommend using styles as well. To see how that is set up, have a look at the default properties of the Layout widget blueprint in the FeatherDemo project.
 If you want to use window features like dragging, resizing etc, all your windows should also have a windowstyle in their hierarchies.
 Don't forget to override and hook up all the overrides in the window as well if you want to get full support. See the "Feather" category in WBP_DI_MainWindow widget in the FeatherDemo for details!
-
-# TODO
- - Implement style cascading

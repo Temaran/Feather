@@ -120,7 +120,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 		UHorizontalBox LayoutBox = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
 		SetRootWidget(LayoutBox);
 
-		FavouriteButton = CreateCheckBox(n"FavouriteButton");
+		FavouriteButton = CreateCheckBox(n"FavouriteCheckBox");
 		UHorizontalBoxSlot FavouriteSlot = LayoutBox.AddChildToHorizontalBox(FavouriteButton);
 		FavouriteSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 		FavouriteButton.SetToolTipText(FText::FromString("Favourite operations can be displayed by searching for 'Favourite'"));
@@ -128,7 +128,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 		if(bCanSave)
 		{
-			SaveButton = CreateCheckBox(n"SaveButton");
+			SaveButton = CreateCheckBox(n"SaveCheckBox");
 			UHorizontalBoxSlot SaveSlot = LayoutBox.AddChildToHorizontalBox(SaveButton);
 			SaveSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 			SaveSlot.SetPadding(LeftPadding);
@@ -150,7 +150,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 			KeybindSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 			KeybindSlot.SetPadding(LeftPadding);
 			HotkeyCaptureButton.OnHotkeyBound.AddUFunction(this, n"HotkeyBound");
-			HotkeyCaptureButton.FeatherConstruct(Style, FeatherConfiguration);
+			HotkeyCaptureButton.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 		}
 		else
 		{

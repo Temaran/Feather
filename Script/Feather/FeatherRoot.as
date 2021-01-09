@@ -41,6 +41,7 @@ class UFeatherRoot : UFeatherWidget
 	void OnInitialized()
 	{
 		LoadConfig();
+		FeatherConfiguration = RootFeatherConfiguration;
 	}
 
 	UFUNCTION(Category = "Feather", BlueprintEvent, BlueprintCallable)

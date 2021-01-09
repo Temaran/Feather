@@ -39,7 +39,7 @@ class UFeatherHotkeyCaptureButton : UFeatherWidget
     {
 		Super::FeatherConstruct(InStyle, InConfig);
 
-        KeybindButton = CreateCheckBox(n"HotkeyCaptureButton");
+        KeybindButton = CreateCheckBox(n"HotkeyCaptureCheckBox");
         KeybindButton.GetCheckBoxWidget().OnCheckStateChanged.AddUFunction(this, n"KeybindButtonClicked");
         SetRootWidget(KeybindButton);
 

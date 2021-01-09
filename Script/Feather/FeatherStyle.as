@@ -3,8 +3,14 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
+
 UCLASS(Abstract)
-class UFeatherWindowStyle : UUserWidget
+class UFeatherStyleBase : UUserWidget
+{	
+};
+
+UCLASS(Abstract)
+class UFeatherWindowStyle : UFeatherStyleBase
 {
 	// Set this to your UFeatherWindow
 	UPROPERTY(Category = "Feather|Style")
@@ -22,7 +28,7 @@ class UFeatherWindowStyle : UUserWidget
 
 event void FButtonClickedWithContextSignature(UFeatherButtonStyle ThisButton);
 UCLASS(Abstract)
-class UFeatherButtonStyle : UUserWidget
+class UFeatherButtonStyle : UFeatherStyleBase
 {
 	UPROPERTY(Category = "Feather|Style")
 	bool bUseStyleOverride;
@@ -68,7 +74,7 @@ class UFeatherButtonStyle : UUserWidget
 };
 
 UCLASS(Abstract)
-class UFeatherCheckBoxStyle : UUserWidget
+class UFeatherCheckBoxStyle : UFeatherStyleBase
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
 	UCheckBox GetCheckBoxWidget() const { return nullptr; }
@@ -90,7 +96,7 @@ class UFeatherCheckBoxStyle : UUserWidget
 };
 
 UCLASS(Abstract)
-class UFeatherComboBoxStyle : UUserWidget
+class UFeatherComboBoxStyle : UFeatherStyleBase
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
 	UComboBoxString GetComboBoxWidget() const { return nullptr; }
@@ -121,7 +127,7 @@ class UFeatherComboBoxStyle : UUserWidget
 };
 
 UCLASS(Abstract)
-class UFeatherSliderStyle : UUserWidget
+class UFeatherSliderStyle : UFeatherStyleBase
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
 	USlider GetSliderWidget() const { return nullptr; }
@@ -141,7 +147,7 @@ class UFeatherSliderStyle : UUserWidget
 };
 
 UCLASS(Abstract)
-class UFeatherTextBlockStyle : UUserWidget
+class UFeatherTextBlockStyle : UFeatherStyleBase
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
 	UTextBlock GetTextWidget() const { return nullptr; }
@@ -160,7 +166,7 @@ class UFeatherTextBlockStyle : UUserWidget
 };
 
 UCLASS(Abstract)
-class UFeatherEditableTextStyle : UUserWidget
+class UFeatherEditableTextStyle : UFeatherStyleBase
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
 	UEditableText GetEditableText() const { return nullptr; }
@@ -183,7 +189,7 @@ class UFeatherEditableTextStyle : UUserWidget
 };
 
 UCLASS(Abstract)
-class UFeatherMultiLineEditableTextStyle : UUserWidget
+class UFeatherMultiLineEditableTextStyle : UFeatherStyleBase
 {
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
 	UMultiLineEditableText GetEditableText() const { return nullptr; }
@@ -208,27 +214,11 @@ class UFeatherMultiLineEditableTextStyle : UUserWidget
 // This is the main style container. You can add multiple styles and identify them by name. Default styles have an empty identifier
 struct FFeatherStyle
 {
+	// These are the styles you want to use as their respective defaults
 	UPROPERTY(Category = "Feather|Style")
-	TMap<FName, TSubclassOf<UFeatherWindowStyle>> WindowStyles;
+	TSet<TSubclassOf<UFeatherStyleBase>> DefaultStyles;
 
+	// You can add any number of named styles here to allow for greater customization.
 	UPROPERTY(Category = "Feather|Style")
-	TMap<FName, TSubclassOf<UFeatherButtonStyle>> ButtonStyles;
-
-	UPROPERTY(Category = "Feather|Style")
-	TMap<FName, TSubclassOf<UFeatherCheckBoxStyle>> CheckBoxStyles;
-
-	UPROPERTY(Category = "Feather|Style")
-	TMap<FName, TSubclassOf<UFeatherComboBoxStyle>> ComboBoxStyles;
-
-	UPROPERTY(Category = "Feather|Style")
-	TMap<FName, TSubclassOf<UFeatherSliderStyle>> SliderStyles;
-
-	UPROPERTY(Category = "Feather|Style")
-	TMap<FName, TSubclassOf<UFeatherTextBlockStyle>> TextBlockStyles;
-
-	UPROPERTY(Category = "Feather|Style")
-	TMap<FName, TSubclassOf<UFeatherEditableTextStyle>> EditableTextStyles;
-	
-	UPROPERTY(Category = "Feather|Style")
-	TMap<FName, TSubclassOf<UFeatherMultiLineEditableTextStyle>> MultiLineEditableTextStyles;
-};
+	TMap<FName, TSubclassOf<UFeatherStyleBase>> NamedStyles;
+}; 

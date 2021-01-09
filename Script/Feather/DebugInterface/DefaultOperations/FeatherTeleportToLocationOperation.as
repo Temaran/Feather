@@ -60,7 +60,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	{
 		Super::Reset();
 		
-        TeleportTargetEditableText.SetText(FText::FromString(FeatherUtils::VectorToString(FVector::ZeroVector)));
+        TeleportTargetEditableText.SetText(FText());
 	}
 
 	UFUNCTION(BlueprintOverride)

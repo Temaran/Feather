@@ -172,8 +172,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 				continue;
 			}
 
-			OperationWidget.Style = Style;
-			OperationWidget.FeatherConstruct(Style, FeatherConfiguration);
+			OperationWidget.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 			OperationWidget.OnHotkeyBound.AddUFunction(this, n"HotkeyBoundToOperation");
 			Operations.Add(OperationWidget);
 
@@ -193,15 +192,14 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			MySearchBox.AllSearchTargetTokens.Add(SpecialEntry);
 			MySearchBox.SpecialQuickSelectTokens.Add(SpecialEntry);
 		}
-		MySearchBox.FeatherConstruct(Style, FeatherConfiguration);
+		MySearchBox.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 	}
 
 	void SetupWindowManager()
 	{
 		UFeatherWindowSelectionBox MyWindowManager = GetWindowManager();
 		MyWindowManager.ToolWindows = ToolWindows;
-		MyWindowManager.Style = Style;
-		MyWindowManager.FeatherConstruct(Style, FeatherConfiguration);
+		MyWindowManager.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 	}
 
 	void SetupToolWindows()
@@ -356,9 +354,12 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	{
 		Super::SaveSettings();
 		
-		for(auto Op : Operations)
+		if(bIsPossibleToSave)
 		{
-			Op.SaveSettings();
+			for(auto Op : Operations)
+			{
+				Op.SaveSettings();
+			}
 		}
 	}
 

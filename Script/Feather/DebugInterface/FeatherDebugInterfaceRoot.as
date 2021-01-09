@@ -89,7 +89,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 
 		for(UFeatherDebugInterfaceWindow ToolWindow : ToolWindows)
 		{
-			ToolWindow.FeatherConstruct(Style, FeatherConfiguration);
+			ToolWindow.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 			
 			UFeatherDebugInterfaceOptionsWindow OptionsWindow = Cast<UFeatherDebugInterfaceOptionsWindow>(ToolWindow);
 			if(System::IsValid(OptionsWindow))
@@ -99,7 +99,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 		}
 
 		MainWindow.ToolWindows = ToolWindows;
-		MainWindow.FeatherConstruct(Style, FeatherConfiguration);
+		MainWindow.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 
 		// Set up Z-Order updating
 		for(UFeatherDebugInterfaceWindow Window : AllWindows)
@@ -205,9 +205,12 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	{
 		Super::SaveSettings();
 
-		for(auto Window : AllWindows)
+		if(bIsPossibleToSave)
 		{
-			Window.SaveSettings();
+			for(auto Window : AllWindows)
+			{
+				Window.SaveSettings();
+			}
 		}
 	}
 

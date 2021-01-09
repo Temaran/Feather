@@ -10,7 +10,7 @@ event void FSettingsSavedEvent(UFeatherWidget Widget);
 event void FSettingsLoadedEvent(UFeatherWidget Widget);
 event void FResetToDefaultEvent(UFeatherWidget Widget);
 
-// This is the base class we use for all widgets. Supports styling.
+// This is the base class we use for all widgets. Supports styling. Not having templates is rough sometimes..
 UCLASS(Abstract)
 class UFeatherWidget : UUserWidget
 {
@@ -29,7 +29,7 @@ class UFeatherWidget : UUserWidget
 	bool bIsPossibleToSave = false;
 
 	UPROPERTY(Category = "Feather|Style")
-	FFeatherStyle Style;
+	FFeatherStyle FeatherStyle;
 
 	// This cascades down from the root
 	FFeatherConfig FeatherConfiguration;
@@ -39,78 +39,30 @@ class UFeatherWidget : UUserWidget
 	UFUNCTION(Category = "Feather", BlueprintEvent)
 	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
 	{
-		Style = InStyle;
 		FeatherConfiguration = InConfig;
+
+		// Cascade styles
+		for(auto StyleData : InStyle.DefaultStyles)
+		{
+			if(!FeatherStyle.DefaultStyles.Contains(StyleData))
+			{
+				FeatherStyle.DefaultStyles.Add(StyleData);
+			}
+		}
+		
+		for(auto StyleData : InStyle.NamedStyles)
+		{
+			if(!FeatherStyle.NamedStyles.Contains(StyleData.Key))
+			{
+				FeatherStyle.NamedStyles.Add(StyleData.Key, StyleData.Value);
+			}
+		}
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void Construct()	
 	{
 		bIsPossibleToSave = true;
-	}
-	
-	UFUNCTION(Category = "Feather|Style")
-	UFeatherWindowStyle CreateWindow(FName StyleName = NAME_None, FName Opt_WindowName = NAME_None)
-	{
-		return ensure(Style.WindowStyles.Contains(StyleName), "Requested style must exist!")
-			? Cast<UFeatherWindowStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.WindowStyles[StyleName]), Opt_WindowName))
-			: nullptr;
-	}
-
-	UFUNCTION(Category = "Feather|Style")
-	UFeatherButtonStyle CreateButton(FName StyleName = NAME_None, FName Opt_ButtonName = NAME_None)
-	{
-		return ensure(Style.ButtonStyles.Contains(StyleName), "Requested style must exist!")
-			? Cast<UFeatherButtonStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.ButtonStyles[StyleName]), Opt_ButtonName))
-			: nullptr;
-	}
-
-	UFUNCTION(Category = "Feather|Style")
-	UFeatherCheckBoxStyle CreateCheckBox(FName StyleName = NAME_None, FName Opt_CheckBoxName = NAME_None)
-	{
-		return ensure(Style.CheckBoxStyles.Contains(StyleName), "Requested style must exist!")
-			? Cast<UFeatherCheckBoxStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.CheckBoxStyles[StyleName]), Opt_CheckBoxName))
-			: nullptr;
-	}
-
-	UFUNCTION(Category = "Feather|Style")
-	UFeatherComboBoxStyle CreateComboBox(FName StyleName = NAME_None, FName Opt_ComboBoxName = NAME_None)
-	{
-		return ensure(Style.ComboBoxStyles.Contains(StyleName), "Requested style must exist!")
-			? Cast<UFeatherComboBoxStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.ComboBoxStyles[StyleName]), Opt_ComboBoxName))
-			: nullptr;
-	}
-
-	UFUNCTION(Category = "Feather|Style")
-	UFeatherSliderStyle CreateSlider(FName StyleName = NAME_None, FName Opt_SliderName = NAME_None)
-	{
-		return ensure(Style.SliderStyles.Contains(StyleName), "Requested style must exist!")
-			? Cast<UFeatherSliderStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.SliderStyles[StyleName]), Opt_SliderName))
-			: nullptr;
-	}
-
-	UFUNCTION(Category = "Feather|Style")
-	UFeatherTextBlockStyle CreateTextBlock(FName StyleName = NAME_None, FName Opt_TextBlockName = NAME_None)
-	{
-		return ensure(Style.TextBlockStyles.Contains(StyleName), "Requested style must exist!")
-			? Cast<UFeatherTextBlockStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.TextBlockStyles[StyleName]), Opt_TextBlockName))
-			: nullptr;
-	}
-
-	UFUNCTION(Category = "Feather|Style")
-	UFeatherEditableTextStyle CreateEditableText(FName StyleName = NAME_None, FName Opt_EditableTextName = NAME_None)
-	{
-		return ensure(Style.EditableTextStyles.Contains(StyleName), "Requested style must exist!")
-			? Cast<UFeatherEditableTextStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.EditableTextStyles[StyleName]), Opt_EditableTextName))
-			: nullptr;
-	}
-
-	UFUNCTION(Category = "Feather|Style")
-	UFeatherMultiLineEditableTextStyle CreateMultiLineEditableText(FName StyleName = NAME_None, FName Opt_EditableTextName = NAME_None)
-	{
-		return ensure(Style.MultiLineEditableTextStyles.Contains(StyleName), "Requested style must exist!")
-			? Cast<UFeatherMultiLineEditableTextStyle>(ConstructWidget(TSubclassOf<UWidget>(Style.MultiLineEditableTextStyles[StyleName]), Opt_EditableTextName))
-			: nullptr;
 	}
 
 	UFUNCTION(Category = "Feather|Style")
@@ -120,10 +72,80 @@ class UFeatherWidget : UUserWidget
 		
 		if(bConstructRightAway)
 		{
-			NewWidget.FeatherConstruct(Style, FeatherConfiguration);
+			NewWidget.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 		}
 
 		return NewWidget;
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherStyleBase CreateStyle(TSubclassOf<UFeatherStyleBase> StyleType, FName StyleName, FName Opt_Name = NAME_None)
+	{
+		if(FeatherStyle.NamedStyles.Contains(StyleName))
+		{
+			return Cast<UFeatherStyleBase>(ConstructWidget(TSubclassOf<UWidget>(FeatherStyle.NamedStyles[StyleName]), Opt_Name));
+		}
+		else
+		{
+			for(TSubclassOf<UFeatherStyleBase> DefaultStyle : FeatherStyle.DefaultStyles)
+			{
+				if(DefaultStyle.IsValid() && DefaultStyle.Get().IsChildOf(StyleType))
+				{
+					return Cast<UFeatherStyleBase>(ConstructWidget(TSubclassOf<UWidget>(DefaultStyle), Opt_Name));
+				}
+			}			
+		}
+
+		Error("Style could not be created! No named style was found (Name: " + StyleName.ToString() + "), and a default style did not exist!");
+		return nullptr;
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherWindowStyle CreateWindow(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherWindowStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherWindowStyle::StaticClass()), StyleName, Opt_Name));
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherButtonStyle CreateButton(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherButtonStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherButtonStyle::StaticClass()), StyleName, Opt_Name));
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherCheckBoxStyle CreateCheckBox(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherCheckBoxStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherCheckBoxStyle::StaticClass()), StyleName, Opt_Name));
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherComboBoxStyle CreateComboBox(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherComboBoxStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherComboBoxStyle::StaticClass()), StyleName, Opt_Name));
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherSliderStyle CreateSlider(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherSliderStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherSliderStyle::StaticClass()), StyleName, Opt_Name));
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherTextBlockStyle CreateTextBlock(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherTextBlockStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherTextBlockStyle::StaticClass()), StyleName, Opt_Name));
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherEditableTextStyle CreateEditableText(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherEditableTextStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherEditableTextStyle::StaticClass()), StyleName, Opt_Name));
+	}
+
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherMultiLineEditableTextStyle CreateMultiLineEditableText(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherMultiLineEditableTextStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherMultiLineEditableTextStyle::StaticClass()), StyleName, Opt_Name));
 	}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
@@ -153,8 +175,8 @@ class UFeatherWidget : UUserWidget
 			{
 				LoadFromString(LoadString);
 			}
-			bIsPossibleToSave = true;
 			OnSettingsLoaded.Broadcast(this);
+			bIsPossibleToSave = true;
 		}
 	}
 
@@ -172,8 +194,8 @@ class UFeatherWidget : UUserWidget
 	{
 		bIsPossibleToSave = false;
 		Reset();
-		bIsPossibleToSave = true;
 		OnResetToDefault.Broadcast(this);
+		bIsPossibleToSave = true;
 	}
 
 	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)
