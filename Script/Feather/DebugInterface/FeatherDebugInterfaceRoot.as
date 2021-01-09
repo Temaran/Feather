@@ -16,7 +16,7 @@ enum EDebugInterfaceState
 	EnabledUIOnly
 };
 
-namespace UFeatherDebugInterfaceRoot
+namespace FeatherDebugInterfaceRoot
 {
 	UFUNCTION(Category = "Feather|Debug Interface")
 	UFeatherDebugInterfaceRoot CreateDebugInterface(APlayerController Player, TSubclassOf<UFeatherDebugInterfaceRoot> RootWidgetType, int ZOrder = 0)
@@ -33,7 +33,7 @@ namespace UFeatherDebugInterfaceRoot
 	}
 
 	UFUNCTION(Category = "Feather|Debug Interface")
-	void SetDebugInterfaceState(UFeatherDebugInterfaceRoot DebugInterface, EDebugInterfaceState NewState)
+	void SetDebugInterfaceState(UFeatherDebugInterfaceRoot DebugInterface, EDebugInterfaceState NewState, bool bAffectsMouseCursor = false)
 	{
 		if(!System::IsValid(DebugInterface))
 		{
@@ -46,7 +46,11 @@ namespace UFeatherDebugInterfaceRoot
 			{
 				DebugInterface.SetDebugInterfaceVisibility(true);
 				WidgetBlueprint::SetInputMode_GameAndUIEx(DebugInterface.OwningPlayer, bHideCursorDuringCapture = false);
-				DebugInterface.OwningPlayer.SetbShowMouseCursor(true);
+				
+				if(bAffectsMouseCursor)
+				{
+					DebugInterface.OwningPlayer.SetbShowMouseCursor(true);
+				}
 				break;
 			}
 
@@ -54,7 +58,11 @@ namespace UFeatherDebugInterfaceRoot
 			{
 				DebugInterface.SetDebugInterfaceVisibility(true);
 				WidgetBlueprint::SetInputMode_UIOnlyEx(DebugInterface.OwningPlayer);
-				DebugInterface.OwningPlayer.SetbShowMouseCursor(true);
+				
+				if(bAffectsMouseCursor)
+				{
+					DebugInterface.OwningPlayer.SetbShowMouseCursor(true);
+				}
 				break;
 			}
 
@@ -62,7 +70,11 @@ namespace UFeatherDebugInterfaceRoot
 			{
 				DebugInterface.SetDebugInterfaceVisibility(false);
 				WidgetBlueprint::SetInputMode_GameOnly(DebugInterface.OwningPlayer);
-				DebugInterface.OwningPlayer.SetbShowMouseCursor(false);
+				
+				if(bAffectsMouseCursor)
+				{
+					DebugInterface.OwningPlayer.SetbShowMouseCursor(false);
+				}
 				break;
 			}
 		}
@@ -187,7 +199,7 @@ class UFeatherDebugInterfaceRoot : UFeatherWidget
 	UFUNCTION()
 	void MainWindowClosed()
 	{
-		UFeatherDebugInterfaceRoot::SetDebugInterfaceState(this, EDebugInterfaceState::Disabled);
+		FeatherDebugInterfaceRoot::SetDebugInterfaceState(this, EDebugInterfaceState::Disabled);
 	}
 
 	UFUNCTION()

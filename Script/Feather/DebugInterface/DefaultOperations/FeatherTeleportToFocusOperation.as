@@ -3,6 +3,7 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
+#if !RELEASE
 import Feather.DebugInterface.OperationBaseClasses.FeatherSimpleButtonOperationBase;
 import Feather.FeatherUtils;
 
@@ -55,3 +56,4 @@ class UFeatherTeleportToFocusOperation : UFeatherSimpleButtonOperationBase
 		}
 	}
 };
+#endif // RELEASE

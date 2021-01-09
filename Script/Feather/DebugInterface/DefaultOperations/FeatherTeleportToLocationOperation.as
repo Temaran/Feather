@@ -3,6 +3,7 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
+#if !RELEASE
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
 import Feather.FeatherSettings;
 import Feather.FeatherUtils;
@@ -130,3 +131,4 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
         SaveSettings();
     }
 };
+#endif // RELEASE

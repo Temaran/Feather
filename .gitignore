@@ -13,6 +13,8 @@ Saved/
 # AngelScript #
 # ======================= #
 Script/.vscode/
+Script/Binds.Cache
+Script/Binds.Cache.Headers
 
 # ======================= #
 # Visual Studio generated #

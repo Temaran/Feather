@@ -34,4 +34,5 @@ Debug Interface:
 ----------------------------------------------------------------------
 
 # TODO
+ - New attempt at storing config in ini
  - Make sure the cpp changes get merged

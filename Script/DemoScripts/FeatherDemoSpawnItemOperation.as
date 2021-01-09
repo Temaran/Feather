@@ -9,8 +9,10 @@ import Feather.DebugInterface.OperationBaseClasses.FeatherSpawnActorOperationBas
 UCLASS(Abstract)
 class AExampleItem : AStaticMeshActor {};
 
+#if !RELEASE
 // Allows you to spawn items at the cursor
-class USpawnItemAtCursorOperation : UFeatherSpawnActorOperationBase
+class UFeatherDemoSpawnItemAtCursorOperation : UFeatherSpawnActorOperationBase
 {
     default SelectorBaseClass = AExampleItem::StaticClass();
 };
+#endif // RELEASE

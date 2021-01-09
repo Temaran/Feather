@@ -3,6 +3,7 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
+#if !RELEASE
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
 import Feather.FeatherSettings;
 
@@ -54,3 +55,4 @@ class UFeatherSimpleButtonOperationBase : UFeatherDebugInterfaceOperation
 	{
 	}
 };
+#endif // RELEASE

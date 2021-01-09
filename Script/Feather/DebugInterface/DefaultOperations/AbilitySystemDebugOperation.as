@@ -3,6 +3,7 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
+#if !RELEASE
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
 import Feather.FeatherSettings;
 import Feather.FeatherUtils;
@@ -146,3 +147,4 @@ class UAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
         System::ExecuteConsoleCommand("AbilitySystem.Debug.NextCategory");
     }
 };
+#endif // RELEASE

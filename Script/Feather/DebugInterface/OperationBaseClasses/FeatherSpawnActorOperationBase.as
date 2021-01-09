@@ -3,6 +3,7 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
+#if !RELEASE
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
 import Feather.UtilWidgets.FeatherClassSelectorComboBox;
 import Feather.FeatherSettings;
@@ -140,3 +141,4 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 		}
 	}
 };
+#endif // RELEASE

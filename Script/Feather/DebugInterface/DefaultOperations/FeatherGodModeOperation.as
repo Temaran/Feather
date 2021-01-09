@@ -3,6 +3,7 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
+#if !RELEASE
 import Feather.DebugInterface.OperationBaseClasses.FeatherSimpleCheckBoxOperationBase;
 
 // Toggle player vulnerability
@@ -37,3 +38,4 @@ class UFeatherGodModeOperation : UFeatherSimpleCheckBoxOperationBase
         }
     }
 };
+#endif // RELEASE
