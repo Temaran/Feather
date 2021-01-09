@@ -12,6 +12,12 @@ class UFeatherWindowStyle : UUserWidget
 
 	UFUNCTION(Category = "Feather|Style", BlueprintEvent, BlueprintPure)
 	UNamedSlot GetWindowContentSlot() const { return nullptr; }
+
+	UFUNCTION(Category = "Feather|Style", BlueprintEvent)
+	void SetNewActualWindow(UWidget InActualWindow)
+	{
+		ActualWindow = InActualWindow;
+	}
 };
 
 event void FButtonClickedWithContextSignature(UFeatherButtonStyle ThisButton);

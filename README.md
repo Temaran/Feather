@@ -26,7 +26,7 @@ Feather:
 * Having to define UFUNCTION overrides in intermediate classes is annoying as always in AS. I think this comes from Blueprint, but patching AS to automatically generate these UFUNCTION stubs when they are needed would make base class code so much cleaner.
 * It feels like a shame to have to implement a custom serialization system, but considering the weaknesses of UE's savegames and config ini's, this currently seems like the best option.
 * The relationship between window style and window is not good. This stems from the fact that AS supports neither Delegates, nor Interfaces. If we had delegates then the style could expose delegates for stuff like Resize. Events won't work since they cannot return the needed EventReply. If AS had proper interfaces, we could make an IFeatherWindow that could hold the necessary methods. But since interfaces in AS are essentially base classes, and we want window to derive from UFeatherWidget, that doesn't work either.
-* Having config be in ini might be preferable to having FeatherConfig.as
+* Having config be in ini might be preferable to having FeatherConfig.as if I can get it to be consistent.
 
 Debug Interface:
 * Since we have so many objects that are dynamically added, serialization feels messy. I think it's in a fairly good state now, but I can't help but think that there might be a better solution.
@@ -35,6 +35,5 @@ Debug Interface:
 
 # TODO
  - Opacity sliders for the windows..?
- - Investigate removing FeatherConfig and storing them in ini instead. They would probably have to reside on FeatherWidget in that case...?
 
  - Make sure the cpp changes get merged

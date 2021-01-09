@@ -6,8 +6,9 @@
 import Feather.FeatherStyle;
 import Feather.FeatherSettings;
 
-event void FOnSettingsSaved(UFeatherWidget Widget);
-event void FOnSettingsLoaded(UFeatherWidget Widget);
+event void FSettingsSavedEvent(UFeatherWidget Widget);
+event void FSettingsLoadedEvent(UFeatherWidget Widget);
+event void FResetToDefaultEvent(UFeatherWidget Widget);
 
 // This is the base class we use for all widgets. Supports styling.
 UCLASS(Abstract)
@@ -16,10 +17,13 @@ class UFeatherWidget : UUserWidget
 	default SetPaletteCategory(FText::FromString("Feather"));
 
 	UPROPERTY(Category = "Feather")
-	FOnSettingsSaved OnSettingsSaved;
+	FSettingsSavedEvent OnSettingsSaved;
 
 	UPROPERTY(Category = "Feather")
-	FOnSettingsLoaded OnSettingsLoaded;
+	FSettingsLoadedEvent OnSettingsLoaded;
+	
+	UPROPERTY(Category = "Feather")
+	FResetToDefaultEvent OnResetToDefault;
 
 	UPROPERTY(Category = "Feather", NotEditable)
 	bool bIsPossibleToSave = false;
@@ -164,6 +168,7 @@ class UFeatherWidget : UUserWidget
 		bIsPossibleToSave = false;
 		Reset();
 		bIsPossibleToSave = true;
+		OnResetToDefault.Broadcast(this);
 	}
 
 	UFUNCTION(Category = "Feather|Settings", BlueprintEvent)

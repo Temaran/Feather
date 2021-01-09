@@ -109,7 +109,7 @@ class UFeatherWindow : UFeatherWidget
 		UFeatherWindowStyle MyWindowStyle = GetWindowStyle();
 		if(ensure(System::IsValid(MyWindowStyle), "Windows should have a window style!"))
 		{
-			MyWindowStyle.ActualWindow = this;
+			MyWindowStyle.SetNewActualWindow(this);
 		}
 	}
 
@@ -360,6 +360,7 @@ class UFeatherWindow : UFeatherWidget
 	{
 		RenderOpacity = FMath::Clamp(NewAlpha, 0.0f, 1.0f);
 		OnTransparencyChanged.Broadcast(this, RenderOpacity);
+		SaveSettings();
 	}
 
 	UFUNCTION(Category = "Feather|Accessors", BlueprintPure)

@@ -29,7 +29,7 @@ namespace FeatherSettings
 		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride);
 		if(FFileHelper::SaveStringToFile(SettingsToSave, FilePath))
 		{
-			Log("Feather: Saved window settings to path: " + FilePath);
+			//Log("Feather: Saved window settings to path: " + FilePath);
 			return true;
 		}
 		else
@@ -50,11 +50,11 @@ namespace FeatherSettings
 		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride);
 		if(FFileHelper::LoadFileToString(SettingsToLoad, FilePath))
 		{
-			Log("Feather: Loaded window settings from path: " + FilePath);
+			//Log("Feather: Loaded window settings from path: " + FilePath);
 			return true;
 		}
 
-		Log("Feather: " + Owner.GetName() + " did not load any settings from file: " + FilePath);
+		//Log("Feather: " + Owner.GetName() + " did not load any settings from file: " + FilePath);
 		return false;
 	}
 
