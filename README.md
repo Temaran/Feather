@@ -34,6 +34,4 @@ Debug Interface:
 ----------------------------------------------------------------------
 
 # TODO
- - Opacity sliders for the windows..?
-
  - Make sure the cpp changes get merged
