@@ -1,5 +1,17 @@
 # Feather
-A library for creating an AS/UMG hybrid window system. Also includes a template debug interface for UE4 dev.
+Do you think creating Unreal UI in slate has too slow iteration time? Do you like the layout functionality of UMG, but still avoid it because merging Blueprint is frustrating?
+Then maybe this library is for you!
+
+Feather is a UI library for Unreal Engine 4 that lets you create your visual layouts in UMG, but allows you to define as much logic as you want (all of it preferably!) in AngelScript.
+Literally the best of both worlds!
+
+Feather allows you to do the following:
+* Define your visual styles in the intuitive UMG editor interface.
+* Use these styles by name when creating your UI.
+* Keep all your logic in AngelScript.
+* Create window hierarchies with most of the things you expect from such a system out of the box.
+* An optional JSON-based settings system that works no matter if you're in PIE, stand-alone or using a finished build. All of them will read the same settings. You can opt to use the in-engine config ini's instead if you prefer though.
+* An implementation of a debug interface that lets you easily create debug operations for testing and iterating on your project based on an easy-to-learn search interface. It even supports binding keys to your favourite ops!
 
 # Installation
 To install Feather you currently need this PR: https://github.com/Hazelight/UnrealEngine-Angelscript/pull/128
@@ -17,3 +29,6 @@ That's really it. To see a concrete example, have a look in the demo project "Fe
 To get full use out of Feather, I recommend using styles as well. To see how that is set up, have a look at the default properties of the Layout widget blueprint in the FeatherDemo project.
 If you want to use window features like dragging, resizing etc, all your windows should also have a windowstyle in their hierarchies.
 Don't forget to override and hook up all the overrides in the window as well if you want to get full support. See the "Feather" category in WBP_DI_MainWindow widget in the FeatherDemo for details!
+
+# TODO
+ - Implement style cascading
