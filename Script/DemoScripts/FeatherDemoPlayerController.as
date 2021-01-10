@@ -35,6 +35,12 @@ class AFeatherDemoPlayerPawn : APawn
     UFUNCTION(BlueprintOverride)
     void BeginPlay()
     {
+		System::SetTimer(this, n"CreateDebugInterface", 0.1f, false);
+    }
+
+	UFUNCTION()
+	void CreateDebugInterface()
+	{
 #if !RELEASE
 		ensure(DebugInterfaceType.IsValid(), "Cannot find Debug Interface!");
 		DebugInterface = Feather::CreateFeatherRoot(Cast<APlayerController>(GetController()), DebugInterfaceType);
@@ -42,5 +48,5 @@ class AFeatherDemoPlayerPawn : APawn
         
 		ScriptInputComponent.BindAction(n"ToggleDebugInterface", EInputEvent::IE_Pressed, FInputActionHandlerDynamicSignature(this, n"ToggleDebugInterface"));
 #endif // RELEASE
-    }
+	}
 };

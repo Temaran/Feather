@@ -26,7 +26,7 @@ namespace FeatherSettings
 			return false;
 		}
 
-		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride, FeatherConfig);
+		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? Owner.Class.GetName().ToString() : FileNameOverride, FeatherConfig);
 		if(FFileHelper::SaveStringToFile(SettingsToSave, FilePath))
 		{
 			//Log("Feather: Saved window settings to path: " + FilePath);
@@ -47,7 +47,7 @@ namespace FeatherSettings
 			return false;
 		}
 
-		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? System::GetDisplayName(Owner) : FileNameOverride, FeatherConfig);
+		const FString FilePath = GetSaveFilePath(FileNameOverride.IsEmpty() ? Owner.Class.GetName().ToString() : FileNameOverride, FeatherConfig);
 		if(FFileHelper::LoadFileToString(SettingsToLoad, FilePath))
 		{
 			//Log("Feather: Loaded window settings from path: " + FilePath);

@@ -16,6 +16,7 @@ class UFeatherWidget : UUserWidget
 {
 	default SetPaletteCategory(FText::FromString("Feather"));
 
+	// Events
 	UPROPERTY(Category = "Feather")
 	FSettingsSavedEvent OnSettingsSaved;
 
@@ -25,11 +26,15 @@ class UFeatherWidget : UUserWidget
 	UPROPERTY(Category = "Feather")
 	FResetToDefaultEvent OnResetToDefault;
 
+	// If you have two objects of the same type you want to save, you must set unique names to them via this property.
+	UPROPERTY(Category = "Feather")
+	FString UniqueNameOverride = "";
+
+	UPROPERTY(Category = "Feather")
+	FFeatherStyle FeatherStyle;
+
 	UPROPERTY(Category = "Feather", NotEditable)
 	bool bIsPossibleToSave = false;
-
-	UPROPERTY(Category = "Feather|Style")
-	FFeatherStyle FeatherStyle;
 
 	// This cascades down from the root
 	FFeatherConfig FeatherConfiguration;
@@ -158,7 +163,7 @@ class UFeatherWidget : UUserWidget
 		{		
 			FString SaveString;
 			SaveToString(SaveString);
-			FeatherSettings::SaveFeatherSettings(this, SaveString, FeatherConfiguration);
+			FeatherSettings::SaveFeatherSettings(this, SaveString, FeatherConfiguration, UniqueNameOverride);
 			OnSettingsSaved.Broadcast(this);
 		}
 	}
@@ -171,7 +176,7 @@ class UFeatherWidget : UUserWidget
 		{
 			bIsPossibleToSave = false;
 			FString LoadString;
-			if(FeatherSettings::LoadFeatherSettings(this, LoadString, FeatherConfiguration))
+			if(FeatherSettings::LoadFeatherSettings(this, LoadString, FeatherConfiguration, UniqueNameOverride))
 			{
 				LoadFromString(LoadString);
 			}

@@ -34,7 +34,7 @@ UCLASS(Abstract, Config = Game)
 class UFeatherRoot : UFeatherWidget
 {
 	// This is set via ini, and the cascades down along the widgets.
-	UPROPERTY(Category = "Feather|Config", Config, NotVisible)
+	UPROPERTY(Category = "Feather", Config, NotVisible)
 	FFeatherConfig RootFeatherConfiguration;
 	
 	UFUNCTION(BlueprintOverride)
