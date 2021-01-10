@@ -126,13 +126,13 @@ class UFeatherWindow : UFeatherWidget
 			{
 				const FVector2D NewWindowPosition = ScaledDeltaMousePosPx + CachedStartPosition;
 				SetWindowPosition(NewWindowPosition);
-				break;
+				return FEventReply::Handled();
 			}
 			case EFeatherWindowTransformState::IsBeingResized:
 			{
 				const FVector2D NewWindowSize = ScaledDeltaMousePosPx + CachedStartSize;
 				SetWindowSize(NewWindowSize);
-				break;
+				return FEventReply::Handled();
 			}
 			default:
 			{
@@ -140,7 +140,7 @@ class UFeatherWindow : UFeatherWidget
 			}
 		}
 
-		return FEventReply::Handled();
+		return FEventReply::Unhandled();
 	}
 
 	UFUNCTION(BlueprintOverride)

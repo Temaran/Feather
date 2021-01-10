@@ -6,11 +6,11 @@
 import Feather.FeatherConfig;
 import Feather.FeatherWidget;
 
-enum EFeatherRootVisibility
+enum EFeatherInputType
 {
-	Disabled,
-	EnabledWithGame,
-	EnabledUIOnly
+	GameOnly,
+	GameAndUI,	
+	UIOnly
 };
 
 namespace Feather
@@ -45,22 +45,22 @@ class UFeatherRoot : UFeatherWidget
 	}
 
 	UFUNCTION(Category = "Feather", BlueprintEvent, BlueprintCallable)
-	void SetRootVisibility(EFeatherRootVisibility NewRootVisibility, bool bAffectMouseCursor = true) 
+	void SetRootVisibility(bool bNewVisibility, EFeatherInputType InputType = EFeatherInputType::GameAndUI, bool bAffectMouseCursor = true) 
 	{
 		if(bAffectMouseCursor)
 		{
-			OwningPlayer.SetbShowMouseCursor(NewRootVisibility != EFeatherRootVisibility::Disabled);
+			OwningPlayer.SetbShowMouseCursor(bNewVisibility);
 		}
 
-		switch(NewRootVisibility)
+		switch(InputType)
 		{
-			case EFeatherRootVisibility::EnabledWithGame:
+			case EFeatherInputType::GameAndUI:
 			{
 				WidgetBlueprint::SetInputMode_GameAndUIEx(OwningPlayer, bHideCursorDuringCapture = false);
 				break;
 			}
 
-			case EFeatherRootVisibility::EnabledUIOnly:
+			case EFeatherInputType::UIOnly:
 			{
 				WidgetBlueprint::SetInputMode_UIOnlyEx(OwningPlayer);
 				break;

@@ -127,7 +127,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	UFUNCTION()
 	void MainWindowClosed()
 	{
-		SetRootVisibility(EFeatherRootVisibility::Disabled);
+		SetRootVisibility(false);
 	}
 
 	UFUNCTION()
@@ -148,10 +148,10 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void SetRootVisibility(EFeatherRootVisibility NewRootVisibility, bool bAffectMouseCursor)
+	void SetRootVisibility(bool bNewVisibility, EFeatherInputType InputType, bool bAffectMouseCursor)
 	{
-		Super::SetRootVisibility(NewRootVisibility, bAffectMouseCursor);
-		SetWindowVisibility(NewRootVisibility != EFeatherRootVisibility::Disabled);
+		Super::SetRootVisibility(bNewVisibility, InputType, bAffectMouseCursor);
+		SetWindowVisibility(bNewVisibility);
 	}
 
 	UFUNCTION(BlueprintOverride)

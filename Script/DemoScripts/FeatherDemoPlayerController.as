@@ -22,11 +22,11 @@ class AFeatherDemoPlayerPawn : APawn
 		{
 			if(DebugInterface.IsRootVisible())
 			{
-				DebugInterface.SetRootVisibility(EFeatherRootVisibility::Disabled);
+				DebugInterface.SetRootVisibility(false);
 			}
 			else
 			{
-				DebugInterface.SetRootVisibility(EFeatherRootVisibility::EnabledWithGame);
+				DebugInterface.SetRootVisibility(true);
 			}
 		}
 	}
@@ -45,7 +45,7 @@ class AFeatherDemoPlayerPawn : APawn
 #if !RELEASE
 		ensure(DebugInterfaceType.IsValid(), "Cannot find Debug Interface!");
 		DebugInterface = Feather::CreateFeatherRoot(Cast<APlayerController>(GetController()), DebugInterfaceType);
-		DebugInterface.SetRootVisibility(EFeatherRootVisibility::EnabledWithGame);
+		DebugInterface.SetRootVisibility(true);
         
 		ScriptInputComponent.BindAction(n"ToggleDebugInterface", EInputEvent::IE_Pressed, FInputActionHandlerDynamicSignature(this, n"ToggleDebugInterface"));
 #endif // RELEASE
