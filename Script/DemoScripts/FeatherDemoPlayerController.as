@@ -35,6 +35,7 @@ class AFeatherDemoPlayerPawn : APawn
     UFUNCTION(BlueprintOverride)
     void BeginPlay()
     {
+		// It seems that the UMG root is not ready for certain operations during BeginPlay when doing actual builds. Waiting a frame or so fixes this problem though.
 		System::SetTimer(this, n"CreateDebugInterface", 0.1f, false);
     }
 
