@@ -14,12 +14,11 @@ Feather allows you to do the following:
 * An implementation of a debug interface that lets you easily create debug operations for testing and iterating on your project based on an easy-to-learn search interface. It even supports binding keys to your favourite ops!
 
 # Installation
-To install Feather you currently need this PR: https://github.com/Hazelight/UnrealEngine-Angelscript/pull/128
-Hopefully, it will get merged into angelscript-master fairly soon!
-Then, simply copy the entire FeatherDemo/Script/Feather/... folder to your project's #MyProject#/Script/Feather/... folder.
+To install Feather, simply copy the entire FeatherDemo/Script/Feather/... folder to your project's #MyProject#/Script/Feather/... folder.
 
 You can also optionally copy the FeatherDemo/Content/DebugInterface/... folder to your project's #MyProject#/Content/DebugInterface/... folder if you want a default root with some windows and styles.
 
+I would also recommend you make sure you have the latest stable version of Angelscript.
 That's it. :)
 
 # Setup
