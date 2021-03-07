@@ -17,7 +17,7 @@ event void FOperationHotkeyBoundSignature(UFeatherDebugInterfaceOperation Operat
 
 UCLASS(Abstract)
 class UFeatherDebugInterfaceOperation : UFeatherWidget
-{   
+{
 	UPROPERTY(Category = "Keybind Capture")
     FOperationHotkeyBoundSignature OnHotkeyBound;
 
@@ -66,7 +66,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 // Don't override these further. I wish we had the final keyword in AS.
 
 	UFUNCTION(BlueprintOverride)
-	void SaveToString(FString& InOutSaveString) 
+	void SaveToString(FString& InOutSaveString)
 	{
 		FDebugInterfaceOperationSaveState SaveState;
 		SaveState.bIsFavourite = FavouriteButton.IsChecked();
@@ -81,7 +81,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void LoadFromString(const FString& InSaveString) 
+	void LoadFromString(const FString& InSaveString)
 	{
 		FDebugInterfaceOperationSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
@@ -97,7 +97,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 			}
 
 			if(SaveState.bSaveOperationState)
-			{				
+			{
 				LoadOperationFromString(InSaveString);
 			}
 		}
@@ -111,7 +111,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 		FMargin LeftPadding;
 		LeftPadding.Left = 5.0f;
-		
+
 		FMargin SeparationPadding;
 		SeparationPadding.Left = 20.0f;
 
@@ -145,7 +145,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 		if(bCanExecute)
 		{
-			HotkeyCaptureButton = Cast<UFeatherHotkeyCaptureButton>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(UFeatherHotkeyCaptureButton::StaticClass())));
+			HotkeyCaptureButton = Cast<UFeatherHotkeyCaptureButton>(CreateFeatherWidget(TSubclassOf<UFeatherWidget>(UFeatherHotkeyCaptureButton::StaticClass())));
 			UHorizontalBoxSlot KeybindSlot = LayoutBox.AddChildToHorizontalBox(HotkeyCaptureButton);
 			KeybindSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
 			KeybindSlot.SetPadding(LeftPadding);
@@ -158,7 +158,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 			LayoutBox.AddChildToHorizontalBox(KeybindSpacer);
 			KeybindSpacer.SetSize(FVector2D(SpacerWidth, 10.0f));
 		}
-		
+
 		UNamedSlot Operation = Cast<UNamedSlot>(ConstructWidget(UNamedSlot::StaticClass()));
 		UHorizontalBoxSlot OperationSlot = LayoutBox.AddChildToHorizontalBox(Operation);
 		FSlateChildSize FillSize;
@@ -190,11 +190,11 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Operation API
-// You are expected to override all these functions, 
+// You are expected to override all these functions,
 // including the settings ones for all actual operations.
 //
 // When creating a new operation, first see if you can subclass a simple operation base
-// (see FeatherTimeDilationOperation as an example). 
+// (see FeatherTimeDilationOperation as an example).
 // If that is not enough, subclass this fully (see FeatherSpawnAtCursorOperation for an example)
 
 	// You should be using this for your initialization logic as base class properties and the environment will have been set up by the time this is called.
@@ -214,7 +214,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	void LoadOperationFromString(const FString& InSaveString) { }
 
 	UFUNCTION(BlueprintOverride)
-	void Reset() 
+	void Reset()
 	{
 		FavouriteButton.SetIsChecked(false);
 		if(System::IsValid(SaveButton))
@@ -231,7 +231,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 // Static API - Should only be called from CDO
 
 	// Unsupported debug operations should not show up in the interface.
-	UFUNCTION(Category = "Feather", BlueprintEvent)
+	UFUNCTION(Category = "Feather", BlueprintEvent, BlueprintPure)
 	bool Static_IsOperationSupported() const
 	{
 		bool bStandaloneTest = System::IsStandalone() || !bOnlyWorksInStandalone;

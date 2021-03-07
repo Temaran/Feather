@@ -22,7 +22,7 @@ class UFeatherWidget : UUserWidget
 
 	UPROPERTY(Category = "Feather")
 	FSettingsLoadedEvent OnSettingsLoaded;
-	
+
 	UPROPERTY(Category = "Feather")
 	FResetToDefaultEvent OnResetToDefault;
 
@@ -54,7 +54,7 @@ class UFeatherWidget : UUserWidget
 				FeatherStyle.DefaultStyles.Add(StyleData);
 			}
 		}
-		
+
 		for(auto StyleData : InStyle.NamedStyles)
 		{
 			if(!FeatherStyle.NamedStyles.Contains(StyleData.Key))
@@ -65,16 +65,16 @@ class UFeatherWidget : UUserWidget
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void Construct()	
+	void Construct()
 	{
 		bIsPossibleToSave = true;
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherWidget CreateStyledWidget(TSubclassOf<UFeatherWidget> WidgetClass, bool bConstructRightAway = false, FName Opt_WidgetName = NAME_None)
+	UFeatherWidget CreateFeatherWidget(TSubclassOf<UFeatherWidget> WidgetClass, bool bConstructRightAway = false, FName Opt_WidgetName = NAME_None)
 	{
 		UFeatherWidget NewWidget = Cast<UFeatherWidget>(ConstructWidget(WidgetClass, Opt_WidgetName));
-		
+
 		if(bConstructRightAway)
 		{
 			NewWidget.FeatherConstruct(FeatherStyle, FeatherConfiguration);
@@ -84,7 +84,7 @@ class UFeatherWidget : UUserWidget
 	}
 
 	UFUNCTION(Category = "Feather|Style")
-	UFeatherStyleBase CreateStyle(TSubclassOf<UFeatherStyleBase> StyleType, FName StyleName, FName Opt_Name = NAME_None)
+	UFeatherStyleBase CreateStyle(TSubclassOf<UFeatherStyleBase> StyleType, FName StyleName = NAME_None, FName Opt_Name = NAME_None)
 	{
 		if(FeatherStyle.NamedStyles.Contains(StyleName))
 		{
@@ -98,7 +98,7 @@ class UFeatherWidget : UUserWidget
 				{
 					return Cast<UFeatherStyleBase>(ConstructWidget(TSubclassOf<UWidget>(DefaultStyle), Opt_Name));
 				}
-			}			
+			}
 		}
 
 		Error("Style could not be created! No named style was found (Name: " + StyleName.ToString() + "), and a default style did not exist!");
@@ -153,6 +153,12 @@ class UFeatherWidget : UUserWidget
 		return Cast<UFeatherMultiLineEditableTextStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherMultiLineEditableTextStyle::StaticClass()), StyleName, Opt_Name));
 	}
 
+	UFUNCTION(Category = "Feather|Style")
+	UFeatherExpanderStyle CreateExpander(FName StyleName = NAME_None, FName Opt_Name = NAME_None)
+	{
+		return Cast<UFeatherExpanderStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherExpanderStyle::StaticClass()), StyleName, Opt_Name));
+	}
+
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
 	// Call this when you want to save.
@@ -160,7 +166,7 @@ class UFeatherWidget : UUserWidget
 	void SaveSettings()
 	{
 		if(bIsPossibleToSave)
-		{		
+		{
 			FString SaveString;
 			SaveToString(SaveString);
 			FeatherSettings::SaveFeatherSettings(this, SaveString, FeatherConfiguration, UniqueNameOverride);
@@ -195,7 +201,7 @@ class UFeatherWidget : UUserWidget
 
 	// Reset all settings to the default
 	UFUNCTION(Category = "Feather|Settings")
-	void ResetSettingsToDefault() 
+	void ResetSettingsToDefault()
 	{
 		bIsPossibleToSave = false;
 		Reset();

@@ -108,7 +108,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			bool bPrevMainKeyState = OperationPair.Value;
 			bool bCurrentMainKeyState = OwningPlayer.IsInputKeyDown(OpHotKey.MainKey);
 			NewKeybindOpsToMainButtonStates.Add(Operation, bCurrentMainKeyState);
-			
+
 			if(!bPrevMainKeyState && bCurrentMainKeyState)
 			{
 				// Was just pressed, check the held keys
@@ -131,7 +131,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 						// All conditions were met!
 						Operation.Execute();
 					}
-				}				
+				}
 			}
 		}
 
@@ -158,23 +158,30 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		}
 		for(UClass DebugOpType : AllDebugOperationTypes)
 		{
-			UFeatherDebugInterfaceOperation OperationCDO = Cast<UFeatherDebugInterfaceOperation>(DebugOpType.GetDefaultObject());
-			if(!OperationCDO.Static_IsOperationSupported())
+			if(DebugOpType.GetName().ToString().StartsWith("SKEL_"))
 			{
+				// Don't include BP Skeletal classes
 				continue;
 			}
 
 			// Create the auto widget
-			UFeatherDebugInterfaceOperation OperationWidget = Cast<UFeatherDebugInterfaceOperation>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(OperationCDO.Class)));
+			UFeatherDebugInterfaceOperation OperationCDO = Cast<UFeatherDebugInterfaceOperation>(DebugOpType.GetDefaultObject());
+			UFeatherDebugInterfaceOperation OperationWidget = Cast<UFeatherDebugInterfaceOperation>(CreateFeatherWidget(TSubclassOf<UFeatherWidget>(OperationCDO.Class)));
 			if(!System::IsValid(OperationWidget))
 			{
 				Warning("Feather: Debug operation '" + OperationCDO.GetName() + "' could not be created!");
 				continue;
 			}
-
 			OperationWidget.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 			OperationWidget.OnHotkeyBound.AddUFunction(this, n"HotkeyBoundToOperation");
 			Operations.Add(OperationWidget);
+
+			if(!OperationCDO.Static_IsOperationSupported())
+			{
+				// Disable the widget if not in standalone and set tooltip
+				OperationWidget.SetIsEnabled(false);
+				SetAllChildrenToolTipsToStandaloneOnly(OperationWidget);
+			}
 
 			// Add all search terms
 			MySearchBox.AllSearchTargetTokens.Add(GetSanitizedOperationName(OperationCDO));
@@ -211,6 +218,25 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			{
 				OptionsWindow.SetSearchBox(GetSearchBox());
 			}
+		}
+	}
+
+	void SetAllChildrenToolTipsToStandaloneOnly(UWidget CurrentWidget)
+	{
+		CurrentWidget.SetToolTipText(FText::FromString("This operation only works in Standalone!"));
+		UPanelWidget MaybePanel = Cast<UPanelWidget>(CurrentWidget);
+		if(System::IsValid(MaybePanel))
+		{
+			for(int ChildIdx = 0; ChildIdx < MaybePanel.ChildrenCount; ChildIdx++)
+			{
+				SetAllChildrenToolTipsToStandaloneOnly(MaybePanel.GetChildAt(ChildIdx));
+			}
+		}
+
+		UUserWidget MaybeUserWidget = Cast<UUserWidget>(CurrentWidget);
+		if(System::IsValid(MaybeUserWidget))
+		{
+			SetAllChildrenToolTipsToStandaloneOnly(MaybeUserWidget.RootWidget);
 		}
 	}
 
@@ -353,7 +379,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	void SaveSettings()
 	{
 		Super::SaveSettings();
-		
+
 		if(bIsPossibleToSave)
 		{
 			for(auto Op : Operations)
@@ -373,13 +399,13 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			Op.LoadSettings();
 		}
 
-		GetSearchBox().LoadSettings();		
+		GetSearchBox().LoadSettings();
 	}
 
 	UFUNCTION(BlueprintOverride)
 	void Reset()
 	{
-		// Don't call super		
+		// Don't call super
 		SetWindowSize(MinimumWindowSize);
 		SetWindowTransparency(1.0f);
 		SetVisibility(ESlateVisibility::Visible);

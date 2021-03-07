@@ -28,6 +28,15 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	UPROPERTY(Category = "Feather")
 	FVector2D InitialCumulativeWindowOffset = FVector2D(50.0f, 50.0f);
 
+	// This is the input mode that should be used when closing the main window.
+	UPROPERTY(Category = "Feather")
+	EFeatherInputType OnMainWindowCloseInputType = EFeatherInputType::GameAndUI;
+
+	// Many objects that are used by the debug interface might be not referenced by anything. You can force load all of their subclasses here.
+	UPROPERTY(Category = "Feather")
+	TArray<FName> ForceLoadPaths;
+	default ForceLoadPaths.Add(n"/Game/DebugInterface/");
+
 	UPROPERTY(Category = "Feather|Style")
 	bool bUseLayoutStyleForAllWindows = true;
 
@@ -52,8 +61,14 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 		FVector2D CumulativePosition = InitialCumulativeWindowOffset;
 		CurrentTopZ = 0;
 
+		// Force load classes
+		for(FName ForceLoadPath : ForceLoadPaths)
+		{
+			AssetRegistry::LoadAllBlueprintsUnderPath(ForceLoadPath);
+		}
+
 		// Initialize windows
-		MainWindow = Cast<UFeatherDebugInterfaceMainWindow>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(MainWindowType)));
+		MainWindow = Cast<UFeatherDebugInterfaceMainWindow>(CreateFeatherWidget(TSubclassOf<UFeatherWidget>(MainWindowType)));
 		if(ensure(System::IsValid(MainWindow), "Main window must be valid for the debug interface to work!"))
 		{
 			UCanvasPanelSlot CanvasSlot = RootCanvasPanel.AddChildToCanvas(MainWindow);
@@ -72,7 +87,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 				continue;
 			}
 
-			UFeatherDebugInterfaceWindow NewToolWindow = Cast<UFeatherDebugInterfaceWindow>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(ToolWindowType)));
+			UFeatherDebugInterfaceWindow NewToolWindow = Cast<UFeatherDebugInterfaceWindow>(CreateFeatherWidget(TSubclassOf<UFeatherWidget>(ToolWindowType)));
 			if(ensure(System::IsValid(NewToolWindow), "Tool window could not be created!"))
 			{
 				CumulativePosition += InitialCumulativeWindowOffset;
@@ -90,7 +105,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 		for(UFeatherDebugInterfaceWindow ToolWindow : ToolWindows)
 		{
 			ToolWindow.FeatherConstruct(FeatherStyle, FeatherConfiguration);
-			
+
 			UFeatherDebugInterfaceOptionsWindow OptionsWindow = Cast<UFeatherDebugInterfaceOptionsWindow>(ToolWindow);
 			if(System::IsValid(OptionsWindow))
 			{
@@ -127,7 +142,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	UFUNCTION()
 	void MainWindowClosed()
 	{
-		SetRootVisibility(false);
+		SetRootVisibility(false, OnMainWindowCloseInputType);
 	}
 
 	UFUNCTION()
@@ -135,7 +150,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	{
 		ForceWindowOnTop(Window);
 	}
-	
+
 	UFUNCTION()
 	void ForceWindowOnTop(UFeatherWindow Window)
 	{

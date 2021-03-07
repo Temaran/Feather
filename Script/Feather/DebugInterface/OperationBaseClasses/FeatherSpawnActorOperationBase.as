@@ -5,7 +5,7 @@
 
 #if !RELEASE
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.UtilWidgets.FeatherClassSelectorComboBox;
+import Feather.Styles.FeatherClassSelectorComboBoxStyle;
 import Feather.FeatherSettings;
 import Feather.FeatherUtils;
 
@@ -26,11 +26,11 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	UFeatherButtonStyle SpawnButton;
 
 	UPROPERTY(Category = "Spawn Actor", NotEditable)
-	UFeatherClassSelectorComboBox ClassSelectorComboBox;
+	UFeatherClassSelectorComboBoxStyle ClassSelectorComboBox;
 
 	UPROPERTY(Category = "Spawn Actor", EditDefaultsOnly)
 	UClass SelectorBaseClass;
-	
+
 	FText ButtonText = FText::FromString(" Spawn ");
 	FText ButtonToolTipText = FText::FromString("Click to spawn an actor of the selected type at the cursor/screen center.");
 	float ButtonSeparation = 10.0f;
@@ -46,8 +46,8 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	void SaveOperationToString(FString& InOutSaveString)
 	{
 		FSpawnActorSaveState SaveState;
-		SaveState.Filter = ClassSelectorComboBox.FilterBox.GetText().ToString();
-		SaveState.SelectedClass = ClassSelectorComboBox.ClassComboBox.GetSelectedOption();
+		SaveState.Filter = ClassSelectorComboBox.GetFilterTextBox().GetText().ToString();
+		SaveState.SelectedClass = ClassSelectorComboBox.GetClassListComboBox().GetSelectedOption();
 		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
 
@@ -57,8 +57,8 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 		FSpawnActorSaveState SaveState;
 		if(FJsonObjectConverter::JsonObjectStringToUStruct(InSaveString, SaveState))
 		{
-			ClassSelectorComboBox.FilterBox.SetText(FText::FromString(SaveState.Filter));
-			ClassSelectorComboBox.ClassComboBox.SetSelectedOption(SaveState.SelectedClass);
+			ClassSelectorComboBox.GetFilterTextBox().SetText(FText::FromString(SaveState.Filter));
+			ClassSelectorComboBox.GetClassListComboBox().SetSelectedOption(SaveState.SelectedClass);
 		}
 	}
 
@@ -66,9 +66,9 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	void Reset()
 	{
 		Super::Reset();
-		
-		ClassSelectorComboBox.FilterBox.SetText(FText());
-		ClassSelectorComboBox.ClassComboBox.SetSelectedIndex(0);
+
+		ClassSelectorComboBox.GetFilterTextBox().SetText(FText());
+		ClassSelectorComboBox.GetClassListComboBox().SetSelectedIndex(0);
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -84,16 +84,15 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 		ButtonPadding.Right = ButtonSeparation;
 		ButtonSlot.Padding = ButtonPadding;
 
-        ClassSelectorComboBox = Cast<UFeatherClassSelectorComboBox>(CreateStyledWidget(TSubclassOf<UFeatherWidget>(UFeatherClassSelectorComboBox::StaticClass())));
-        UHorizontalBoxSlot SelectorSlot = HorizontalLayout.AddChildToHorizontalBox(ClassSelectorComboBox);		
+        ClassSelectorComboBox = Cast<UFeatherClassSelectorComboBoxStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherClassSelectorComboBoxStyle::StaticClass())));
+        UHorizontalBoxSlot SelectorSlot = HorizontalLayout.AddChildToHorizontalBox(ClassSelectorComboBox);
         FSlateChildSize FillSize;
         FillSize.SizeRule = ESlateSizeRule::Fill;
         SelectorSlot.SetSize(FillSize);
 		ClassSelectorComboBox.BaseClass = SelectorBaseClass;
 		ClassSelectorComboBox.OnFilterChanged.AddUFunction(this, n"OnFilterChanged");
 		ClassSelectorComboBox.OnClassSelectionChanged.AddUFunction(this, n"OnClassSelectionChanged");
-		ClassSelectorComboBox.FeatherConstruct(FeatherStyle, FeatherConfiguration);
-        
+
 		UFeatherTextBlockStyle SpawnButtonText = CreateTextBlock();
 		SpawnButtonText.SetText(ButtonText);
 		SpawnButtonText.SetToolTipText(ButtonToolTipText);
@@ -105,12 +104,12 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	}
 
 	UFUNCTION()
-	void OnFilterChanged(UFeatherClassSelectorComboBox ComboBox, FString NewFilter)
+	void OnFilterChanged(UFeatherClassSelectorComboBoxStyle ComboBox, FString NewFilter)
 	{
 		SaveSettings();
 	}
 	UFUNCTION()
-	void OnClassSelectionChanged(UFeatherClassSelectorComboBox ComboBox, UClass SelectedClass)
+	void OnClassSelectionChanged(UFeatherClassSelectorComboBoxStyle ComboBox, UClass SelectedClass)
 	{
 		SaveSettings();
 	}

@@ -20,13 +20,13 @@ class UFeatherAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 
 	UPROPERTY(Category = "Ability System Debug", NotEditable)
 	UFeatherCheckBoxStyle ShowAbilitySystemDebugCheckBox;
-    
+
 	UPROPERTY(Category = "Ability System Debug", NotEditable)
 	UFeatherButtonStyle PreviousActorButton;
-    
+
 	UPROPERTY(Category = "Ability System Debug", NotEditable)
 	UFeatherButtonStyle NextActorButton;
-    
+
 	UPROPERTY(Category = "Ability System Debug", NotEditable)
 	UFeatherButtonStyle ChangeCategoryButton;
 
@@ -63,7 +63,7 @@ class UFeatherAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
 	void Reset()
 	{
 		Super::Reset();
-		
+
         if(ShowAbilitySystemDebugCheckBox.IsChecked())
         {
             ShowAbilitySystemDebugCheckBox.SetIsChecked(false);
@@ -94,31 +94,35 @@ class UFeatherAbilitySystemDebugOperation : UFeatherDebugInterfaceOperation
         FSlateChildSize FillSize;
         FillSize.SizeRule = ESlateSizeRule::Fill;
         LabelSlot.SetSize(FillSize);
-        LabelSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);        
+        LabelSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
         CheckBoxLabel.GetTextWidget().SetText(FText::FromString("Show Ability System Debug"));
+		CheckBoxLabel.GetTextWidget().SetToolTipText(FText::FromString("Toggles the engine ability system debugger"));
 
         PreviousActorButton = CreateButton();
         HorizontalLayout.AddChildToHorizontalBox(PreviousActorButton);
         PreviousActorButton.GetButtonWidget().OnClicked.AddUFunction(this, n"OnPreviousActor");
         UFeatherTextBlockStyle PreviousActorText = CreateTextBlock();
         PreviousActorButton.GetButtonWidget().SetContent(PreviousActorText);
+		PreviousActorButton.SetToolTipText(FText::FromString("Go to the previous actor"));
         PreviousActorText.GetTextWidget().SetText(FText::FromString(" ^ "));
-        
+
         NextActorButton = CreateButton();
         UHorizontalBoxSlot NextActorSlot = HorizontalLayout.AddChildToHorizontalBox(NextActorButton);
         NextActorButton.GetButtonWidget().OnClicked.AddUFunction(this, n"OnNextActor");
         NextActorSlot.SetPadding(LeftPadding);
         UFeatherTextBlockStyle NextActorText = CreateTextBlock();
         NextActorButton.GetButtonWidget().SetContent(NextActorText);
+		NextActorButton.SetToolTipText(FText::FromString("Go to the next actor"));
         NextActorText.GetTextWidget().SetText(FText::FromString(" ^ "));
         NextActorButton.SetRenderTransformAngle(180.0f);
-        
+
         ChangeCategoryButton = CreateButton();
         UHorizontalBoxSlot ChangeCategorySlot = HorizontalLayout.AddChildToHorizontalBox(ChangeCategoryButton);
         ChangeCategoryButton.GetButtonWidget().OnClicked.AddUFunction(this, n"OnChangeCategory");
         ChangeCategorySlot.SetPadding(LeftPadding);
         UFeatherTextBlockStyle ChangeCategoryText = CreateTextBlock();
         ChangeCategoryButton.GetButtonWidget().SetContent(ChangeCategoryText);
+		ChangeCategoryButton.SetToolTipText(FText::FromString("Cycle the debugging category"));
         ChangeCategoryText.GetTextWidget().SetText(FText::FromString(" Category "));
 	}
 

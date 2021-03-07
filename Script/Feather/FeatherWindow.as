@@ -62,10 +62,10 @@ class UFeatherWindow : UFeatherWidget
 	FResizedEvent OnResizeEnd;
 
 	UPROPERTY(Category = "Feather|Events")
-	FVisibilityChangedEvent OnVisibilityChanged;
+	FVisibilityChangedEvent OnWindowVisibilityChanged;
 
 	UPROPERTY(Category = "Feather|Events")
-	FTransparencyChangedEvent OnTransparencyChanged;
+	FTransparencyChangedEvent OnWindowTransparencyChanged;
 
 	UPROPERTY(Category = "Feather|Events")
 	FForceOnTopEvent OnForceOnTop;
@@ -359,7 +359,7 @@ class UFeatherWindow : UFeatherWidget
 	void SetWindowTransparency(float NewAlpha)
 	{
 		RenderOpacity = FMath::Clamp(NewAlpha, 0.0f, 1.0f);
-		OnTransparencyChanged.Broadcast(this, RenderOpacity);
+		OnWindowTransparencyChanged.Broadcast(this, RenderOpacity);
 		SaveSettings();
 	}
 
@@ -372,7 +372,7 @@ class UFeatherWindow : UFeatherWidget
 	void SetWindowVisibility(bool bNewVisibility)
 	{
 		SetVisibility(bNewVisibility ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
-		OnVisibilityChanged.Broadcast(this, bNewVisibility);
+		OnWindowVisibilityChanged.Broadcast(this, bNewVisibility);
 	}
 
 //////////////////////////////////////////////////////////////////////////////
