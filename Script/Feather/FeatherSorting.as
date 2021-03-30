@@ -27,8 +27,8 @@ namespace FeatherSorting
 			int PartitionIndex = PartitionSuggestions(Suggestions, LowIndex, HighIndex, SortDirection);
 
 			// Separately sort elements before and after partition.
-			QuickSortSuggestions(Suggestions, LowIndex, PartitionIndex - 1);
-			QuickSortSuggestions(Suggestions, PartitionIndex + 1, HighIndex);
+			QuickSortSuggestions(Suggestions, LowIndex, PartitionIndex - 1, SortDirection);
+			QuickSortSuggestions(Suggestions, PartitionIndex + 1, HighIndex, SortDirection);
 		}
 	}
 
