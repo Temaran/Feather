@@ -147,6 +147,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 	void SetupSearchBox()
 	{
+		UVerticalBox SearchResults = GetResultsPanel();
 		UFeatherSearchBox MySearchBox = GetSearchBox();
 		MySearchBox.OnSearchChanged.AddUFunction(this, n"SearchChanged");
 
@@ -192,6 +193,11 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 				MySearchBox.AllSearchTargetTokens.Add(TagToken);
 				MySearchBox.QuickSelectTokens.Add(TagToken);
 			}
+
+			UVerticalBoxSlot OperationSlot = SearchResults.AddChildToVerticalBox(OperationWidget);
+			FSlateChildSize FillSize;
+			FillSize.SizeRule = ESlateSizeRule::Automatic;
+			OperationSlot.SetSize(FillSize);
 		}
 
 		for(FString SpecialEntry : SpecialQuickEntries)
@@ -251,9 +257,6 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 	void RegenerateSearch(const TArray<FString>& SearchTokens)
 	{
-		UVerticalBox SearchResults = GetResultsPanel();
-		SearchResults.ClearChildren();
-
 		// Test and purge Special Tokens
 		TArray<FString> ActualTokens = SearchTokens;
 		bool bFilterToFavourites = ActualTokens.Contains(FavouritesQuickEntry);
@@ -266,6 +269,9 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		TArray<FOperationWithScore> CandidateOperations;
 		for(auto Op : Operations)
 		{
+			// Default to collapsed, we then make them visible if they are selected
+			Op.SetVisibility(ESlateVisibility::Collapsed);
+
 			if(bFilterToFavourites && !Op.FavouriteButton.GetCheckBoxWidget().IsChecked())
 			{
 				// If we only allow favourites and the op is not favourited, skip.
@@ -281,34 +287,14 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 				CandidateOperations.Add(NewOpAndScore);
 			}
 		}
-		FeatherSorting::QuickSortOperations(CandidateOperations, 0, CandidateOperations.Num() - 1);
+		//FeatherSorting::QuickSortOperations(CandidateOperations, 0, CandidateOperations.Num() - 1);
 
 		bool bUseAlternateBackgroundForEntry = false;
 		for(auto Candidate : CandidateOperations)
 		{
-			if(bUseAlternateBackgroundForEntry)
-			{
-				UOverlay AlternateOverlay = Cast<UOverlay>(ConstructWidget(UOverlay::StaticClass()));
-
-				UImage BackgroundImage = Cast<UImage>(ConstructWidget(UImage::StaticClass()));
-				BackgroundImage.SetColorAndOpacity(AlternatingOperationColor);
-				UOverlaySlot ImageSlot = AlternateOverlay.AddChildToOverlay(BackgroundImage);
-				ImageSlot.SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-				ImageSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
-
-				UOverlaySlot OpSlot = AlternateOverlay.AddChildToOverlay(Candidate.Operation);
-				OpSlot.SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
-				OpSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
-
-				UVerticalBoxSlot OverlaySlot = SearchResults.AddChildToVerticalBox(AlternateOverlay);
-				FSlateChildSize FillSize;
-				FillSize.SizeRule = ESlateSizeRule::Fill;
-				OverlaySlot.SetSize(FillSize);
-			}
-			else
-			{
-				SearchResults.AddChildToVerticalBox(Candidate.Operation);
-			}
+			Candidate.Operation.SetVisibility(ESlateVisibility::Visible);
+			Candidate.Operation.SetBackgroundColor(bUseAlternateBackgroundForEntry
+				? AlternatingOperationColor : FLinearColor::Transparent);
 
 			if(bAlternateOperationBackgroundColor)
 			{

@@ -55,11 +55,9 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 	// Padding applied to the widget.
 	UPROPERTY(Category = "Feather")
-	FMargin AutoPadding;
-	default AutoPadding.Top = 10.0f;
-	default AutoPadding.Bottom = 10.0f;
-	default AutoPadding.Left = 0.0f;
-	default AutoPadding.Right = 0.0f;
+	float LayoutPadding = 10.0f;
+
+	private UImage BackgroundImage;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////
 // Final Overrides
@@ -107,7 +105,6 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
 	{
 		Super::FeatherConstruct(InStyle, InConfig);
-		Padding = AutoPadding;
 
 		FMargin LeftPadding;
 		LeftPadding.Left = 5.0f;
@@ -117,9 +114,26 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 		const float SpacerWidth = LeftPadding.Left + SeparationPadding.Left;
 
-		UHorizontalBox LayoutBox = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
-		SetRootWidget(LayoutBox);
+		// Layout
+		UOverlay RootOverlay = Cast<UOverlay>(ConstructWidget(UOverlay::StaticClass()));
+		SetRootWidget(RootOverlay);
 
+		BackgroundImage = Cast<UImage>(ConstructWidget(UImage::StaticClass()));
+		BackgroundImage.SetColorAndOpacity(FLinearColor::Transparent);
+
+		UOverlaySlot BackgroundImageSlot = RootOverlay.AddChildToOverlay(BackgroundImage);
+		BackgroundImageSlot.SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+		BackgroundImageSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+
+		UHorizontalBox LayoutBox = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
+		UOverlaySlot LayoutSlot = RootOverlay.AddChildToOverlay(LayoutBox);
+		LayoutSlot.SetHorizontalAlignment(EHorizontalAlignment::HAlign_Fill);
+		LayoutSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Fill);
+		FMargin LayoutPaddingMargins;
+		LayoutPaddingMargins.Top = LayoutPaddingMargins.Bottom = LayoutPadding;
+		LayoutSlot.SetPadding(LayoutPaddingMargins);
+
+		// Side panel
 		FavouriteButton = CreateCheckBox(n"FavouriteCheckBox");
 		UHorizontalBoxSlot FavouriteSlot = LayoutBox.AddChildToHorizontalBox(FavouriteButton);
 		FavouriteSlot.SetVerticalAlignment(EVerticalAlignment::VAlign_Center);
@@ -159,6 +173,7 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 			KeybindSpacer.SetSize(FVector2D(SpacerWidth, 10.0f));
 		}
 
+		// Operation
 		UNamedSlot Operation = Cast<UNamedSlot>(ConstructWidget(UNamedSlot::StaticClass()));
 		UHorizontalBoxSlot OperationSlot = LayoutBox.AddChildToHorizontalBox(Operation);
 		FSlateChildSize FillSize;
@@ -186,6 +201,12 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 	void SaveStateChanged(bool bNewSaveState)
 	{
 		SaveSettings();
+	}
+
+	UFUNCTION()
+	void SetBackgroundColor(FLinearColor NewBackgroundColor)
+	{
+		BackgroundImage.SetColorAndOpacity(NewBackgroundColor);
 	}
 
 //////////////////////////////////////////////////////////////////////////////////////////////////

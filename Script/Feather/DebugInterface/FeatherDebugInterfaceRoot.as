@@ -37,6 +37,10 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	TArray<FName> ForceLoadPaths;
 	default ForceLoadPaths.Add(n"/Game/DebugInterface/");
 
+	// Other objects we might want to load by soft object path
+	UPROPERTY(Category = "Feather")
+	TArray<FSoftClassPath> ForceLoadClasses;
+
 	UPROPERTY(Category = "Feather|Style")
 	bool bUseLayoutStyleForAllWindows = true;
 
@@ -65,6 +69,10 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 		for(FName ForceLoadPath : ForceLoadPaths)
 		{
 			AssetRegistry::LoadAllBlueprintsUnderPath(ForceLoadPath);
+		}
+		for(FSoftClassPath ClassPath : ForceLoadClasses)
+		{
+			ClassPath.TryLoadClass();
 		}
 
 		// Initialize windows
