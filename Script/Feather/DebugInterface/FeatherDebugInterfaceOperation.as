@@ -253,9 +253,14 @@ class UFeatherDebugInterfaceOperation : UFeatherWidget
 
 	// Unsupported debug operations should not show up in the interface.
 	UFUNCTION(Category = "Feather", BlueprintEvent, BlueprintPure)
-	bool Static_IsOperationSupported() const
+	bool Static_IsOperationSupported(UObject ExplicitWorldContext) const
 	{
+		UObject PrevWorldContext = __WorldContext;
+		__WorldContext = ExplicitWorldContext;
+
 		bool bStandaloneTest = System::IsStandalone() || !bOnlyWorksInStandalone;
+
+		__WorldContext = PrevWorldContext;
 		return bStandaloneTest;
 	}
 };

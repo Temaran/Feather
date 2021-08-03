@@ -50,7 +50,7 @@ class UFeatherSearchBox : UFeatherWidget
 	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
     {
 		Super::FeatherConstruct(InStyle, InConfig);
-		
+
 		GetSearchButton().OnCheckStateChanged.AddUFunction(this, n"SearchButtonStateChanged");
 		GetSearchTextBox().OnTextChanged.AddUFunction(this, n"SearchChanged");
 		GetSearchTextBox().OnTextCommitted.AddUFunction(this, n"FinalizeSearch");
@@ -73,7 +73,7 @@ class UFeatherSearchBox : UFeatherWidget
 	}
 
 	UFUNCTION()
-	void SearchChanged(FText& SearchText)
+	void SearchChanged(const FText&in SearchText)
 	{
 		ParseSearchTokens(SearchText.ToString(), LatestSearchTokens);
 
@@ -82,14 +82,14 @@ class UFeatherSearchBox : UFeatherWidget
 		GetSearchSuggestions().SetVisibility(SuggestionVisibility);
 		GetSearchSuggestions().ClearHeightOverride();
 		GetSearchButton().SetCheckedState(ECheckBoxState::Unchecked);
-		
+
         OnSearchChanged.Broadcast(this, LatestSearchTokens, false);
 
 		SaveSettings();
 	}
 
 	UFUNCTION()
-	void FinalizeSearch(FText& SearchText, ETextCommit CommitMethod)
+	void FinalizeSearch(const FText&in SearchText, ETextCommit CommitMethod)
 	{
 		if(CommitMethod == ETextCommit::OnEnter)
 		{
@@ -138,7 +138,7 @@ class UFeatherSearchBox : UFeatherWidget
 			OutSearchTokens.Add(Corpus.TrimStartAndEnd());
 		}
 	}
-    
+
 	bool RegenerateQuickSuggestions()
 	{
 		GetSearchSuggestionsPanel().ClearChildren();
@@ -263,7 +263,7 @@ class UFeatherSearchBox : UFeatherWidget
 			GetSearchTextBox().SetKeyboardFocus();
 		}
 	}
-	
+
 	UFUNCTION()
 	void QuickSuggestionClicked(UFeatherButtonStyle ClickedButton)
 	{
@@ -311,7 +311,7 @@ class UFeatherSearchBox : UFeatherWidget
 			QuickSelectFoldoutSize = SaveState.QuickSelectFoldoutSize;
 		}
 	}
-	
+
 	void SetMaxSearchSuggestions(int NewMaxSearchSuggestions)
 	{
 		MaxSearchSuggestions = NewMaxSearchSuggestions;
@@ -331,7 +331,7 @@ class UFeatherSearchBox : UFeatherWidget
 	{
 		return GetSearchTextBox().GetText();
 	}
-	
+
 	UFUNCTION(Category = "Feather")
 	void SetSearchText(FText NewText)
 	{

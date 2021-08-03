@@ -1,3 +1,4 @@
+#if !RELEASE
 import Feather.DebugInterface.OperationBaseClasses.FeatherSimpleCheckBoxOperationBase;
 import Feather.FeatherSettings;
 
@@ -44,3 +45,4 @@ class UFeatherSimpleConsoleVariableOperation : UFeatherSimpleCheckBoxOperationBa
 		return bIsChecked;
 	}
 };
+#endif

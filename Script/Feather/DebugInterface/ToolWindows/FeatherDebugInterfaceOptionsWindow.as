@@ -17,7 +17,7 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 
 	UPROPERTY(Category = "Feather|Options")
 	FSaveOptionsEvent OnSaveOptions;
-	
+
 	UPROPERTY(Category = "Feather|Options")
 	FResetEverythingEvent OnResetEverything;
 
@@ -54,14 +54,14 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION()
-	void MaxSearchSuggestionsChanged(FText& NewValue)
+	void MaxSearchSuggestionsChanged(const FText&in NewValue)
 	{
 		SearchBox.SetMaxSearchSuggestions(FeatherUtils::ParseLocaleInvariantFloat(NewValue.ToString()));
 		SaveSearchBoxSettings();
 	}
-	
+
 	UFUNCTION()
-	void QuickSelectFoldoutSizeChanged(FText& NewValue)
+	void QuickSelectFoldoutSizeChanged(const FText&in NewValue)
 	{
 		SearchBox.SetQuickSelectFoldoutSize(FeatherUtils::ParseLocaleInvariantFloat(NewValue.ToString()));
 		SaveSearchBoxSettings();
@@ -89,13 +89,13 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 	{
 		return nullptr;
 	}
-	
+
 	UFUNCTION(Category = "Feather|Options", BlueprintEvent)
 	UEditableText GetQuickSelectFoldoutSizeText()
 	{
 		return nullptr;
 	}
-	
+
 	UFUNCTION(Category = "Feather|Options", BlueprintEvent)
 	UButton GetResetButton()
 	{

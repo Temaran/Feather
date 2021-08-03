@@ -28,13 +28,13 @@ class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION()
-	void StartUpExecsCommitted(FText& NewExecs, ETextCommit CommitMethod)
+	void StartUpExecsCommitted(const FText&in NewExecs, ETextCommit CommitMethod)
 	{
 		SaveSettings();
 	}
-	
+
 	UFUNCTION()
-	void ShutDownExecsCommitted(FText& NewExecs, ETextCommit CommitMethod)
+	void ShutDownExecsCommitted(const FText&in NewExecs, ETextCommit CommitMethod)
 	{
 		SaveSettings();
 	}
@@ -57,10 +57,10 @@ class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
 			{
 				System::ExecuteConsoleCommand(CurrentExec);
 			}
-			
+
 			Corpus = RemainingString;
 		}
-		
+
 		Corpus = Corpus.TrimStartAndEnd();
 		if(!Corpus.IsEmpty())
 		{
@@ -72,7 +72,7 @@ class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
 	void SaveToString(FString& InOutSaveString)
 	{
 		Super::SaveToString(InOutSaveString);
-		
+
 		FAutoExecSaveState SaveState;
 		SaveState.StartUpExecs = GetStartUpBox().GetText().ToString();
 		SaveState.ShutDownExecs = GetShutDownBox().GetText().ToString();
@@ -90,7 +90,7 @@ class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
 			GetStartUpBox().SetText(FText::FromString(SaveState.StartUpExecs));
 			GetShutDownBox().SetText(FText::FromString(SaveState.ShutDownExecs));
 		}
-		
+
 		if(!bHasRunStartUpExecs)
 		{
 			ExecuteCorpusString(GetStartUpBox().GetText().ToString());

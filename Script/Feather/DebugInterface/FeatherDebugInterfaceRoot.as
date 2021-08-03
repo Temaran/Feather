@@ -68,7 +68,8 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 		// Force load classes
 		for(FName ForceLoadPath : ForceLoadPaths)
 		{
-			AssetRegistry::LoadAllBlueprintsUnderPath(ForceLoadPath);
+			// @TODO: This is not working in cooked.. Not sure what is wrong.
+			// AssetRegistry::LoadAllBlueprintsUnderPath(ForceLoadPath);
 		}
 		for(FSoftClassPath ClassPath : ForceLoadClasses)
 		{

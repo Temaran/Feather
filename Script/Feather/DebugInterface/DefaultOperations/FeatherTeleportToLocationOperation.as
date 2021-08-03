@@ -34,7 +34,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	{
 		TeleportToTarget();
 	}
-	
+
     UFUNCTION(BlueprintOverride)
 	void SaveOperationToString(FString& InOutSaveString)
 	{
@@ -59,7 +59,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	void Reset()
 	{
 		Super::Reset();
-		
+
         TeleportTargetEditableText.SetText(FText());
 	}
 
@@ -82,7 +82,7 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
         UHorizontalBoxSlot TextSlot = HorizontalLayout.AddChildToHorizontalBox(TeleportTargetEditableText);
         FSlateChildSize FillSize;
         FillSize.SizeRule = ESlateSizeRule::Fill;
-        TextSlot.SetSize(FillSize);        
+        TextSlot.SetSize(FillSize);
         FMargin TextPadding;
         TextPadding.Left = 10.0f;
         TextPadding.Right = 10.0f;
@@ -126,8 +126,8 @@ class UFeatherTeleportToLocationOperation : UFeatherDebugInterfaceOperation
 	}
 
     UFUNCTION()
-    void TargetChanged(FText& NewTargetText)
-    {        
+    void TargetChanged(const FText&in NewTargetText)
+    {
         SaveSettings();
     }
 };

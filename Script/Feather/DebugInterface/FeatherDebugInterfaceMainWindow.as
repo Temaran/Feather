@@ -177,7 +177,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			OperationWidget.OnHotkeyBound.AddUFunction(this, n"HotkeyBoundToOperation");
 			Operations.Add(OperationWidget);
 
-			if(!OperationCDO.Static_IsOperationSupported())
+			if(!OperationCDO.Static_IsOperationSupported(OwningPlayer))
 			{
 				// Disable the widget if not in standalone and set tooltip
 				OperationWidget.SetIsEnabled(false);
@@ -262,7 +262,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		bool bFilterToFavourites = ActualTokens.Contains(FavouritesQuickEntry);
 		for(FString SpecialEntry : SpecialQuickEntries)
 		{
-			ActualTokens.RemoveAll(SpecialEntry);
+			ActualTokens.Remove(SpecialEntry);
 		}
 
 		// Figure out which operations should be displayed
@@ -325,9 +325,9 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 			CumulativeScore += NameMatchScore;
 
-			for(FString OperationTag : Operation.OperationTags)
+			for(FName OperationTag : Operation.OperationTags)
 			{
-				CumulativeScore += FeatherUtils::CalculateTokenMatchScore(OperationTag, Token);
+				CumulativeScore += FeatherUtils::CalculateTokenMatchScore(OperationTag.ToString(), Token);
 			}
 		}
 
@@ -355,7 +355,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 ///////////////////////////////////////////////////////////////////////
 
-	UFUNCTION(BlueprintOverride)
+	UFUNCTION(BlueprintOverride, meta = (NoSuperCall))
 	void CloseWindow()
 	{
 		OnMainWindowClosed.Broadcast();
@@ -388,7 +388,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 		GetSearchBox().LoadSettings();
 	}
 
-	UFUNCTION(BlueprintOverride)
+	UFUNCTION(BlueprintOverride, meta = (NoSuperCall))
 	void Reset()
 	{
 		// Don't call super
