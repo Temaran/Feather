@@ -10,7 +10,6 @@ class AFeatherDemoPlayerPawn : APawn
     UPROPERTY(DefaultComponent)
     UInputComponent ScriptInputComponent;
 
-#if !RELEASE
 	UPROPERTY(Category = "Debug", EditDefaultsOnly)
 	TSubclassOf<UFeatherRoot> DebugInterfaceType;
     private UFeatherRoot DebugInterface;
@@ -18,6 +17,7 @@ class AFeatherDemoPlayerPawn : APawn
 	UFUNCTION()
 	void ToggleDebugInterface(FKey Key)
 	{
+#if !RELEASE
 		if(System::IsValid(DebugInterface))
 		{
 			if(DebugInterface.IsRootVisible())
@@ -29,8 +29,8 @@ class AFeatherDemoPlayerPawn : APawn
 				DebugInterface.SetRootVisibility(true);
 			}
 		}
-	}
 #endif // RELEASE
+	}
 
     UFUNCTION(BlueprintOverride)
     void BeginPlay()

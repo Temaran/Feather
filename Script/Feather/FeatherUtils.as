@@ -110,7 +110,7 @@ namespace FeatherUtils
 		{
 			float MatchDegreeScore = float(InputToTest.Len()) / float(TargetToken.Len()) * MaxScoreFromMatch;
 			float PositionScore = (1.0f - (float(SubStringIndex) / float(TargetToken.Len()))) * MaxScoreFromPosition;
-			return FMath::Clamp(MatchDegreeScore + PositionScore, 0.0f, 1.0f);
+			return Math::Clamp(MatchDegreeScore + PositionScore, 0.0f, 1.0f);
 		}
 
 		// Token doesn't even contain input
