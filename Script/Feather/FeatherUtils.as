@@ -34,7 +34,7 @@ namespace FeatherUtils
 		{
 			FVector CameraLocation = FirstPlayer.PlayerCameraManager.GetCameraLocation();
 			FVector CameraDirection = FirstPlayer.PlayerCameraManager.GetCameraRotation().ForwardVector;
-			
+
 			FVector End = CameraLocation + CameraDirection * 100000.0f;
 			TArray<AActor> IgnoredActors;
 			IgnoredActors.Add(FirstPlayer);
@@ -69,7 +69,7 @@ namespace FeatherUtils
 	{
 		return "" + InVector.X + " " + InVector.Y + " " + InVector.Z;
 	}
-	
+
 	UFUNCTION(Category = "Feather|Utils", BlueprintPure)
 	FString CleanNumeric(const FString& Input)
 	{
@@ -98,19 +98,19 @@ namespace FeatherUtils
 	{
 		return String::Conv_StringToFloat(CleanNumeric(LocaleFloatString));
 	}
-	
+
 	UFUNCTION(Category = "Feather|Utils", BlueprintPure)
 	float CalculateTokenMatchScore(FString TargetToken, FString InputToTest)
 	{
 		const float MaxScoreFromMatch = 0.8f;
 		const float MaxScoreFromPosition = 1.0f - MaxScoreFromMatch;
-		
+
 		int SubStringIndex = TargetToken.Find(InputToTest);
 		if(SubStringIndex >= 0)
 		{
 			float MatchDegreeScore = float(InputToTest.Len()) / float(TargetToken.Len()) * MaxScoreFromMatch;
 			float PositionScore = (1.0f - (float(SubStringIndex) / float(TargetToken.Len()))) * MaxScoreFromPosition;
-			return Math::Clamp(MatchDegreeScore + PositionScore, 0.0f, 1.0f);
+			return FMath::Clamp(MatchDegreeScore + PositionScore, 0.0f, 1.0f);
 		}
 
 		// Token doesn't even contain input

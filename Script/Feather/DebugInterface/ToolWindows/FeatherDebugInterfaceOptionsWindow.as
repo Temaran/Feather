@@ -3,7 +3,7 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.FeatherDebugInterfaceWindow;
+import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceToolWindow;
 import Feather.UtilWidgets.FeatherSearchBox;
 import Feather.FeatherUtils;
 
@@ -11,7 +11,7 @@ event void FSaveOptionsEvent();
 event void FResetEverythingEvent();
 
 UCLASS(Abstract)
-class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
+class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceToolWindow
 {
 	default WindowName = n"Options";
 
@@ -25,7 +25,7 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 
 	UFUNCTION(BlueprintOverride)
 	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
-    {
+	{
 		Super::FeatherConstruct(InStyle, InConfig);
 
 		GetMaxSearchSuggestionsText().OnTextChanged.AddUFunction(this, n"MaxSearchSuggestionsChanged");
@@ -33,14 +33,14 @@ class UFeatherDebugInterfaceOptionsWindow : UFeatherDebugInterfaceWindow
 		GetResetButton().OnClicked.AddUFunction(this, n"ResetEverything");
 	}
 
-	void SetSearchBox(UFeatherSearchBox InSearchBox)
+	void InitializeToolWindow(UFeatherSearchBox InSearchBox) override
 	{
 		SearchBox = InSearchBox;
 		SearchBox.OnSettingsLoaded.AddUFunction(this, n"OnSearchSettingsLoaded");
 		ReloadValues();
 	}
 
-	UFUNCTION()
+	UFUNCTION(BlueprintEvent)
 	void ReloadValues()
 	{
 		GetMaxSearchSuggestionsText().SetText(FText::FromString("" + SearchBox.MaxSearchSuggestions));

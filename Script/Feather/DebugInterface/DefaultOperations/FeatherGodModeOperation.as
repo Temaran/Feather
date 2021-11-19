@@ -11,31 +11,31 @@ class UFeatherGodModeOperation : UFeatherSimpleCheckBoxOperationBase
 {
 	default OperationTags.Add(n"Player");
 	default OperationTags.Add(n"God");
-    
-    default CheckBoxText = FText::FromString("God Mode");
-    default CheckBoxToolTip = FText::FromString("God mode makes your character invulnerable.");
+
+	default CheckBoxText = FText::FromString("God Mode");
+	default CheckBoxToolTip = FText::FromString("God mode makes your character invulnerable.");
 
 
-    UFUNCTION(BlueprintOverride)
-    bool IsCheckedByDefault() const
-    {
-        APawn PlayerPawn = Gameplay::GetPlayerPawn(0);
-        if(System::IsValid(PlayerPawn))
-        {
-            return !PlayerPawn.bCanBeDamaged;
-        }
+	UFUNCTION(BlueprintOverride)
+	bool IsCheckedByDefault() const
+	{
+		APawn PlayerPawn = Gameplay::GetPlayerPawn(0);
+		if(System::IsValid(PlayerPawn))
+		{
+			return !PlayerPawn.bCanBeDamaged;
+		}
 
-        return false;
-    }
+		return false;
+	}
 
-    UFUNCTION(BlueprintOverride)
-    void OnCheckStateChanged(bool bChecked)
-    {
-        APawn PlayerPawn = Gameplay::GetPlayerPawn(0);
-        if(System::IsValid(PlayerPawn))
-        {
-            PlayerPawn.bCanBeDamaged = !bChecked;
-        }
-    }
+	UFUNCTION(BlueprintOverride)
+	void OnCheckStateChanged(bool bChecked)
+	{
+		APawn PlayerPawn = Gameplay::GetPlayerPawn(0);
+		if(System::IsValid(PlayerPawn))
+		{
+			PlayerPawn.bCanBeDamaged = !bChecked;
+		}
+	}
 };
 #endif // RELEASE

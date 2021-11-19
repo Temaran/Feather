@@ -25,7 +25,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	TArray<UFeatherDebugInterfaceOperation> Operations;
 
 	UPROPERTY(Category = "Feather", NotEditable)
-	TArray<UFeatherDebugInterfaceWindow> ToolWindows;
+	TArray<UFeatherDebugInterfaceToolWindow> ToolWindows;
 
 	UPROPERTY(Category = "Feather", EditDefaultsOnly)
 	TArray<TSubclassOf<UFeatherDebugInterfaceOperation>> IgnoredOperationTypes;
@@ -189,7 +189,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			for(FName OperationTag : OperationCDO.OperationTags)
 			{
 				const FString TagToken = OperationTag.ToString();
-				ensure(!SpecialQuickEntries.Contains(TagToken), "Illegal operation tag found! You cannot special quick entries as tags! Offending operation: " + OperationCDO.GetName().ToString() + " Offending tag: " + TagToken);
+				check(!SpecialQuickEntries.Contains(TagToken), "Illegal operation tag found! You cannot special quick entries as tags! Offending operation: " + OperationCDO.GetName().ToString() + " Offending tag: " + TagToken);
 				MySearchBox.AllSearchTargetTokens.Add(TagToken);
 				MySearchBox.QuickSelectTokens.Add(TagToken);
 			}
@@ -217,13 +217,10 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 
 	void SetupToolWindows()
 	{
-		for(UFeatherDebugInterfaceWindow ToolWindow : ToolWindows)
+		UFeatherSearchBox MySearchBox = GetSearchBox();
+		for(UFeatherDebugInterfaceToolWindow ToolWindow : ToolWindows)
 		{
-			UFeatherDebugInterfaceOptionsWindow OptionsWindow = Cast<UFeatherDebugInterfaceOptionsWindow>(ToolWindow);
-			if(System::IsValid(OptionsWindow))
-			{
-				OptionsWindow.SetSearchBox(GetSearchBox());
-			}
+			ToolWindow.InitializeToolWindow(MySearchBox);
 		}
 	}
 
@@ -348,7 +345,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 			Output = Output.Replace(IgnoredSubstring, "");
 		}
 
-		ensure(!SpecialQuickEntries.Contains(Output), "Illegal operation name found! You cannot name operations similarly to special quick entries! Offending operation: " + OriginalName);
+		check(!SpecialQuickEntries.Contains(Output), "Illegal operation name found! You cannot name operations similarly to special quick entries! Offending operation: " + OriginalName);
 
 		return Output;
 	}
@@ -393,7 +390,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	{
 		// Don't call super
 		SetWindowSize(MinimumWindowSize);
-		SetWindowTransparency(1.0f);
+		SetWindowOpacity(1.0f);
 		SetVisibility(ESlateVisibility::Visible);
 
 		for(auto Op : Operations)

@@ -9,6 +9,7 @@ import Feather.FeatherSettings;
 
 struct FFeatherSimpleComboBoxSaveState
 {
+	UPROPERTY()
 	int SelectedIndex;
 };
 
@@ -60,7 +61,7 @@ class UFeatherSimpleComboBoxOperationBase : UFeatherDebugInterfaceOperation
 	void Reset()
 	{
 		Super::Reset();
-		
+
 		MainComboBox.SetSelectedIndex(GetDefaultSelectedOptionIndex());
 	}
 
@@ -69,7 +70,7 @@ class UFeatherSimpleComboBoxOperationBase : UFeatherDebugInterfaceOperation
 	{
 		// Create layout
 		HorizontalBoxLayout = Cast<UHorizontalBox>(ConstructWidget(TSubclassOf<UWidget>(UHorizontalBox::StaticClass())));
-        OperationRoot.SetContent(HorizontalBoxLayout);
+		OperationRoot.SetContent(HorizontalBoxLayout);
 
 		// Create actual content
 		MainComboBoxLabel = CreateTextBlock();

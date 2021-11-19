@@ -24,9 +24,16 @@ enum EFeatherWindowTransformState
 // An alternative to this is to use the config meta-data, but that will not work if you have multiple instances of the same type, which will be quite common.
 struct FFeatherWindowSaveState
 {
+	UPROPERTY()
 	FVector2D WindowPosition;
+
+	UPROPERTY()
 	FVector2D WindowSize;
+
+	UPROPERTY()
 	float TransparencyAlpha;
+
+	UPROPERTY()
 	bool bIsVisible;
 };
 
@@ -87,6 +94,9 @@ class UFeatherWindow : UFeatherWidget
 	UPROPERTY(Category = "Feather|Transformation")
 	float DragMarginPx = 100.0f;
 
+	UPROPERTY(Category = "Feather|Settings")
+	float MinimumOpacityUNorm = 0.2f;
+
 	// If this is true, the window will save every time you transform the window with the mouse
 	UPROPERTY(Category = "Feather|Settings")
 	bool bAutoSaveOnCompletedTransform = true;
@@ -111,6 +121,8 @@ class UFeatherWindow : UFeatherWidget
 		{
 			MyWindowStyle.SetNewActualWindow(this);
 		}
+
+		check(MinimumOpacityUNorm >= 0.0f && MinimumOpacityUNorm <= 1.0f, "Bad minimum opacity defined! Needs to be a UNorm!");
 	}
 
 	UFUNCTION(BlueprintOverride)
@@ -157,13 +169,15 @@ class UFeatherWindow : UFeatherWidget
 			{
 				TransformState = EFeatherWindowTransformState::NotBeingTransformed;
 				OnMoveEnd.Broadcast(this, GetWindowPosition());
-				return WidgetBlueprint::ReleaseMouseCapture(FEventReply::Handled());
+				FEventReply Reply = FEventReply::Handled();
+				return WidgetBlueprint::ReleaseMouseCapture(Reply);
 			}
 			case EFeatherWindowTransformState::IsBeingResized:
 			{
 				TransformState = EFeatherWindowTransformState::NotBeingTransformed;
 				OnResizeEnd.Broadcast(this, GetWindowSize());
-				return WidgetBlueprint::ReleaseMouseCapture(FEventReply::Handled());
+				FEventReply Reply = FEventReply::Handled();
+				return WidgetBlueprint::ReleaseMouseCapture(Reply);
 			}
 			default:
 			{
@@ -195,7 +209,7 @@ class UFeatherWindow : UFeatherWidget
 		FFeatherWindowSaveState SaveState;
 		SaveState.WindowPosition = GetWindowPosition();
 		SaveState.WindowSize = GetWindowSize();
-		SaveState.TransparencyAlpha = GetWindowTransparency();
+		SaveState.TransparencyAlpha = GetWindowOpacity();
 		SaveState.bIsVisible = IsVisible();
 		FJsonObjectConverter::AppendUStructToJsonObjectString(SaveState, InOutSaveString);
 	}
@@ -208,7 +222,7 @@ class UFeatherWindow : UFeatherWidget
 		{
 			SetWindowPosition(SaveState.WindowPosition);
 			SetWindowSize(SaveState.WindowSize);
-			SetWindowTransparency(SaveState.TransparencyAlpha);
+			SetWindowOpacity(SaveState.TransparencyAlpha);
 			SetVisibility(SaveState.bIsVisible ? ESlateVisibility::Visible : ESlateVisibility::Hidden);
 		}
 	}
@@ -218,7 +232,7 @@ class UFeatherWindow : UFeatherWidget
 	{
 		// Try to figure out a good configuration here.
 		SetWindowSize(MinimumWindowSize);
-		SetWindowTransparency(1.0f);
+		SetWindowOpacity(1.0f);
 		SetVisibility(ESlateVisibility::Collapsed);
 	}
 
@@ -246,7 +260,8 @@ class UFeatherWindow : UFeatherWidget
 		CachedStartPosition = RootCanvasSlot.GetPosition();
 		TransformState = EFeatherWindowTransformState::IsBeingMoved;
 		OnMoveStart.Broadcast(this, CachedStartPosition);
-		return WidgetBlueprint::CaptureMouse(FEventReply::Handled(), this);
+		FEventReply Reply = FEventReply::Handled();
+		return WidgetBlueprint::CaptureMouse(Reply, this);
 	}
 
 	// You must bind this to the OnMouseButtonDown event of the element you want to use for resizing.
@@ -263,7 +278,8 @@ class UFeatherWindow : UFeatherWidget
 		CachedStartSize = RootCanvasSlot.GetSize();
 		TransformState = EFeatherWindowTransformState::IsBeingResized;
 		OnResizeStart.Broadcast(this, CachedStartSize);
-		return WidgetBlueprint::CaptureMouse(FEventReply::Handled(), this);
+		FEventReply Reply = FEventReply::Handled();
+		return WidgetBlueprint::CaptureMouse(Reply, this);
 	}
 
 //////////////////////////////////////////////////////////////////////////////
@@ -299,8 +315,8 @@ class UFeatherWindow : UFeatherWidget
 			const FVector2D SlotSize = RootCanvasSlot.GetSize();
 			const FVector2D ViewportSize = WidgetLayout::GetViewportWidgetGeometry().GetLocalSize();
 			const FVector2D NewWindowPosition = FVector2D(
-				Math::Clamp(NewPosition.X, DragMarginPx - SlotSize.X, ViewportSize.X - DragMarginPx),
-				Math::Clamp(NewPosition.Y, DragMarginPx - SlotSize.Y, ViewportSize.Y - DragMarginPx));
+				FMath::Clamp(NewPosition.X, DragMarginPx - SlotSize.X, ViewportSize.X - DragMarginPx),
+				FMath::Clamp(NewPosition.Y, DragMarginPx - SlotSize.Y, ViewportSize.Y - DragMarginPx));
 
 			RootCanvasSlot.SetPosition(NewWindowPosition);
 			OnMoved.Broadcast(this, NewWindowPosition);
@@ -332,13 +348,13 @@ class UFeatherWindow : UFeatherWidget
 			FVector2D NewWindowSize = NewSize;
 			if(bHasMinimumWindowSize)
 			{
-				NewWindowSize.X = Math::Max(NewWindowSize.X, MinimumWindowSize.X);
-				NewWindowSize.Y = Math::Max(NewWindowSize.Y, MinimumWindowSize.Y);
+				NewWindowSize.X = FMath::Max(NewWindowSize.X, MinimumWindowSize.X);
+				NewWindowSize.Y = FMath::Max(NewWindowSize.Y, MinimumWindowSize.Y);
 			}
 			if(bHasMaximumWindowSize)
 			{
-				NewWindowSize.X = Math::Min(NewWindowSize.X, MaximumWindowSize.X);
-				NewWindowSize.Y = Math::Min(NewWindowSize.Y, MaximumWindowSize.Y);
+				NewWindowSize.X = FMath::Min(NewWindowSize.X, MaximumWindowSize.X);
+				NewWindowSize.Y = FMath::Min(NewWindowSize.Y, MaximumWindowSize.Y);
 			}
 
 			RootCanvasSlot.SetSize(NewWindowSize);
@@ -350,15 +366,27 @@ class UFeatherWindow : UFeatherWidget
 		}
 	}
 
+	/* The window opacity is clamped to MinimumOpacityUNorm.
+	 * GetWindowOpacity will reproject the actual render opacity to a UNorm,
+	 * while GetWindowRenderOpacity will give you the actual render opacity.
+	 */
 	UFUNCTION(Category = "Feather|Accessors", BlueprintPure)
-	float GetWindowTransparency() const
+	float GetWindowOpacity() const
+	{
+		const float TotalRange = 1.0f - MinimumOpacityUNorm;
+		const float CalculatedWindowOpacity = TotalRange > 0.0f ? ((RenderOpacity - MinimumOpacityUNorm) / TotalRange) : 1.0f;
+		return FMath::Clamp(CalculatedWindowOpacity, 0.0f, 1.0f);
+	}
+	UFUNCTION(Category = "Feather|Accessors", BlueprintPure)
+	float GetWindowRenderOpacity() const
 	{
 		return RenderOpacity;
 	}
 	UFUNCTION(Category = "Feather|Accessors")
-	void SetWindowTransparency(float NewAlpha)
+	void SetWindowOpacity(float NewOpacityUNorm)
 	{
-		RenderOpacity = Math::Clamp(NewAlpha, 0.0f, 1.0f);
+		float ClampedAlphaUNorm = FMath::Clamp(NewOpacityUNorm, 0.0f, 1.0f);
+		RenderOpacity = FMath::Lerp(MinimumOpacityUNorm, 1.0f, ClampedAlphaUNorm);
 		OnWindowTransparencyChanged.Broadcast(this, RenderOpacity);
 		SaveSettings();
 	}

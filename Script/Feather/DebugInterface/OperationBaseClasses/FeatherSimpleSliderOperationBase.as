@@ -9,6 +9,7 @@ import Feather.FeatherSettings;
 
 struct FFeatherSimpleSliderSaveState
 {
+	UPROPERTY()
 	float SliderValue;
 };
 
@@ -60,7 +61,7 @@ class UFeatherSimpleSliderOperationBase : UFeatherDebugInterfaceOperation
 	void Reset()
 	{
 		Super::Reset();
-		
+
 		MainSlider.SetValue(GetDefaultSliderValue());
 	}
 
@@ -69,7 +70,7 @@ class UFeatherSimpleSliderOperationBase : UFeatherDebugInterfaceOperation
 	{
 		// Create layout
 		HorizontalBoxLayout = Cast<UHorizontalBox>(ConstructWidget(TSubclassOf<UWidget>(UHorizontalBox::StaticClass())));
-        OperationRoot.SetContent(HorizontalBoxLayout);
+		OperationRoot.SetContent(HorizontalBoxLayout);
 
 		// Create actual content
 		MainSliderLabel = CreateTextBlock();

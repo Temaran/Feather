@@ -3,19 +3,19 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.FeatherDebugInterfaceWindow;
+import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceToolWindow;
 import Feather.FeatherWidget;
 
 class UFeatherWindowSelectionBox : UFeatherWidget
 {
-    UPROPERTY(Category = "Feather", NotEditable)
-	TArray<UFeatherDebugInterfaceWindow> ToolWindows;
+	UPROPERTY(Category = "Feather", NotEditable)
+	TArray<UFeatherDebugInterfaceToolWindow> ToolWindows;
 
-    UFUNCTION(BlueprintOverride)
-    void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
-    {
+	UFUNCTION(BlueprintOverride)
+	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
+	{
 		Super::FeatherConstruct(InStyle, InConfig);
-		
+
 		GetMenuPanel().ClearChildren();
 		for(UFeatherDebugInterfaceWindow Window : ToolWindows)
 		{
@@ -32,13 +32,13 @@ class UFeatherWindowSelectionBox : UFeatherWidget
 		GetMenuButton().OnCheckStateChanged.AddUFunction(this, n"MenuButtonStateChanged");
 
 		GetMenuPanel().SetVisibility(ESlateVisibility::Collapsed);
-    }
+	}
 
 	UFUNCTION()
 	void MenuButtonStateChanged(bool bNewSearchState)
 	{
-        GetMenuPanel().SetVisibility(bNewSearchState 
-            ? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
+		GetMenuPanel().SetVisibility(bNewSearchState
+			? ESlateVisibility::Visible : ESlateVisibility::Collapsed);
 	}
 
 	UFUNCTION()
@@ -57,7 +57,7 @@ class UFeatherWindowSelectionBox : UFeatherWidget
 			}
 		}
 
-        GetMenuButton().SetCheckedState(ECheckBoxState::Unchecked);
+		GetMenuButton().SetCheckedState(ECheckBoxState::Unchecked);
 		GetMenuPanel().SetVisibility(ESlateVisibility::Collapsed);
 	}
 

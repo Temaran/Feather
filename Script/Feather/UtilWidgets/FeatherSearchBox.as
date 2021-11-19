@@ -9,8 +9,13 @@ import Feather.FeatherUtils;
 
 struct FSearchBoxSaveState
 {
+	UPROPERTY()
 	FString SearchText;
+
+	UPROPERTY()
 	int MaxSearchSuggestions;
+
+	UPROPERTY()
 	float QuickSelectFoldoutSize;
 };
 
@@ -19,20 +24,20 @@ event void FSearchChangedEvent(UFeatherSearchBox SearchBox, const TArray<FString
 class UFeatherSearchBox : UFeatherWidget
 {
 	// Call whenever our search string changed
-    UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
-    FSearchChangedEvent OnSearchChanged;
+	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
+	FSearchChangedEvent OnSearchChanged;
 
 	// These tokens are all the search tokens. We use these for autocomplete
-    UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
-    TSet<FString> AllSearchTargetTokens;
+	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
+	TSet<FString> AllSearchTargetTokens;
 
 	// Some quick select tokens are special. This array contains those. These are added to the top of the quick select, with a small separation.
-    UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
-    TArray<FString> SpecialQuickSelectTokens;
+	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
+	TArray<FString> SpecialQuickSelectTokens;
 
 	// All the quick select tokens (except for the special ones).
-    UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
-    TSet<FString> QuickSelectTokens;
+	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
+	TSet<FString> QuickSelectTokens;
 
 	// How many search suggestions do we generate during autocomplete?
 	UPROPERTY(Category = "Feather Search Box", EditDefaultsOnly)
@@ -46,9 +51,9 @@ class UFeatherSearchBox : UFeatherWidget
 	TArray<FString> LatestSearchTokens;
 
 
-    UFUNCTION(BlueprintOverride)
+	UFUNCTION(BlueprintOverride)
 	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
-    {
+	{
 		Super::FeatherConstruct(InStyle, InConfig);
 
 		GetSearchButton().OnCheckStateChanged.AddUFunction(this, n"SearchButtonStateChanged");
@@ -62,7 +67,7 @@ class UFeatherSearchBox : UFeatherWidget
 		SortedQuickSelectTokens.Sort();
 
 		GetSearchSuggestions().SetVisibility(ESlateVisibility::Collapsed);
-    }
+	}
 
 	UFUNCTION(BlueprintOverride)
 	void Reset()
@@ -83,7 +88,7 @@ class UFeatherSearchBox : UFeatherWidget
 		GetSearchSuggestions().ClearHeightOverride();
 		GetSearchButton().SetCheckedState(ECheckBoxState::Unchecked);
 
-        OnSearchChanged.Broadcast(this, LatestSearchTokens, false);
+		OnSearchChanged.Broadcast(this, LatestSearchTokens, false);
 
 		SaveSettings();
 	}
@@ -96,10 +101,10 @@ class UFeatherSearchBox : UFeatherWidget
 			GetSearchSuggestions().SetVisibility(ESlateVisibility::Collapsed);
 		}
 
-        TArray<FString> SearchTokens;
-        ParseSearchTokens(SearchText.ToString(), SearchTokens);
+		TArray<FString> SearchTokens;
+		ParseSearchTokens(SearchText.ToString(), SearchTokens);
 
-        OnSearchChanged.Broadcast(this, SearchTokens, true);
+		OnSearchChanged.Broadcast(this, SearchTokens, true);
 	}
 
 	UFUNCTION()
@@ -218,7 +223,7 @@ class UFeatherSearchBox : UFeatherWidget
 		FeatherSorting::QuickSortSuggestions(ValidSuggestionsWithScores, 0, ValidSuggestionsWithScores.Num() - 1);
 
 		// Generate entries
-		int NumberOfSuggestions = Math::Min(MaxSearchSuggestions, ValidSuggestionsWithScores.Num());
+		int NumberOfSuggestions = FMath::Min(MaxSearchSuggestions, ValidSuggestionsWithScores.Num());
 		for(int i = 0; i < NumberOfSuggestions; i++)
 		{
 			FNameWithScore Suggestion = ValidSuggestionsWithScores[i];

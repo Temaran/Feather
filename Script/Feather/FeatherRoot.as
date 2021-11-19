@@ -9,7 +9,7 @@ import Feather.FeatherWidget;
 enum EFeatherInputType
 {
 	GameOnly,
-	GameAndUI,	
+	GameAndUI,
 	UIOnly
 };
 
@@ -36,7 +36,7 @@ class UFeatherRoot : UFeatherWidget
 	// This is set via ini, and the cascades down along the widgets.
 	UPROPERTY(Category = "Feather", Config, NotVisible)
 	FFeatherConfig RootFeatherConfiguration;
-	
+
 	UFUNCTION(BlueprintOverride)
 	void OnInitialized()
 	{
@@ -45,7 +45,7 @@ class UFeatherRoot : UFeatherWidget
 	}
 
 	UFUNCTION(Category = "Feather", BlueprintEvent, BlueprintCallable)
-	void SetRootVisibility(bool bNewVisibility, EFeatherInputType InputType = EFeatherInputType::GameAndUI, bool bAffectMouseCursor = true) 
+	void SetRootVisibility(bool bNewVisibility, EFeatherInputType InputType = EFeatherInputType::GameAndUI, bool bAffectMouseCursor = true)
 	{
 		if(bAffectMouseCursor)
 		{
@@ -68,7 +68,7 @@ class UFeatherRoot : UFeatherWidget
 
 			default:
 			{
-				WidgetBlueprint::SetInputMode_GameOnly(OwningPlayer);				
+				WidgetBlueprint::SetInputMode_GameOnly(OwningPlayer);
 				break;
 			}
 		}

@@ -40,7 +40,7 @@ class UFeatherSimpleButtonOperationBase : UFeatherDebugInterfaceOperation
 		Text.SetToolTipText(ButtonToolTip);
 
 		MainButton = CreateButton();
-        OperationRoot.SetContent(MainButton);
+		OperationRoot.SetContent(MainButton);
 		UButton Button = MainButton.GetButtonWidget();
 		Button.SetContent(MainButtonText);
 		Button.SetToolTipText(ButtonToolTip);

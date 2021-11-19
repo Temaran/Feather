@@ -11,7 +11,10 @@ import Feather.FeatherUtils;
 
 struct FSpawnActorSaveState
 {
+	UPROPERTY()
 	FString Filter;
+
+	UPROPERTY()
 	FString SelectedClass;
 };
 
@@ -74,21 +77,21 @@ class UFeatherSpawnActorOperationBase : UFeatherDebugInterfaceOperation
 	UFUNCTION(BlueprintOverride)
 	void ConstructOperation(UNamedSlot OperationRoot)
 	{
-        // Setup widget hierarchy
-        UHorizontalBox HorizontalLayout = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
-        OperationRoot.SetContent(HorizontalLayout);
+		// Setup widget hierarchy
+		UHorizontalBox HorizontalLayout = Cast<UHorizontalBox>(ConstructWidget(UHorizontalBox::StaticClass()));
+		OperationRoot.SetContent(HorizontalLayout);
 
-        SpawnButton = CreateButton();
-        UHorizontalBoxSlot ButtonSlot = HorizontalLayout.AddChildToHorizontalBox(SpawnButton);
+		SpawnButton = CreateButton();
+		UHorizontalBoxSlot ButtonSlot = HorizontalLayout.AddChildToHorizontalBox(SpawnButton);
 		FMargin ButtonPadding;
 		ButtonPadding.Right = ButtonSeparation;
 		ButtonSlot.Padding = ButtonPadding;
 
-        ClassSelectorComboBox = Cast<UFeatherClassSelectorComboBoxStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherClassSelectorComboBoxStyle::StaticClass())));
-        UHorizontalBoxSlot SelectorSlot = HorizontalLayout.AddChildToHorizontalBox(ClassSelectorComboBox);
-        FSlateChildSize FillSize;
-        FillSize.SizeRule = ESlateSizeRule::Fill;
-        SelectorSlot.SetSize(FillSize);
+		ClassSelectorComboBox = Cast<UFeatherClassSelectorComboBoxStyle>(CreateStyle(TSubclassOf<UFeatherStyleBase>(UFeatherClassSelectorComboBoxStyle::StaticClass())));
+		UHorizontalBoxSlot SelectorSlot = HorizontalLayout.AddChildToHorizontalBox(ClassSelectorComboBox);
+		FSlateChildSize FillSize;
+		FillSize.SizeRule = ESlateSizeRule::Fill;
+		SelectorSlot.SetSize(FillSize);
 		ClassSelectorComboBox.BaseClass = SelectorBaseClass;
 		ClassSelectorComboBox.OnFilterChanged.AddUFunction(this, n"OnFilterChanged");
 		ClassSelectorComboBox.OnClassSelectionChanged.AddUFunction(this, n"OnClassSelectionChanged");

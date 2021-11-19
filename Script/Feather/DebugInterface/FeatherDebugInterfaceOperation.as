@@ -8,8 +8,13 @@ import Feather.FeatherWidget;
 
 struct FDebugInterfaceOperationSaveState
 {
+	UPROPERTY()
 	bool bIsFavourite;
+
+	UPROPERTY()
 	bool bSaveOperationState;
+
+	UPROPERTY()
 	FFeatherHotkey Hotkey;
 };
 
@@ -19,7 +24,7 @@ UCLASS(Abstract)
 class UFeatherDebugInterfaceOperation : UFeatherWidget
 {
 	UPROPERTY(Category = "Keybind Capture")
-    FOperationHotkeyBoundSignature OnHotkeyBound;
+	FOperationHotkeyBoundSignature OnHotkeyBound;
 
 	// The hotkey capture button lets the user bind custom key combinations to execute this operation
 	UPROPERTY(Category = "Feather")

@@ -9,6 +9,7 @@ import Feather.FeatherSettings;
 
 struct FFeatherSimpleCheckBoxSaveState
 {
+	UPROPERTY()
 	bool bIsChecked;
 };
 
@@ -63,7 +64,7 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 	void Reset()
 	{
 		Super::Reset();
-		
+
 		MainCheckBox.SetIsChecked(IsCheckedByDefault());
 	}
 
@@ -72,7 +73,7 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 	{
 		// Create layout
 		HorizontalBoxLayout = Cast<UHorizontalBox>(ConstructWidget(TSubclassOf<UWidget>(UHorizontalBox::StaticClass())));
-        OperationRoot.SetContent(HorizontalBoxLayout);
+		OperationRoot.SetContent(HorizontalBoxLayout);
 
 		// Create actual content
 		MainCheckBox = CreateCheckBox();
@@ -100,7 +101,7 @@ class UFeatherSimpleCheckBoxOperationBase : UFeatherDebugInterfaceOperation
 	UFUNCTION()
 	void OnCheckStateChanged_Internal(bool bChecked)
 	{
-        SaveSettings();
+		SaveSettings();
 		OnCheckStateChanged(bChecked);
 	}
 

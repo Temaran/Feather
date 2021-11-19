@@ -3,16 +3,19 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.FeatherDebugInterfaceWindow;
+import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceToolWindow;
 
 struct FAutoExecSaveState
 {
+	UPROPERTY()
 	FString StartUpExecs;
+
+	UPROPERTY()
 	FString ShutDownExecs;
 };
 
 UCLASS(Abstract)
-class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
+class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceToolWindow
 {
 	default WindowName = n"AutoExec";
 
@@ -20,7 +23,7 @@ class UFeatherDebugInterfaceAutoExecWindow : UFeatherDebugInterfaceWindow
 
 	UFUNCTION(BlueprintOverride)
 	void FeatherConstruct(FFeatherStyle InStyle, FFeatherConfig InConfig)
-    {
+	{
 		Super::FeatherConstruct(InStyle, InConfig);
 
 		GetStartUpBox().OnTextCommitted.AddUFunction(this, n"StartUpExecsCommitted");

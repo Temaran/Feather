@@ -13,33 +13,33 @@ class UFeatherTeleportToFocusOperation : UFeatherSimpleButtonOperationBase
 	default OperationTags.Add(n"Player");
 	default OperationTags.Add(n"Teleport");
 
-    default bCanSave = false;
+	default bCanSave = false;
 
-    default ButtonText = FText::FromString(" Teleport to focus ");
-    default ButtonToolTip = FText::FromString("Teleports you to your current focus. This is the center of the screen unless you are invoking using a hotkey with a cursor, in which case it's the cursor.");
+	default ButtonText = FText::FromString(" Teleport to focus ");
+	default ButtonToolTip = FText::FromString("Teleports you to your current focus. This is the center of the screen unless you are invoking using a hotkey with a cursor, in which case it's the cursor.");
 
 
-    UFUNCTION(BlueprintOverride, meta = (NoSuperCall))
-    void Execute(FString Context)
-    {
-        TeleportToFocus(false);
-    }
-
-    UFUNCTION(BlueprintOverride)
-    void OnButtonClicked()
-    {
-        TeleportToFocus(true);
-    }
-
-    void TeleportToFocus(bool bForceLookAt)
+	UFUNCTION(BlueprintOverride, meta = (NoSuperCall))
+	void Execute(FString Context)
 	{
-        APawn PlayerPawn = Gameplay::GetPlayerPawn(0);
-        if(!System::IsValid(PlayerPawn))
+		TeleportToFocus(false);
+	}
+
+	UFUNCTION(BlueprintOverride)
+	void OnButtonClicked()
+	{
+		TeleportToFocus(true);
+	}
+
+	void TeleportToFocus(bool bForceLookAt)
+	{
+		APawn PlayerPawn = Gameplay::GetPlayerPawn(0);
+		if(!System::IsValid(PlayerPawn))
 		{
-            return;
+			return;
 		}
 
-        FHitResult PlayerFocus;
+		FHitResult PlayerFocus;
 		bool bFocusFound = false;
 		if(bForceLookAt)
 		{
@@ -52,7 +52,7 @@ class UFeatherTeleportToFocusOperation : UFeatherSimpleButtonOperationBase
 
 		if(bFocusFound)
 		{
-            PlayerPawn.SetActorLocation(PlayerFocus.Location);
+			PlayerPawn.SetActorLocation(PlayerFocus.Location);
 		}
 	}
 };

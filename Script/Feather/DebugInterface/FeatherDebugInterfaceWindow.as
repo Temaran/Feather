@@ -53,11 +53,11 @@ class UFeatherDebugInterfaceWindow : UFeatherWindow
 	}
 
 	UFUNCTION(BlueprintOverride)
-	void Reset() 
+	void Reset()
 	{
 		Super::Reset();
 	}
-	
+
 	UFUNCTION(BlueprintOverride)
 	void CloseWindow()
 	{

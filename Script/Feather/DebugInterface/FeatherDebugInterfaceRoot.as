@@ -8,6 +8,16 @@ import Feather.FeatherWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceMainWindow;
 import Feather.DebugInterface.FeatherDebugInterfaceOperation;
+import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceToolWindow;
+
+struct FForceLoadPathDefinition
+{
+	UPROPERTY(Category = "Path Data")
+	FName ForceLoadPath;
+
+	UPROPERTY(Category = "Path Data")
+	FName Opt_ForceLoadPathRegexThatMustMatchToIncludeFile;
+}
 
 // This is just a container to configure the debug interface and provide a root canvas.
 UCLASS(Abstract)
@@ -22,7 +32,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 
 	// Add the tool window types you want to support here.
 	UPROPERTY(Category = "Feather")
-	TArray<TSubclassOf<UFeatherDebugInterfaceWindow>> ToolWindowTypes;
+	TArray<TSubclassOf<UFeatherDebugInterfaceToolWindow>> ToolWindowTypes;
 
 	// This is how much we offset each window during initial spawn.
 	UPROPERTY(Category = "Feather")
@@ -32,23 +42,35 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	UPROPERTY(Category = "Feather")
 	EFeatherInputType OnMainWindowCloseInputType = EFeatherInputType::GameAndUI;
 
-	// Many objects that are used by the debug interface might be not referenced by anything. You can force load all of their subclasses here.
+	// Many objects that are used by the debug interface might be not referenced by anything in the game.
+	// This means that Unreal will not actually load them in play, since it thinks it doesn't need them.
+	// If operations or types you want to use in the interface don't show up, then add their content folder to these paths to force load them.
+	// NOTE: For this to work in cooked builds, you must also add this path to your DefaultGame.ini. Something like this:
+	// NOTE: If you are trying to make something spawn server side, you might also have to handle these paths on that side too!
+	// [/Script/UnrealEd.ProjectPackagingSettings]
+	// +DirectoriesToAlwaysCook=(Path="/Game/DebugInterface")
 	UPROPERTY(Category = "Feather")
-	TArray<FName> ForceLoadPaths;
-	default ForceLoadPaths.Add(n"/Game/DebugInterface/");
-
-	// Other objects we might want to load by soft object path
-	UPROPERTY(Category = "Feather")
-	TArray<FSoftClassPath> ForceLoadClasses;
+	TArray<FForceLoadPathDefinition> ForceLoadPaths;
+	default ForceLoadPaths = CreateDefaultForceLoadPaths();
 
 	UPROPERTY(Category = "Feather|Style")
 	bool bUseLayoutStyleForAllWindows = true;
 
 	UFeatherDebugInterfaceMainWindow MainWindow;
-	TArray<UFeatherDebugInterfaceWindow> ToolWindows;
+	TArray<UFeatherDebugInterfaceToolWindow> ToolWindows;
 	TArray<UFeatherDebugInterfaceWindow> AllWindows;
 	int CurrentTopZ;
 
+	TArray<FForceLoadPathDefinition> CreateDefaultForceLoadPaths()
+	{
+		TArray<FForceLoadPathDefinition> LoadPaths;
+		FForceLoadPathDefinition DebugInterfacePath;
+		DebugInterfacePath.ForceLoadPath = n"/Game/DebugInterface/";
+		DebugInterfacePath.Opt_ForceLoadPathRegexThatMustMatchToIncludeFile = n"";
+		LoadPaths.Add(DebugInterfacePath);
+
+		return LoadPaths;
+	}
 
 	UFUNCTION(BlueprintOverride)
 	void OnInitialized()
@@ -66,14 +88,9 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 		CurrentTopZ = 0;
 
 		// Force load classes
-		for(FName ForceLoadPath : ForceLoadPaths)
+		for(const FForceLoadPathDefinition& ForceLoadPath : ForceLoadPaths)
 		{
-			// @TODO: This is not working in cooked.. Not sure what is wrong.
-			// AssetRegistry::LoadAllBlueprintsUnderPath(ForceLoadPath);
-		}
-		for(FSoftClassPath ClassPath : ForceLoadClasses)
-		{
-			ClassPath.TryLoadClass();
+			AssetRegistry::LoadAllBlueprintsUnderPath(ForceLoadPath.ForceLoadPath, ForceLoadPath.Opt_ForceLoadPathRegexThatMustMatchToIncludeFile);
 		}
 
 		// Initialize windows
@@ -96,7 +113,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 				continue;
 			}
 
-			UFeatherDebugInterfaceWindow NewToolWindow = Cast<UFeatherDebugInterfaceWindow>(CreateFeatherWidget(TSubclassOf<UFeatherWidget>(ToolWindowType)));
+			UFeatherDebugInterfaceToolWindow NewToolWindow = Cast<UFeatherDebugInterfaceToolWindow>(CreateFeatherWidget(TSubclassOf<UFeatherWidget>(ToolWindowType)));
 			if(ensure(System::IsValid(NewToolWindow), "Tool window could not be created!"))
 			{
 				CumulativePosition += InitialCumulativeWindowOffset;
@@ -111,7 +128,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 			}
 		}
 
-		for(UFeatherDebugInterfaceWindow ToolWindow : ToolWindows)
+		for(UFeatherDebugInterfaceToolWindow ToolWindow : ToolWindows)
 		{
 			ToolWindow.FeatherConstruct(FeatherStyle, FeatherConfiguration);
 
