@@ -3,8 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.FeatherWidget;
-
 struct FFeatherHotkey
 {
 	UPROPERTY()

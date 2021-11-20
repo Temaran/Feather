@@ -4,9 +4,6 @@
 ////////////////////////////////////////////////////////////
 
 #if !RELEASE
-import Feather.DebugInterface.OperationBaseClasses.FeatherSimpleButtonOperationBase;
-import Feather.FeatherUtils;
-
 // Teleport to the center of the screen or the cursor depending on the context.
 class UFeatherTeleportToFocusOperation : UFeatherSimpleButtonOperationBase
 {

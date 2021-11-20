@@ -4,9 +4,6 @@
 ////////////////////////////////////////////////////////////
 
 #if !RELEASE
-import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.FeatherSettings;
-
 // An easy to use base class for simple operations that should have a checkbox!
 UCLASS(Abstract)
 class UFeatherSimpleButtonOperationBase : UFeatherDebugInterfaceOperation

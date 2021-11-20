@@ -4,8 +4,6 @@
 ////////////////////////////////////////////////////////////
 
 #if !RELEASE
-import Feather.DebugInterface.OperationBaseClasses.FeatherSimpleSliderOperationBase;
-
 // This adds a simple slider to control time dilation in the game.
 class UFeatherTimeDilationOperation : UFeatherSimpleSliderOperationBase
 {

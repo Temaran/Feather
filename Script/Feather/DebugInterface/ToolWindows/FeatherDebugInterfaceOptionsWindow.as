@@ -3,10 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceToolWindow;
-import Feather.UtilWidgets.FeatherSearchBox;
-import Feather.FeatherUtils;
-
 event void FSaveOptionsEvent();
 event void FResetEverythingEvent();
 

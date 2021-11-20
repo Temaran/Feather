@@ -3,9 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.FeatherDebugInterfaceWindow;
-import Feather.UtilWidgets.FeatherSearchBox;
-
 UCLASS(Abstract)
 class UFeatherDebugInterfaceToolWindow : UFeatherDebugInterfaceWindow
 {

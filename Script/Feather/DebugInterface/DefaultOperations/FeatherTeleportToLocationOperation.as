@@ -4,10 +4,6 @@
 ////////////////////////////////////////////////////////////
 
 #if !RELEASE
-import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.FeatherSettings;
-import Feather.FeatherUtils;
-
 struct FTeleportToLocationSaveState
 {
 	UPROPERTY()

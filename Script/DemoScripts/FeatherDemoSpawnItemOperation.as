@@ -3,8 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.OperationBaseClasses.FeatherSpawnActorOperationBase;
-
 // Some example items to work with.
 UCLASS(Abstract)
 class AExampleItem : AStaticMeshActor {};

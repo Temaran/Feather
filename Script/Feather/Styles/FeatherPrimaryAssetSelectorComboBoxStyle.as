@@ -1,6 +1,3 @@
-import Feather.FeatherStyle;
-import Feather.Utils.AssetRegistryUtils;
-
 event void FPrimaryAssetFilterChangedEvent(UFeatherPrimaryAssetSelectorComboBoxStyle ComboBox, FString NewFilter);
 event void FPrimaryAssetSelectionChangedEvent(UFeatherPrimaryAssetSelectorComboBoxStyle ComboBox, FName NewAsset);
 

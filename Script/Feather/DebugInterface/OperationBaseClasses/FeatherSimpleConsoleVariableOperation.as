@@ -1,7 +1,4 @@
 #if !RELEASE
-import Feather.DebugInterface.OperationBaseClasses.FeatherSimpleCheckBoxOperationBase;
-import Feather.FeatherSettings;
-
 // An easy to use base class for auto operations that are tied to one or more console variables.
 UCLASS(Abstract)
 class UFeatherSimpleConsoleVariableOperation : UFeatherSimpleCheckBoxOperationBase

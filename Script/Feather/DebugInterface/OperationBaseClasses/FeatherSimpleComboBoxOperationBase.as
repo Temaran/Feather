@@ -4,9 +4,6 @@
 ////////////////////////////////////////////////////////////
 
 #if !RELEASE
-import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.FeatherSettings;
-
 struct FFeatherSimpleComboBoxSaveState
 {
 	UPROPERTY()

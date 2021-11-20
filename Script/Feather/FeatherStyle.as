@@ -3,7 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-
 UCLASS(Abstract)
 class UFeatherStyleBase : UUserWidget
 {

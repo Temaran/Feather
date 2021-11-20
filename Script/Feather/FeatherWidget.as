@@ -3,9 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.FeatherStyle;
-import Feather.FeatherSettings;
-
 event void FSettingsSavedEvent(UFeatherWidget Widget);
 event void FSettingsLoadedEvent(UFeatherWidget Widget);
 event void FResetToDefaultEvent(UFeatherWidget Widget);

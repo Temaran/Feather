@@ -3,9 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.FeatherWindow;
-import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-
 UCLASS(Abstract)
 class UFeatherDebugInterfaceWindow : UFeatherWindow
 {

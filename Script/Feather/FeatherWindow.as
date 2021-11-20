@@ -11,9 +11,6 @@
  * - OnWindowStartResize
  */
 
-import Feather.FeatherSettings;
-import Feather.FeatherWidget;
-
 enum EFeatherWindowTransformState
 {
 	NotBeingTransformed,
@@ -315,8 +312,8 @@ class UFeatherWindow : UFeatherWidget
 			const FVector2D SlotSize = RootCanvasSlot.GetSize();
 			const FVector2D ViewportSize = WidgetLayout::GetViewportWidgetGeometry().GetLocalSize();
 			const FVector2D NewWindowPosition = FVector2D(
-				FMath::Clamp(NewPosition.X, DragMarginPx - SlotSize.X, ViewportSize.X - DragMarginPx),
-				FMath::Clamp(NewPosition.Y, DragMarginPx - SlotSize.Y, ViewportSize.Y - DragMarginPx));
+				Math::Clamp(NewPosition.X, DragMarginPx - SlotSize.X, ViewportSize.X - DragMarginPx),
+				Math::Clamp(NewPosition.Y, DragMarginPx - SlotSize.Y, ViewportSize.Y - DragMarginPx));
 
 			RootCanvasSlot.SetPosition(NewWindowPosition);
 			OnMoved.Broadcast(this, NewWindowPosition);
@@ -348,13 +345,13 @@ class UFeatherWindow : UFeatherWidget
 			FVector2D NewWindowSize = NewSize;
 			if(bHasMinimumWindowSize)
 			{
-				NewWindowSize.X = FMath::Max(NewWindowSize.X, MinimumWindowSize.X);
-				NewWindowSize.Y = FMath::Max(NewWindowSize.Y, MinimumWindowSize.Y);
+				NewWindowSize.X = Math::Max(NewWindowSize.X, MinimumWindowSize.X);
+				NewWindowSize.Y = Math::Max(NewWindowSize.Y, MinimumWindowSize.Y);
 			}
 			if(bHasMaximumWindowSize)
 			{
-				NewWindowSize.X = FMath::Min(NewWindowSize.X, MaximumWindowSize.X);
-				NewWindowSize.Y = FMath::Min(NewWindowSize.Y, MaximumWindowSize.Y);
+				NewWindowSize.X = Math::Min(NewWindowSize.X, MaximumWindowSize.X);
+				NewWindowSize.Y = Math::Min(NewWindowSize.Y, MaximumWindowSize.Y);
 			}
 
 			RootCanvasSlot.SetSize(NewWindowSize);
@@ -375,7 +372,7 @@ class UFeatherWindow : UFeatherWidget
 	{
 		const float TotalRange = 1.0f - MinimumOpacityUNorm;
 		const float CalculatedWindowOpacity = TotalRange > 0.0f ? ((RenderOpacity - MinimumOpacityUNorm) / TotalRange) : 1.0f;
-		return FMath::Clamp(CalculatedWindowOpacity, 0.0f, 1.0f);
+		return Math::Clamp(CalculatedWindowOpacity, 0.0f, 1.0f);
 	}
 	UFUNCTION(Category = "Feather|Accessors", BlueprintPure)
 	float GetWindowRenderOpacity() const
@@ -385,8 +382,8 @@ class UFeatherWindow : UFeatherWidget
 	UFUNCTION(Category = "Feather|Accessors")
 	void SetWindowOpacity(float NewOpacityUNorm)
 	{
-		float ClampedAlphaUNorm = FMath::Clamp(NewOpacityUNorm, 0.0f, 1.0f);
-		RenderOpacity = FMath::Lerp(MinimumOpacityUNorm, 1.0f, ClampedAlphaUNorm);
+		float ClampedAlphaUNorm = Math::Clamp(NewOpacityUNorm, 0.0f, 1.0f);
+		RenderOpacity = Math::Lerp(MinimumOpacityUNorm, 1.0f, ClampedAlphaUNorm);
 		OnWindowTransparencyChanged.Broadcast(this, RenderOpacity);
 		SaveSettings();
 	}

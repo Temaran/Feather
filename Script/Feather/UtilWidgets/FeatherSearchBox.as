@@ -3,10 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.FeatherWidget;
-import Feather.FeatherSorting;
-import Feather.FeatherUtils;
-
 struct FSearchBoxSaveState
 {
 	UPROPERTY()
@@ -223,7 +219,7 @@ class UFeatherSearchBox : UFeatherWidget
 		FeatherSorting::QuickSortSuggestions(ValidSuggestionsWithScores, 0, ValidSuggestionsWithScores.Num() - 1);
 
 		// Generate entries
-		int NumberOfSuggestions = FMath::Min(MaxSearchSuggestions, ValidSuggestionsWithScores.Num());
+		int NumberOfSuggestions = Math::Min(MaxSearchSuggestions, ValidSuggestionsWithScores.Num());
 		for(int i = 0; i < NumberOfSuggestions; i++)
 		{
 			FNameWithScore Suggestion = ValidSuggestionsWithScores[i];

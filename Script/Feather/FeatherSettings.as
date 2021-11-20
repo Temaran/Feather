@@ -14,8 +14,6 @@
  * - Many properties we might want to serialize lives on base classes, or are more abstract and cannot be marked with Config. In those cases we would have to create proxy-properties to copy back and forth from. Using this approach, we keep all settings in a neat JSON struct. Much simpler.
  */
 
-import Feather.FeatherConfig;
-
 namespace FeatherSettings
 {
 	UFUNCTION(Category = "Feather|Settings")

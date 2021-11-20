@@ -3,9 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.FeatherConfig;
-import Feather.FeatherWidget;
-
 enum EFeatherInputType
 {
 	GameOnly,

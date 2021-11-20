@@ -4,11 +4,6 @@
 ////////////////////////////////////////////////////////////
 
 #if !RELEASE
-import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.Styles.FeatherClassSelectorComboBoxStyle;
-import Feather.FeatherSettings;
-import Feather.FeatherUtils;
-
 struct FSpawnActorSaveState
 {
 	UPROPERTY()

@@ -3,10 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.FeatherWidget;
-import Feather.FeatherSorting;
-
 struct FOperationWithScore
 {
 	UFeatherDebugInterfaceOperation Operation;

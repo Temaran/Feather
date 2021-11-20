@@ -3,9 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.UtilWidgets.FeatherKeybindCaptureButton;
-import Feather.FeatherWidget;
-
 struct FDebugInterfaceOperationSaveState
 {
 	UPROPERTY()

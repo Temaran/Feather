@@ -3,8 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.FeatherStyle;
-
 event void FFilterChangedEvent(UFeatherClassSelectorComboBoxStyle ComboBox, FString NewFilter);
 event void FClassSelectionChangedEvent(UFeatherClassSelectorComboBoxStyle ComboBox, UClass NewClass);
 

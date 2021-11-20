@@ -3,13 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.FeatherRoot;
-import Feather.FeatherWindow;
-import Feather.DebugInterface.FeatherDebugInterfaceWindow;
-import Feather.DebugInterface.FeatherDebugInterfaceMainWindow;
-import Feather.DebugInterface.FeatherDebugInterfaceOperation;
-import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceToolWindow;
-
 struct FForceLoadPathDefinition
 {
 	UPROPERTY(Category = "Path Data")
@@ -65,7 +58,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 	{
 		TArray<FForceLoadPathDefinition> LoadPaths;
 		FForceLoadPathDefinition DebugInterfacePath;
-		DebugInterfacePath.ForceLoadPath = n"/Game/DebugInterface/";
+		DebugInterfacePath.ForceLoadPath = n"/Game/DebugInterface";
 		DebugInterfacePath.Opt_ForceLoadPathRegexThatMustMatchToIncludeFile = n"";
 		LoadPaths.Add(DebugInterfacePath);
 

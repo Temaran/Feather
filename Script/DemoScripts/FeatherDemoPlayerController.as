@@ -3,8 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.FeatherDebugInterfaceRoot;
-
 class AFeatherDemoPlayerPawn : APawn
 {
     UPROPERTY(DefaultComponent)

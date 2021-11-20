@@ -3,9 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceToolWindow;
-import Feather.FeatherWidget;
-
 class UFeatherWindowSelectionBox : UFeatherWidget
 {
 	UPROPERTY(Category = "Feather", NotEditable)

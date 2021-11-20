@@ -3,14 +3,6 @@
 // @Author  Fredrik Lindh [Temaran] (temaran@gmail.com)
 ////////////////////////////////////////////////////////////
 
-import Feather.DebugInterface.FeatherDebugInterfaceWindow;
-import Feather.DebugInterface.FeatherDebugInterfaceUtils;
-import Feather.DebugInterface.FeatherWindowSelectionBox;
-import Feather.DebugInterface.ToolWindows.FeatherDebugInterfaceOptionsWindow;
-import Feather.UtilWidgets.FeatherSearchBox;
-import Feather.FeatherSorting;
-import Feather.FeatherUtils;
-
 event void FMainWindowClosedEvent();
 
 UCLASS(Abstract)
