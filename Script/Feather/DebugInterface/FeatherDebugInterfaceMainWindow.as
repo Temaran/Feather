@@ -236,7 +236,7 @@ class UFeatherDebugInterfaceMainWindow : UFeatherDebugInterfaceWindow
 	}
 
 	UFUNCTION()
-	void SearchChanged(UFeatherSearchBox SearchBox, const TArray<FString>& SearchTokens, bool bSearchWasFinalized)
+	void SearchChanged(UFeatherSearchBox ChangedSearchBox, const TArray<FString>& SearchTokens, bool bSearchWasFinalized)
 	{
 		if(bOnlyRegenerateSearchOnCommit == bSearchWasFinalized)
 		{

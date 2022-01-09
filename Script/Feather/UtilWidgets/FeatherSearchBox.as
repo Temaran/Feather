@@ -15,7 +15,7 @@ struct FSearchBoxSaveState
 	float QuickSelectFoldoutSize;
 };
 
-event void FSearchChangedEvent(UFeatherSearchBox SearchBox, const TArray<FString>& SearchTokens, bool bSearchWasFinalized);
+event void FSearchChangedEvent(UFeatherSearchBox ChangedSearchBox, const TArray<FString>& SearchTokens, bool bSearchWasFinalized);
 
 class UFeatherSearchBox : UFeatherWidget
 {
@@ -74,9 +74,9 @@ class UFeatherSearchBox : UFeatherWidget
 	}
 
 	UFUNCTION()
-	void SearchChanged(const FText&in SearchText)
+	void SearchChanged(const FText&in ChangedSearchText)
 	{
-		ParseSearchTokens(SearchText.ToString(), LatestSearchTokens);
+		ParseSearchTokens(ChangedSearchText.ToString(), LatestSearchTokens);
 
 		ESlateVisibility SuggestionVisibility = RegenerateSearchSuggestions(LatestSearchTokens)
 				? ESlateVisibility::Visible : ESlateVisibility::Collapsed;
@@ -90,7 +90,7 @@ class UFeatherSearchBox : UFeatherWidget
 	}
 
 	UFUNCTION()
-	void FinalizeSearch(const FText&in SearchText, ETextCommit CommitMethod)
+	void FinalizeSearch(const FText&in FinalizedSearchText, ETextCommit CommitMethod)
 	{
 		if(CommitMethod == ETextCommit::OnEnter)
 		{
@@ -98,7 +98,7 @@ class UFeatherSearchBox : UFeatherWidget
 		}
 
 		TArray<FString> SearchTokens;
-		ParseSearchTokens(SearchText.ToString(), SearchTokens);
+		ParseSearchTokens(FinalizedSearchText.ToString(), SearchTokens);
 
 		OnSearchChanged.Broadcast(this, SearchTokens, true);
 	}
@@ -120,11 +120,11 @@ class UFeatherSearchBox : UFeatherWidget
 		}
 	}
 
-	void ParseSearchTokens(FString SearchText, TArray<FString>& OutSearchTokens)
+	void ParseSearchTokens(FString SearchTextToParse, TArray<FString>& OutSearchTokens)
 	{
 		OutSearchTokens.Empty();
 
-		FString Corpus = SearchText;
+		FString Corpus = SearchTextToParse;
 		FString LeftChop;
 		FString RightChop;
 		while(Corpus.Split(",", LeftChop, RightChop)

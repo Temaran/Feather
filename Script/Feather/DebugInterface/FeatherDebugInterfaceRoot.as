@@ -83,7 +83,7 @@ class UFeatherDebugInterfaceRoot : UFeatherRoot
 		// Force load classes
 		for(const FForceLoadPathDefinition& ForceLoadPath : ForceLoadPaths)
 		{
-			AssetRegistry::LoadAllBlueprintsUnderPath(ForceLoadPath.ForceLoadPath, ForceLoadPath.Opt_ForceLoadPathRegexThatMustMatchToIncludeFile);
+			AssetRegistry::LoadAllBlueprintsUnderPath(ForceLoadPath.ForceLoadPath, ForceLoadPath.Opt_ForceLoadPathRegexThatMustMatchToIncludeFile.ToString());
 		}
 
 		// Initialize windows
